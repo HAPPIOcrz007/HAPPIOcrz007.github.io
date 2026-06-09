@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Harshvardhan Rathod</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --y:#F5C518;
+  --y-dim:rgba(245,197,24,0.12);
+  --y-glow:rgba(245,197,24,0.06);
+}
+
+[data-theme="dark"]{
+  --bg:#0D0D0D;
+  --bg2:#111111;
+  --bg3:#161616;
+  --card:#141414;
+  --border:#222222;
+  --border2:#2a2a2a;
+  --text:#F5F5F5;
+  --dim:#888888;
+  --muted:#555555;
+  --invert:0;
+}
+[data-theme="light"]{
+  --bg:#FAFAFA;
+  --bg2:#F2F2F2;
+  --bg3:#EBEBEB;
+  --card:#FFFFFF;
+  --border:#DCDCDC;
+  --border2:#C8C8C8;
+  --text:#0D0D0D;
+  --dim:#555555;
+  --muted:#999999;
+  --invert:1;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  overflow-x:hidden;
+  transition:background 0.25s,color 0.25s;
+}
+
+/* ── SCANLINE OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;pointer-events:none;z-index:999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.015) 2px,rgba(0,0,0,0.015) 4px);
+}
+[data-theme="light"] body::before{opacity:0}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(1.5rem,5vw,4rem);height:56px;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.8rem;color:var(--y);
+  text-decoration:none;letter-spacing:0.05em;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.nav-logo::before{content:'>';color:var(--muted)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem;color:var(--dim);
+  text-decoration:none;letter-spacing:0.08em;
+  text-transform:uppercase;transition:color 0.15s;
+}
+.nav-links a:hover{color:var(--y)}
+.nav-right{display:flex;align-items:center;gap:1.2rem}
+.theme-btn{
+  background:none;border:1px solid var(--border);
+  color:var(--dim);cursor:pointer;
+  width:34px;height:34px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;transition:all 0.15s;
+}
+.theme-btn:hover{border-color:var(--y);color:var(--y)}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:100px clamp(1.5rem,5vw,4rem) 80px;
+  position:relative;overflow:hidden;
+}
+.grid-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 70% 70% at 100% 50%,rgba(0,0,0,0.5) 0%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 100% 50%,rgba(0,0,0,0.5) 0%,transparent 70%);
+}
+.hero-inner{
+  max-width:1100px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center;
+}
+.hero-left{}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem;color:var(--y);
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.hero-eyebrow::after{
+  content:'';display:block;
+  width:40px;height:1px;background:var(--y);opacity:0.5;
+}
+h1.hero-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(3rem,6.5vw,5.2rem);
+  font-weight:700;line-height:1.02;
+  letter-spacing:-0.04em;color:var(--text);
+  margin-bottom:1.2rem;
+}
+.hero-name .accent{color:var(--y)}
+.hero-tagline{
+  font-size:clamp(0.9rem,1.8vw,1.05rem);
+  color:var(--dim);font-weight:400;
+  max-width:520px;margin-bottom:2.5rem;
+  line-height:1.8;
+}
+.hero-stats{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  margin-bottom:2.5rem;
+  padding:1.25rem 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.stat-item{display:flex;flex-direction:column;gap:0.2rem}
+.stat-value{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.4rem;font-weight:700;color:var(--text);
+}
+.stat-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem;color:var(--muted);
+  letter-spacing:0.1em;text-transform:uppercase;
+}
+.hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+
+/* ── AVATAR ── */
+.hero-avatar-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+}
+.avatar-frame{
+  width:200px;height:200px;
+  border:2px solid var(--border2);
+  position:relative;
+  overflow:hidden;
+}
+.avatar-frame::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;
+  height:3px;background:var(--y);z-index:2;
+}
+.avatar-frame img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  filter:grayscale(100%) contrast(1.1);
+  transition:filter 0.3s;
+}
+.avatar-frame:hover img{filter:grayscale(60%) contrast(1.05)}
+.avatar-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem;color:var(--muted);
+  letter-spacing:0.1em;text-transform:uppercase;
+  text-align:center;
+}
+.avatar-status{
+  display:flex;align-items:center;gap:0.4rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem;color:var(--y);
+  letter-spacing:0.08em;
+}
+.status-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--y);
+  box-shadow:0 0 6px var(--y);
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── BTNS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.65rem 1.4rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.72rem;font-weight:500;
+  letter-spacing:0.06em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;border:none;
+  transition:all 0.15s;
+}
+.btn-primary{
+  background:var(--y);color:#000;border:1px solid var(--y);
+}
+.btn-primary:hover{background:transparent;color:var(--y)}
+.btn-ghost{
+  background:transparent;color:var(--dim);
+  border:1px solid var(--border2);
+}
+.btn-ghost:hover{border-color:var(--y);color:var(--y)}
+
+/* ── SECTIONS ── */
+section{padding:90px clamp(1.5rem,5vw,4rem)}
+section:nth-child(even){background:var(--bg2)}
+.container{max-width:1100px;margin:0 auto}
+
+.sec-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;color:var(--y);
+  letter-spacing:0.15em;text-transform:uppercase;
+  margin-bottom:0.6rem;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.sec-label::before{content:'//'}
+.sec-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.6rem,3vw,2.2rem);
+  font-weight:700;letter-spacing:-0.025em;
+  color:var(--text);margin-bottom:3rem;
+}
+
+/* ── PROJECT CARDS ── */
+.projects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+}
+.project-card{
+  background:var(--card);
+  padding:2rem;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  transition:background 0.2s;
+}
+.project-card::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;background:var(--y);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 0.3s ease;
+}
+.project-card:hover{background:var(--bg3)}
+.project-card:hover::after{transform:scaleX(1)}
+.proj-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem}
+.proj-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;
+}
+.proj-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.2rem 0.6rem;
+  background:var(--y-dim);color:var(--y);
+  border:1px solid rgba(245,197,24,0.2);
+}
+.proj-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:600;
+  color:var(--text);margin-bottom:0.75rem;letter-spacing:-0.01em;
+}
+.proj-desc{
+  font-size:0.85rem;color:var(--dim);
+  line-height:1.7;margin-bottom:1.5rem;flex:1;
+}
+.proj-tech{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:auto}
+.tech-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem;color:var(--muted);
+  border:1px solid var(--border2);
+  padding:0.2rem 0.55rem;
+}
+
+/* ── SKILLS ── */
+.skills-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+}
+.skill-group{
+  background:var(--card);
+  padding:1.75rem;
+}
+.skill-group-hdr{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem;color:var(--y);
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:1rem;padding-bottom:0.75rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.skill-group-hdr::before{content:'_';color:var(--muted)}
+.skill-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem}
+.skill-list li{
+  font-size:0.85rem;color:var(--dim);
+  display:flex;align-items:center;gap:0.6rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+}
+.skill-list li::before{
+  content:'→';color:var(--y);font-size:0.6rem;flex-shrink:0;
+}
+
+/* ── ACHIEVEMENTS ── */
+.ach-grid{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border)}
+.ach-item{
+  background:var(--card);
+  padding:1.5rem 2rem;
+  display:grid;
+  grid-template-columns:90px 1fr;
+  gap:1.5rem;align-items:center;
+  transition:background 0.15s;
+}
+.ach-item:hover{background:var(--bg3)}
+.ach-rank{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.8rem;font-weight:700;
+  color:var(--y);line-height:1;
+  border-right:1px solid var(--border);
+  padding-right:1.5rem;
+}
+.ach-title{
+  font-size:0.9rem;font-weight:500;
+  color:var(--text);margin-bottom:0.3rem;
+}
+.ach-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;color:var(--muted);letter-spacing:0.03em;
+}
+
+/* ── CONTACT ── */
+#contact{background:var(--bg)}
+.contact-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;
+  align-items:start;
+}
+.contact-intro{
+  font-size:0.9rem;color:var(--dim);line-height:1.8;
+  margin-bottom:2rem;
+}
+.contact-links{display:flex;flex-direction:column;gap:2px}
+.contact-link{
+  display:grid;grid-template-columns:80px 1fr auto;
+  align-items:center;gap:1rem;
+  padding:1rem 1.2rem;
+  background:var(--card);
+  border:1px solid var(--border);
+  margin-bottom:-1px;
+  text-decoration:none;color:inherit;
+  transition:border-color 0.15s,background 0.15s;
+}
+.contact-link:hover{border-color:var(--y);background:var(--bg3);z-index:1;position:relative}
+.cl-key{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.1em;
+}
+.cl-val{font-size:0.83rem;color:var(--dim)}
+.cl-arrow{color:var(--muted);font-size:0.75rem}
+.contact-link:hover .cl-arrow{color:var(--y)}
+
+/* ── FOOTER ── */
+footer{
+  padding:1.5rem clamp(1.5rem,5vw,4rem);
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+footer p{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem;color:var(--muted);
+}
+.footer-sig{color:var(--y)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hero-inner{grid-template-columns:1fr}
+  .hero-avatar-wrap{order:-1;align-items:flex-start;flex-direction:row;gap:1.5rem}
+  .avatar-frame{width:100px;height:100px}
+  .contact-wrap{grid-template-columns:1fr}
+  .ach-item{grid-template-columns:70px 1fr}
+  section{padding:60px clamp(1.5rem,5vw,4rem)}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo">hmr_portfolio</a>
+  <ul class="nav-links">
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#achievements">achievements</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" aria-label="Toggle theme">☾</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-inner container">
+    <div class="hero-left">
+      <p class="hero-eyebrow">B.Tech ECE · MITWPU, Pune</p>
+      <h1 class="hero-name">Harshvardhan<br><span class="accent">Rathod</span></h1>
+      <p class="hero-tagline">
+        Systems engineer focused on low-latency programming, memory management,
+        and OS-level optimisation — with a strong competitive programming foundation.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value">980+</span>
+          <span class="stat-label">Codeforces</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">1300+</span>
+          <span class="stat-label">CodeChef (2★)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">380+</span>
+          <span class="stat-label">Problems Solved</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">8.88</span>
+          <span class="stat-label">SGPA (Sem I)</span>
+        </div>
+      </div>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn btn-primary">Contact me ↗</a>
+        <a href="https://github.com/HAPPIOcrz007" target="_blank" class="btn btn-ghost">GitHub →</a>
+        <a href="https://linkedin.com/in/harshvardhan-rathod" target="_blank" class="btn btn-ghost">LinkedIn →</a>
+      </div>
+    </div>
+    <div class="hero-avatar-wrap">
+      <div class="avatar-frame">
+        <img
+          src="https://avatars.githubusercontent.com/HAPPIOcrz007"
+          alt="Harshvardhan Rathod"
+          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23161616\' width=\'200\' height=\'200\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'monospace\' font-size=\'52\' fill=\'%23F5C518\' text-anchor=\'middle\' dy=\'.3em\'%3EHR%3C/text%3E%3C/svg%3E'"
+        />
+      </div>
+      <div>
+        <div class="avatar-label">Harshvardhan Rathod</div>
+        <div class="avatar-status">
+          <span class="status-dot"></span>
+          available for internships
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <p class="sec-label">Work</p>
+    <h2 class="sec-title">Projects</h2>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="proj-header">
+          <span class="proj-num">01</span>
+          <span class="proj-tag">2026 · Active</span>
+        </div>
+        <h3 class="proj-title">Stock Market Edge Simulator</h3>
+        <p class="proj-desc">
+          High-performance exchange simulator with a multithreaded matching engine and lock-free order processing.
+          Memory-managed order book following a small-pipe architecture to minimise cache misses.
+          Targets sub-microsecond latency via CPU affinity, NUMA awareness, and kernel bypass concepts.
+        </p>
+        <div class="proj-tech">
+          <span class="tech-tag">C++</span>
+          <span class="tech-tag">Multithreading</span>
+          <span class="tech-tag">Lock-free</span>
+          <span class="tech-tag">NUMA</span>
+          <span class="tech-tag">OS Optimisation</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-header">
+          <span class="proj-num">02</span>
+          <span class="proj-tag">Industry · NDA</span>
+        </div>
+        <h3 class="proj-title">Physics & Optics Analysis Tool</h3>
+        <p class="proj-desc">
+          Recruited directly at Pravii Technologies to build a simulation tool for optical systems
+          with matrix-based computations. Architecting matrix optimisation pipelines with OS-level
+          and memory management tuning for constrained hardware and real-time scientific workloads.
+        </p>
+        <div class="proj-tech">
+          <span class="tech-tag">Low-Latency</span>
+          <span class="tech-tag">Matrix Optimisation</span>
+          <span class="tech-tag">Memory Management</span>
+          <span class="tech-tag">Systems</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="proj-header">
+          <span class="proj-num">03</span>
+          <span class="proj-tag">2025–26 · Adopted</span>
+        </div>
+        <h3 class="proj-title">4×4 Register Read/Write Controller</h3>
+        <p class="proj-desc">
+          Custom PCB implementing a 4×4 memory register array using 74-series TTL ICs with
+          synchronous read/write and asynchronous clear (PIPO architecture). Finalist at the
+          college hardware hackathon — now adopted as an official learning kit for junior-year
+          digital electronics students.
+        </p>
+        <div class="proj-tech">
+          <span class="tech-tag">74-Series TTL</span>
+          <span class="tech-tag">PCB Design</span>
+          <span class="tech-tag">PIPO</span>
+          <span class="tech-tag">Digital Electronics</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <p class="sec-label">Expertise</p>
+    <h2 class="sec-title">Technical Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-group">
+        <p class="skill-group-hdr">Languages</p>
+        <ul class="skill-list">
+          <li>C++ (primary)</li>
+          <li>C</li>
+          <li>Python</li>
+          <li>Java</li>
+          <li>SQL</li>
+          <li>HTML / CSS / JS</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-hdr">Systems</p>
+        <ul class="skill-list">
+          <li>Low-Latency Programming</li>
+          <li>Memory Management</li>
+          <li>OS Optimisation</li>
+          <li>Multithreading</li>
+          <li>Lock-free Data Structures</li>
+          <li>NUMA / CPU Affinity</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-hdr">Hardware</p>
+        <ul class="skill-list">
+          <li>Digital Electronics</li>
+          <li>PCB Design</li>
+          <li>TTL IC Logic</li>
+          <li>PIPO Architecture</li>
+          <li>Optical Systems</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-hdr">Tools</p>
+        <ul class="skill-list">
+          <li>Linux / Bash</li>
+          <li>Git</li>
+          <li>VS Code</li>
+          <li>Android Studio</li>
+          <li>Jenkins</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-hdr">Competitive Programming</p>
+        <ul class="skill-list">
+          <li>Codeforces (980+)</li>
+          <li>CodeChef (1300+, 2★)</li>
+          <li>LeetCode</li>
+          <li>CSES</li>
+          <li>AlgoZenith Premium</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <p class="skill-group-hdr">Leadership</p>
+        <ul class="skill-list">
+          <li>Head of Management</li>
+          <li>Budget & Finance</li>
+          <li>Event Coordination</li>
+          <li>Tripartite Comms</li>
+          <li>100-member club</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements">
+  <div class="container">
+    <p class="sec-label">Recognition</p>
+    <h2 class="sec-title">Achievements</h2>
+    <div class="ach-grid">
+      <div class="ach-item">
+        <div class="ach-rank">76</div>
+        <div>
+          <p class="ach-title">Code Uncode — Inter-collegiate CP Contest</p>
+          <p class="ach-sub">2000+ participants · COEP Pune, SPIT & DJSCE Mumbai · Finals qualifier</p>
+        </div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-rank">76</div>
+        <div>
+          <p class="ach-title">Impulse — CP Contest · Scaler School of Technology</p>
+          <p class="ach-sub">759 teams · Bengaluru · Finals qualifier</p>
+        </div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-rank">★★</div>
+        <div>
+          <p class="ach-title">Head of Management — CODEC Club, MITWPU</p>
+          <p class="ach-sub">100-member club · Co-hosted Trifecta (250+ participants) · AlgoZenith & Prism Labs partnerships</p>
+        </div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-rank">Kit</div>
+        <div>
+          <p class="ach-title">PCB Project Adopted as College Learning Kit</p>
+          <p class="ach-sub">Official learning resource for digital electronics · Hardware hackathon finalist</p>
+        </div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-rank">8.88</div>
+        <div>
+          <p class="ach-title">SGPA — Semester I, B.Tech ECE</p>
+          <p class="ach-sub">MIT World Peace University · Scholarship recipient · AlgoZenith college-funded access</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <p class="sec-label">Get in Touch</p>
+    <h2 class="sec-title">Contact</h2>
+    <div class="contact-wrap">
+      <div>
+        <p class="contact-intro">
+          Open to internship opportunities, research collaborations, and conversations
+          about low-latency systems, competitive programming, or systems engineering.
+          I respond within 24 hours.
+        </p>
+        <a href="mailto:hmr280606@gmail.com" class="btn btn-primary">Send an Email ↗</a>
+      </div>
+      <div class="contact-links">
+        <a href="mailto:hmr280606@gmail.com" class="contact-link">
+          <span class="cl-key">email</span>
+          <span class="cl-val">hmr280606@gmail.com</span>
+          <span class="cl-arrow">↗</span>
+        </a>
+        <a href="tel:+917709285391" class="contact-link">
+          <span class="cl-key">phone</span>
+          <span class="cl-val">+91 77092 85391</span>
+          <span class="cl-arrow">↗</span>
+        </a>
+        <a href="https://linkedin.com/in/harshvardhan-rathod" target="_blank" class="contact-link">
+          <span class="cl-key">linkedin</span>
+          <span class="cl-val">harshvardhan-rathod</span>
+          <span class="cl-arrow">↗</span>
+        </a>
+        <a href="https://github.com/HAPPIOcrz007" target="_blank" class="contact-link">
+          <span class="cl-key">github</span>
+          <span class="cl-val">HAPPIOcrz007</span>
+          <span class="cl-arrow">↗</span>
+        </a>
+        <a href="https://codeforces.com/profile/Harshvardhan_Rathod" target="_blank" class="contact-link">
+          <span class="cl-key">codeforces</span>
+          <span class="cl-val">Harshvardhan Rathod · 980+</span>
+          <span class="cl-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 <span class="footer-sig">Harshvardhan Rathod</span></p>
+  <p>MITWPU · Pune, India</p>
+</footer>
+
+<script>
+function toggleTheme(){
+  const html=document.documentElement;
+  const btn=document.getElementById('themeBtn');
+  if(html.dataset.theme==='dark'){
+    html.dataset.theme='light';
+    btn.textContent='☀';
+  }else{
+    html.dataset.theme='dark';
+    btn.textContent='☾';
+  }
+}
+</script>
+</body>
+</html>

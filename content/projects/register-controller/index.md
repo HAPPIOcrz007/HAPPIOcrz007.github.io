@@ -1,4 +1,4 @@
-# 4×4 Register Read/Write Controller
+# [link ➽](https://github.com/HAPPIOcrz007/4-x-4-Registor-RWC)
 
 A custom PCB implementing a 4×4 memory register array entirely from **74-series TTL ICs** — no microcontrollers, no FPGAs. Pure combinational and sequential logic.
 

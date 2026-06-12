@@ -21,7 +21,7 @@ window.DATA_SITE = {
   contact: {
     intro: "Open to internship opportunities, research collaborations, and discussions on systems programming, hardware design, or competitive programming. I respond within 24 hours.",
     emails: [
-      { label: "primary", address: "hmr280606@gmail.com" }
+      { label: "primary", address: "harshvardhan.rathod.in@gmail.com" }
     ],
     phones: [
       { label: "mobile", number: "+91 77092 85391" }

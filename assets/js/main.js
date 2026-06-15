@@ -1,8 +1,3 @@
-/* ============================================
-   Portfolio — Dynamic loader
-   All content sourced from /data/*.json and /content/**/*.md
-   ============================================ */
-
 const $ = (sel) => document.querySelector(sel);
 const el = (tag, attrs = {}, html = '') => {
   const e = document.createElement(tag);

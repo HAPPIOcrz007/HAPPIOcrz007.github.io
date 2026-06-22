@@ -4,35 +4,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- SEO -->
+  <meta name="description" content="Portfolio of Harshvardhan Rathod — showcasing progress in C++, Linux, Python, and finance, plus projects in trading systems and competitive programming." />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Harshvardhan Rathod — Portfolio" />
-  <meta property="og:description"
-    content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
+  <meta property="og:description" content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
   <meta property="og:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
   <meta property="og:url" content="https://happiocrz007.github.io" />
   <meta property="og:type" content="website" />
-  <meta name="description"
-    content="Portfolio of Harshvardhan Rathod — showcasing progress in C++, Linux, Python, and finance, plus projects in trading systems and competitive programming." />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Harshvardhan Rathod — Portfolio" />
-  <meta name="twitter:description"
-    content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
-  <meta name="twitter:image" content="https://happiocrz007.github.io/assets/preview.png" />
-
   <meta property="og:site_name" content="Harshvardhan Rathod Portfolio" />
 
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Harshvardhan Rathod — Portfolio" />
+  <meta name="twitter:description" content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
+  <meta name="twitter:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
+
   <title>Harshvardhan Rathod | Systems Engineer</title>
+
+  <!-- Fonts — single load -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 
 <body>
+
+  <!-- ===== NAV ===== -->
   <nav>
     <a href="#hero" class="nav-logo">Hi again</a>
     <ul class="nav-links">
@@ -43,11 +45,12 @@
       <li><a href="#contact">contact</a></li>
     </ul>
     <div class="nav-right">
-      <button class="theme-btn" id="themeBtn">☾</button>
-      <a href="#" id="resumeBtn" class="btn btn-ghost">📄 Resume</a>
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
+      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost" target="_blank" rel="noopener">📄 Resume</a>
     </div>
   </nav>
 
+  <!-- ===== HERO ===== -->
   <section id="hero">
     <div class="grid-bg"></div>
     <div class="hero-inner container">
@@ -61,15 +64,21 @@
         <div id="heroCtas" class="hero-ctas"></div>
       </div>
       <div class="hero-avatar-wrap">
-        <div class="avatar-frame"><img id="profileImg" src="assets/images/profile.png" alt="profile" /></div>
+        <div class="avatar-frame">
+          <img id="profileImg" src="assets/images/profile.png" alt="profile" />
+        </div>
         <div>
           <div class="avatar-label" id="avatarLabel"></div>
-          <div class="avatar-status"><span class="status-dot"></span><span id="avatarStatus"></span></div>
+          <div class="avatar-status">
+            <span class="status-dot"></span>
+            <span id="avatarStatus"></span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- ===== PROJECTS ===== -->
   <section id="projects">
     <div class="container">
       <p class="sec-label">Work</p>
@@ -79,6 +88,8 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== SKILLS ===== -->
   <section id="skills">
     <div class="container">
       <p class="sec-label">Expertise</p>
@@ -88,6 +99,8 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== ACHIEVEMENTS ===== -->
   <section id="achievements">
     <div class="container">
       <p class="sec-label">Recognition</p>
@@ -97,6 +110,8 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== CERTIFICATES ===== -->
   <section id="certificates">
     <div class="container">
       <p class="sec-label">Credentials</p>
@@ -106,6 +121,8 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== CONTACT ===== -->
   <section id="contact">
     <div class="container">
       <p class="sec-label">Get in Touch</p>
@@ -116,241 +133,33 @@
     </div>
   </section>
 
+  <!-- ===== FOOTER ===== -->
   <footer>
     <p>© <span id="footerYear"></span> <span class="footer-sig" id="footerName"></span></p>
     <p id="footerLocation"></p>
   </footer>
 
-  <div id="modal" class="modal">
+  <!-- ===== MODAL ===== -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="modalTitle"></h3><button class="modal-close" id="modalClose">×</button>
+        <h3 id="modalTitle"></h3>
+        <button class="modal-close" id="modalClose" aria-label="Close modal">×</button>
       </div>
       <div id="modalCarousel" class="carousel"></div>
       <div id="modalBody" class="md-content"></div>
     </div>
   </div>
 
-  <!-- Data JS files -->
+  <!-- ===== DATA ===== -->
   <script src="data/site.js"></script>
   <script src="data/skills.js"></script>
   <script src="data/achievements.js"></script>
   <script src="data/projects.js"></script>
   <script src="data/certificates.js"></script>
 
-  <script>
-    // ========== Helper: Color code markdown ==========
-    // converts syntax: =(#RRGGBB)text=  -> <span style="color:#RRGGBB">text</span>
-    function applyColorCodes(md) {
-      if (!md) return '';
-      // Regex to match =(#hex)content=
-      // matches: =(#FF0000)Red text=
-      const regex = /=\(#([A-Fa-f0-9]{6})\)(.*?)=/gs;
-      return md.replace(regex, (match, hex, content) => {
-        return `<span style="color:#${hex}">${content}</span>`;
-      });
-    }
+  <!-- ===== APP ===== -->
+  <script src="assets/js/main.js"></script>
 
-    // ========== Markdown renderer with color support ==========
-    function renderMarkdown(md) {
-      if (!md) return '';
-      let html = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      // Apply custom color codes first
-      html = applyColorCodes(html);
-      // code blocks
-      html = html.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c}</code></pre>`);
-      // headings
-      html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>').replace(/^## (.*)$/gm, '<h2>$1</h2>').replace(/^# (.*)$/gm, '<h1>$1</h1>');
-      // bold, italic, inline code
-      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`([^`]+?)`/g, '<code>$1</code>');
-      // links
-      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-      // unordered lists
-      html = html.replace(/(^|\n)([-*] .+(?:\n[-*] .+)*)/g, (_, pre, block) => {
-        const items = block.split('\n').map(l => l.replace(/^[-*] /, '')).map(li => `<li>${li}</li>`).join('');
-        return `${pre}<ul>${items}</ul>`;
-      });
-      // paragraphs
-      html = html.split(/\n{2,}/).map(chunk => {
-        if (/^\s*<(h\d|ul|ol|pre|blockquote)/.test(chunk)) return chunk;
-        return `<p>${chunk.replace(/\n/g, '<br>')}</p>`;
-      }).join('\n');
-      return html;
-    }
-
-    // ========== Fetch text helper ==========
-    const fetchText = async (url) => {
-      try { const res = await fetch(url); return res.ok ? await res.text() : null; } catch { return null; }
-    };
-
-    // ========== Theme ==========
-    const initTheme = () => {
-      const saved = localStorage.getItem('theme') || 'dark';
-      document.documentElement.dataset.theme = saved;
-      const btn = document.getElementById('themeBtn');
-      btn.textContent = saved === 'dark' ? '☾' : '☀';
-      btn.addEventListener('click', () => {
-        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-        document.documentElement.dataset.theme = next;
-        btn.textContent = next === 'dark' ? '☾' : '☀';
-        localStorage.setItem('theme', next);
-      });
-    };
-
-    // ========== Modal ==========
-    const modal = {
-      root: null, title: null, carousel: null, body: null, images: [], index: 0,
-      init() {
-        this.root = document.getElementById('modal');
-        this.title = document.getElementById('modalTitle');
-        this.carousel = document.getElementById('modalCarousel');
-        this.body = document.getElementById('modalBody');
-        document.getElementById('modalClose').addEventListener('click', () => this.close());
-        this.root.addEventListener('click', (e) => { if (e.target === this.root) this.close(); });
-        document.addEventListener('keydown', (e) => {
-          if (!this.root.classList.contains('open')) return;
-          if (e.key === 'Escape') this.close();
-          if (e.key === 'ArrowLeft') this.prev();
-          if (e.key === 'ArrowRight') this.next();
-        });
-      },
-      open(title, images, mdHtml) {
-        this.title.textContent = title;
-        this.images = images.filter(Boolean);
-        this.index = 0;
-        this.renderCarousel();
-        this.body.innerHTML = mdHtml || '';
-        this.root.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      },
-      close() { this.root.classList.remove('open'); document.body.style.overflow = ''; },
-      prev() { if (this.images.length) { this.index = (this.index - 1 + this.images.length) % this.images.length; this.renderCarousel(); } },
-      next() { if (this.images.length) { this.index = (this.index + 1) % this.images.length; this.renderCarousel(); } },
-      renderCarousel() {
-        if (!this.images.length) { this.carousel.innerHTML = ''; return; }
-        this.carousel.innerHTML = `
-        <img src="${this.images[this.index]}" alt="preview" onerror="this.style.opacity='0.5'"/>
-        ${this.images.length > 1 ? `
-          <button class="carousel-btn prev">‹</button>
-          <button class="carousel-btn next">›</button>
-          <div class="carousel-count">${this.index + 1} / ${this.images.length}</div>` : ''}
-      `;
-        this.carousel.querySelector('.prev')?.addEventListener('click', () => this.prev());
-        this.carousel.querySelector('.next')?.addEventListener('click', () => this.next());
-      },
-    };
-
-    // ========== Render all sections ==========
-    function renderPortfolio() {
-      const site = window.DATA_SITE;
-      if (site) {
-        document.title = `${site.name} | ${site.title}`;
-        document.getElementById('heroEyebrow').textContent = site.eyebrow;
-        const nameParts = site.name.split(' ');
-        document.getElementById('heroName').innerHTML = nameParts.map((w, i) => i === nameParts.length - 1 ? `<span class="accent">${w}</span>` : w).join('<br>');
-        document.getElementById('heroTagline').textContent = site.tagline;
-        document.getElementById('profileImg').src = site.profileImage || 'assets/images/profile.png';
-        document.getElementById('avatarLabel').textContent = site.name;
-        document.getElementById('avatarStatus').textContent = site.availability;
-        document.getElementById('footerName').textContent = site.name;
-        document.getElementById('footerLocation').textContent = site.footerLocation;
-        document.getElementById('footerYear').textContent = new Date().getFullYear();
-
-        const statsEl = document.getElementById('heroStats');
-        if (site.stats) statsEl.innerHTML = site.stats.map(s => `<div class="stat"><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
-        const ctaEl = document.getElementById('heroCtas');
-        if (site.ctas) ctaEl.innerHTML = site.ctas.map(c => `<a href="${c.url}" class="btn btn-${c.type === 'primary' ? 'primary' : 'ghost'}" ${c.url.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}>${c.label} →</a>`).join('');
-
-        const contactWrap = document.getElementById('contactWrap');
-        if (site.contact) {
-          const c = site.contact;
-          contactWrap.innerHTML = `
-          <div><p class="contact-intro">${c.intro || ''}</p></div>
-          <div class="contact-list">
-            ${(c.emails || []).map(e => `<a class="contact-row" href="mailto:${e.address}"><span class="contact-label">${e.label}</span><span class="contact-value">${e.address}</span></a>`).join('')}
-            ${(c.phones || []).map(p => `<a class="contact-row" href="tel:${p.number.replace(/\s/g, '')}"><span class="contact-label">${p.label}</span><span class="contact-value">${p.number}</span></a>`).join('')}
-            ${(c.links || []).map(l => `<a class="contact-row" href="${l.url}" target="_blank"><span class="contact-label">${l.platform}</span><span class="contact-value">${l.handle} ↗</span></a>`).join('')}
-          </div>
-        `;
-        }
-      }
-
-      // Skills
-      const skills = window.DATA_SKILLS;
-      if (skills?.length) {
-        document.getElementById('skillsContainer').innerHTML = skills.map(s => `
-        <div class="skill-card"><div class="skill-cat">${s.category}</div><div class="skill-items">${(s.items || []).map(i => `<span class="skill-pill">${i}</span>`).join('')}</div></div>
-      `).join('');
-      } else document.getElementById('skillsContainer').innerHTML = '<div class="loading">No skills data</div>';
-
-      // Achievements
-      const achievements = window.DATA_ACHIEVEMENTS;
-      if (achievements?.length) {
-        document.getElementById('achievementsContainer').innerHTML = achievements.map(a => `
-        <div class="ach-item"><div class="ach-rank">${a.rank}</div><div><div class="ach-title">${a.title}</div><div class="ach-desc">${a.desc}</div></div></div>
-      `).join('');
-      } else document.getElementById('achievementsContainer').innerHTML = '<div class="loading">No achievements</div>';
-
-      // Projects
-      const projects = window.DATA_PROJECTS;
-      const projectsContainer = document.getElementById('projectsGrid');
-      if (projects?.length) {
-        projectsContainer.innerHTML = projects.map(p => {
-          const thumb = (p.images && p.images[0]) ? p.images[0] : `content/projects/${p.id}/images/01.png`;
-          return `
-          <div class="project-card" data-id="${p.id}">
-            <div class="project-thumb"><img src="${thumb}" alt="${p.title}" onerror="this.parentElement.innerHTML='<div class=&quot;project-thumb-empty&quot;>// preview missing</div>'"></div>
-            <div class="project-body">
-              <div class="project-date">${p.date || ''}</div>
-              <div class="project-title">${p.title}</div>
-              <div class="project-desc">${p.shortDesc || ''}</div>
-              <div class="tech-tags">${(p.tech || []).map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
-            </div>
-          </div>`;
-        }).join('');
-        projects.forEach(p => {
-          const card = document.querySelector(`.project-card[data-id="${p.id}"]`);
-          if (card) card.addEventListener('click', async () => {
-            const md = await fetchText(`content/projects/${p.id}/index.md`);
-            const images = p.images || [`content/projects/${p.id}/images/01.png`];
-            modal.open(p.title, images, renderMarkdown(md || ''));
-          });
-        });
-      } else projectsContainer.innerHTML = '<div class="loading">No projects</div>';
-
-      // Certificates
-      const certificates = window.DATA_CERTIFICATES;
-      const certContainer = document.getElementById('certificatesContainer');
-      if (certificates?.length) {
-        certContainer.innerHTML = certificates.map(c => `
-        <div class="cert-card" data-id="${c.id}">
-          <div class="cert-issuer">${c.issuer || 'Certificate'}</div>
-          <div class="cert-title">${c.title}</div>
-          <div class="cert-date">${c.date || ''}</div>
-        </div>`).join('');
-        certificates.forEach(c => {
-          const card = document.querySelector(`.cert-card[data-id="${c.id}"]`);
-          if (card) card.addEventListener('click', async () => {
-            const md = await fetchText(`content/certificates/${c.id}/index.md`);
-            const imgPath = `content/certificates/${c.id}/01.png`;
-            modal.open(c.title, [imgPath], renderMarkdown(md || c.description || ''));
-          });
-        });
-      } else certContainer.innerHTML = '<div class="loading">No certificates</div>';
-    }
-
-    document.getElementById('resumeBtn').addEventListener('click', (e) => {
-      e.preventDefault();
-      const pdfPath = './assets/docs/Harshvardhan_Rathod_Resume.pdf';
-      window.open(pdfPath, '_blank');
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      modal.init();
-      renderPortfolio();
-    });
-  </script>
 </body>
-
 </html>

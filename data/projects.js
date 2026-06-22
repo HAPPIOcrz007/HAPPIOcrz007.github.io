@@ -6,8 +6,7 @@ window.DATA_PROJECTS = [
     shortDesc: "High‑performance exchange simulator with multithreaded matching engine and lock‑free order processing. Targets sub‑microsecond latency.",
     tech: ["C++", "Multithreading", "Lock-free", "NUMA", "OS Optimisation", "Memory Management"],
     images: [
-      "content/projects/stock-market-simulator/images/01.png",
-      "content/projects/stock-market-simulator/images/02.png"
+      "content/projects/stock-market-simulator/images/01.png"
     ]
   },
   {

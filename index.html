@@ -4,162 +4,274 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  
+  <!-- Security -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
 
   <!-- SEO -->
-  <meta name="description" content="Portfolio of Harshvardhan Rathod — showcasing progress in C++, Linux, Python, and finance, plus projects in trading systems and competitive programming." />
+  <meta name="description" content="Portfolio of Harshvardhan Rathod — Systems Engineer specializing in C++, Linux, Python, and financial trading systems." />
+  <meta name="keywords" content="C++, Linux, Python, Systems Engineer, Trading Systems, Competitive Programming, Portfolio" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://happiocrz007.github.io" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Harshvardhan Rathod — Portfolio" />
-  <meta property="og:description" content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
+  <meta property="og:title" content="Harshvardhan Rathod — Systems Engineer & Developer" />
+  <meta property="og:description" content="Systems engineer building high-performance trading systems and financial applications in C++, Python, and Linux." />
   <meta property="og:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://happiocrz007.github.io" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Harshvardhan Rathod Portfolio" />
+  <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Harshvardhan Rathod — Portfolio" />
-  <meta name="twitter:description" content="Work done in C++, Linux, Python, and finance. Projects in trading systems and competitive programming." />
+  <meta name="twitter:title" content="Harshvardhan Rathod — Systems Engineer" />
+  <meta name="twitter:description" content="Systems engineer building high-performance trading systems and financial applications." />
   <meta name="twitter:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
+  <meta name="twitter:site" content="@yourhandle" />
+  <meta name="twitter:creator" content="@yourhandle" />
+
+  <!-- Theme Color (for mobile browsers) -->
+  <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#F5F5F0" media="(prefers-color-scheme: light)" />
+
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+  <link rel="manifest" href="assets/site.webmanifest" />
 
   <title>Harshvardhan Rathod | Systems Engineer</title>
 
-  <!-- Fonts — single load -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link 
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" 
+    rel="stylesheet" 
+    media="print" 
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  </noscript>
 
   <link rel="stylesheet" href="assets/css/styles.css" />
+  
+  <!-- Preload critical images -->
+  <link rel="preload" as="image" href="assets/images/profile.png" />
 </head>
 
 <body>
 
+  <!-- ===== SKIP LINK (Accessibility) ===== -->
+  <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
+
+  <!-- ===== HEATMAP WATERFALL ===== -->
+  <div class="heatmap-container" id="heatmap" role="complementary" aria-label="Scroll progress indicator">
+    <div class="heatmap-bar" id="heatmapBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Scroll progress"></div>
+    
+    <!-- Label -->
+    <div class="heatmap-label" aria-hidden="true">density</div>
+    
+    <!-- Scroll indicator -->
+    <div class="heatmap-scroll-indicator" id="heatmapIndicator" aria-hidden="true"></div>
+    
+    <!-- Density percentage -->
+    <div class="heatmap-percentage" id="heatmapPercentage">0% density</div>
+    
+    <!-- Density markers -->
+    <div class="heatmap-markers" aria-hidden="true">
+      <div class="heatmap-marker" data-value="0">
+        <span class="dot"></span>
+        <span>start</span>
+      </div>
+      <div class="heatmap-marker" data-value="25">
+        <span class="dot"></span>
+        <span>25%</span>
+      </div>
+      <div class="heatmap-marker" data-value="50">
+        <span class="dot"></span>
+        <span>50%</span>
+      </div>
+      <div class="heatmap-marker" data-value="75">
+        <span class="dot"></span>
+        <span>75%</span>
+      </div>
+      <div class="heatmap-marker" data-value="100">
+        <span class="dot"></span>
+        <span>peak</span>
+      </div>
+    </div>
+    
+    <!-- Floating particles -->
+    <div class="heatmap-particles" id="heatmapParticles" aria-hidden="true"></div>
+  </div>
+
+  <!-- ===== BACKGROUND ===== -->
+  <div class="animated-bg" aria-hidden="true"></div>
+
   <!-- ===== NAV ===== -->
-  <nav>
-    <a href="#hero" class="nav-logo">Hi again</a>
-    <ul class="nav-links">
-      <li><a href="#projects">projects</a></li>
-      <li><a href="#skills">skills</a></li>
-      <li><a href="#achievements">achievements</a></li>
-      <li><a href="#certificates">certs</a></li>
-      <li><a href="#contact">contact</a></li>
+  <nav role="navigation" aria-label="Main navigation">
+    <a href="#hero" class="nav-logo" aria-label="Home">Hi again</a>
+    <ul class="nav-links" role="menubar">
+      <li role="none"><a href="#projects" role="menuitem">projects</a></li>
+      <li role="none"><a href="#skills" role="menuitem">skills</a></li>
+      <li role="none"><a href="#achievements" role="menuitem">achievements</a></li>
+      <li role="none"><a href="#certificates" role="menuitem">certs</a></li>
+      <li role="none"><a href="#contact" role="menuitem">contact</a></li>
     </ul>
     <div class="nav-right">
-      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☾</button>
-      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost" target="_blank" rel="noopener">📄 Resume</a>
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme (dark/light)">☾</button>
+      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost" target="_blank" rel="noopener noreferrer" aria-label="Download resume (PDF)">📄 Resume</a>
     </div>
   </nav>
 
-  <!-- ===== HERO ===== -->
-  <section id="hero">
-    <div class="grid-bg"></div>
-    <div class="hero-inner container">
-      <div>
-        <p class="hero-eyebrow" id="heroEyebrow"></p>
-        <h1 class="hero-name" id="heroName"></h1>
-        <p class="hero-tagline" id="heroTagline"></p>
-        <div id="heroStats" class="hero-stats">
-          <div class="loading">loading stats…</div>
-        </div>
-        <div id="heroCtas" class="hero-ctas"></div>
-      </div>
-      <div class="hero-avatar-wrap">
-        <div class="avatar-frame">
-          <img id="profileImg" src="assets/images/profile.png" alt="profile" />
-        </div>
+  <!-- ===== MAIN CONTENT ===== -->
+  <main id="main-content">
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" aria-labelledby="heroName">
+      <div class="grid-bg" aria-hidden="true"></div>
+      
+      <div class="hero-inner container">
         <div>
-          <div class="avatar-label" id="avatarLabel"></div>
-          <div class="avatar-status">
-            <span class="status-dot"></span>
-            <span id="avatarStatus"></span>
+          <p class="hero-eyebrow" id="heroEyebrow" aria-label="Greeting"></p>
+          <h1 class="hero-name" id="heroName">Harshvardhan <span class="accent">Rathod</span></h1>
+          <p class="hero-tagline" id="heroTagline">Systems Engineer specializing in high-performance computing</p>
+          <div id="heroStats" class="hero-stats">
+            <div class="loading" aria-live="polite">loading stats…</div>
+          </div>
+          <div id="heroCtas" class="hero-ctas"></div>
+        </div>
+        <div class="hero-avatar-wrap">
+          <div class="avatar-frame">
+            <img 
+              id="profileImg" 
+              src="assets/images/profile.png" 
+              alt="Harshvardhan Rathod - Profile photo" 
+              width="320" 
+              height="320"
+              loading="eager"
+            />
+          </div>
+          <div>
+            <div class="avatar-label" id="avatarLabel">Harshvardhan Rathod</div>
+            <div class="avatar-status">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="avatarStatus">Available for opportunities</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== PROJECTS ===== -->
-  <section id="projects">
-    <div class="container">
-      <p class="sec-label">Work</p>
-      <h2 class="sec-title">Projects</h2>
-      <div id="projectsGrid" class="projects-grid">
-        <div class="loading">loading projects…</div>
+    <!-- ===== PROJECTS ===== -->
+    <section id="projects" aria-labelledby="projects-title">
+      <div class="container">
+        <p class="sec-label">Work</p>
+        <h2 class="sec-title" id="projects-title">Projects</h2>
+        <div id="projectsGrid" class="projects-grid">
+          <div class="loading" aria-live="polite">loading projects…</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== SKILLS ===== -->
-  <section id="skills">
-    <div class="container">
-      <p class="sec-label">Expertise</p>
-      <h2 class="sec-title">Technical Skills</h2>
-      <div id="skillsContainer" class="skills-grid">
-        <div class="loading">loading skills…</div>
+    <!-- ===== SKILLS ===== -->
+    <section id="skills" aria-labelledby="skills-title">
+      <div class="container">
+        <p class="sec-label">Expertise</p>
+        <h2 class="sec-title" id="skills-title">Technical Skills</h2>
+        <div id="skillsContainer" class="skills-grid">
+          <div class="loading" aria-live="polite">loading skills…</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== ACHIEVEMENTS ===== -->
-  <section id="achievements">
-    <div class="container">
-      <p class="sec-label">Recognition</p>
-      <h2 class="sec-title">Achievements</h2>
-      <div id="achievementsContainer" class="ach-grid">
-        <div class="loading">loading achievements…</div>
+    <!-- ===== ACHIEVEMENTS ===== -->
+    <section id="achievements" aria-labelledby="achievements-title">
+      <div class="container">
+        <p class="sec-label">Recognition</p>
+        <h2 class="sec-title" id="achievements-title">Achievements</h2>
+        <div id="achievementsContainer" class="ach-grid">
+          <div class="loading" aria-live="polite">loading achievements…</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== CERTIFICATES ===== -->
-  <section id="certificates">
-    <div class="container">
-      <p class="sec-label">Credentials</p>
-      <h2 class="sec-title">Certificates &amp; Awards</h2>
-      <div id="certificatesContainer" class="cert-grid">
-        <div class="loading">loading certificates…</div>
+    <!-- ===== CERTIFICATES ===== -->
+    <section id="certificates" aria-labelledby="certificates-title">
+      <div class="container">
+        <p class="sec-label">Credentials</p>
+        <h2 class="sec-title" id="certificates-title">Certificates &amp; Awards</h2>
+        <div id="certificatesContainer" class="cert-grid">
+          <div class="loading" aria-live="polite">loading certificates…</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ===== CONTACT ===== -->
-  <section id="contact">
-    <div class="container">
-      <p class="sec-label">Get in Touch</p>
-      <h2 class="sec-title">Contact</h2>
-      <div id="contactWrap" class="contact-wrap">
-        <div class="loading">loading contact…</div>
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <p class="sec-label">Get in Touch</p>
+        <h2 class="sec-title" id="contact-title">Contact</h2>
+        <div id="contactWrap" class="contact-wrap">
+          <div class="loading" aria-live="polite">loading contact…</div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+  </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer>
-    <p>© <span id="footerYear"></span> <span class="footer-sig" id="footerName"></span></p>
-    <p id="footerLocation"></p>
+  <footer role="contentinfo">
+    <p>© <span id="footerYear" aria-label="Current year"></span> <span class="footer-sig" id="footerName">Harshvardhan Rathod</span></p>
+    <p id="footerLocation">Building systems, one line at a time</p>
   </footer>
 
   <!-- ===== MODAL ===== -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div 
+    id="modal" 
+    class="modal" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="modalTitle"
+    aria-describedby="modalBody"
+  >
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="modalTitle"></h3>
+        <h3 id="modalTitle">Project Details</h3>
         <button class="modal-close" id="modalClose" aria-label="Close modal">×</button>
       </div>
-      <div id="modalCarousel" class="carousel"></div>
-      <div id="modalBody" class="md-content"></div>
+      <div id="modalCarousel" class="carousel" role="group" aria-label="Image carousel"></div>
+      <div id="modalBody" class="md-content" role="document"></div>
     </div>
   </div>
 
   <!-- ===== DATA ===== -->
-  <script src="data/site.js"></script>
-  <script src="data/skills.js"></script>
-  <script src="data/achievements.js"></script>
-  <script src="data/projects.js"></script>
-  <script src="data/certificates.js"></script>
+  <script src="data/site.js" defer></script>
+  <script src="data/skills.js" defer></script>
+  <script src="data/achievements.js" defer></script>
+  <script src="data/projects.js" defer></script>
+  <script src="data/certificates.js" defer></script>
 
   <!-- ===== APP ===== -->
-  <script src="assets/js/main.js"></script>
-
+  <script src="assets/js/main.js" defer></script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Harshvardhan Rathod",
+  "jobTitle": "Systems Engineer",
+  "url": "https://happiocrz007.github.io",
+  "sameAs": [
+    "https://github.com/yourusername",
+    "https://linkedin.com/in/yourusername"
+  ]
+}
+</script>
 </body>
 </html>

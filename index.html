@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  
+
   <!-- Security -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -16,29 +16,30 @@
   <link rel="canonical" href="https://happiocrz007.github.io" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Harshvardhan Rathod — Systems Engineer & Developer" />
+  <meta property="og:title"       content="Harshvardhan Rathod — Systems Engineer & Developer" />
   <meta property="og:description" content="Systems engineer building high-performance trading systems and financial applications in C++, Python, and Linux." />
-  <meta property="og:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
-  <meta property="og:image:width" content="1200" />
+  <meta property="og:image"       content="https://happiocrz007.github.io/assets/images/preview.png" />
+  <meta property="og:image:width"  content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://happiocrz007.github.io" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Harshvardhan Rathod Portfolio" />
-  <meta property="og:locale" content="en_US" />
+  <meta property="og:url"         content="https://happiocrz007.github.io" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Harshvardhan Rathod Portfolio" />
+  <meta property="og:locale"      content="en_US" />
 
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Harshvardhan Rathod — Systems Engineer" />
+  <!-- FIX #16 — fill in your real Twitter handle or remove these two lines -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Harshvardhan Rathod — Systems Engineer" />
   <meta name="twitter:description" content="Systems engineer building high-performance trading systems and financial applications." />
-  <meta name="twitter:image" content="https://happiocrz007.github.io/assets/images/preview.png" />
-  <meta name="twitter:site" content="@yourhandle" />
-  <meta name="twitter:creator" content="@yourhandle" />
+  <meta name="twitter:image"       content="https://happiocrz007.github.io/assets/images/preview.png" />
+  <!-- <meta name="twitter:site"    content="@yourhandle" /> -->
+  <!-- <meta name="twitter:creator" content="@yourhandle" /> -->
 
-  <!-- Theme Color (for mobile browsers) -->
+  <!-- Theme Color -->
   <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#F5F5F0" media="(prefers-color-scheme: light)" />
 
-  <!-- Apple Touch Icon -->
+  <!-- Icons -->
   <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
@@ -46,13 +47,13 @@
 
   <title>Harshvardhan Rathod | Systems Engineer</title>
 
-  <!-- Fonts -->
+  <!-- Fonts — non-blocking load -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link 
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" 
-    rel="stylesheet" 
-    media="print" 
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+    media="print"
     onload="this.media='all'"
   />
   <noscript>
@@ -60,8 +61,8 @@
   </noscript>
 
   <link rel="stylesheet" href="assets/css/styles.css" />
-  
-  <!-- Preload critical images -->
+
+  <!-- Preload critical LCP image -->
   <link rel="preload" as="image" href="assets/images/profile.png" />
 </head>
 
@@ -73,41 +74,16 @@
   <!-- ===== HEATMAP WATERFALL ===== -->
   <div class="heatmap-container" id="heatmap" role="complementary" aria-label="Scroll progress indicator">
     <div class="heatmap-bar" id="heatmapBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Scroll progress"></div>
-    
-    <!-- Label -->
     <div class="heatmap-label" aria-hidden="true">density</div>
-    
-    <!-- Scroll indicator -->
     <div class="heatmap-scroll-indicator" id="heatmapIndicator" aria-hidden="true"></div>
-    
-    <!-- Density percentage -->
     <div class="heatmap-percentage" id="heatmapPercentage">0% density</div>
-    
-    <!-- Density markers -->
     <div class="heatmap-markers" aria-hidden="true">
-      <div class="heatmap-marker" data-value="0">
-        <span class="dot"></span>
-        <span>start</span>
-      </div>
-      <div class="heatmap-marker" data-value="25">
-        <span class="dot"></span>
-        <span>25%</span>
-      </div>
-      <div class="heatmap-marker" data-value="50">
-        <span class="dot"></span>
-        <span>50%</span>
-      </div>
-      <div class="heatmap-marker" data-value="75">
-        <span class="dot"></span>
-        <span>75%</span>
-      </div>
-      <div class="heatmap-marker" data-value="100">
-        <span class="dot"></span>
-        <span>peak</span>
-      </div>
+      <div class="heatmap-marker" data-value="0"><span class="dot"></span><span>start</span></div>
+      <div class="heatmap-marker" data-value="25"><span class="dot"></span><span>25%</span></div>
+      <div class="heatmap-marker" data-value="50"><span class="dot"></span><span>50%</span></div>
+      <div class="heatmap-marker" data-value="75"><span class="dot"></span><span>75%</span></div>
+      <div class="heatmap-marker" data-value="100"><span class="dot"></span><span>peak</span></div>
     </div>
-    
-    <!-- Floating particles -->
     <div class="heatmap-particles" id="heatmapParticles" aria-hidden="true"></div>
   </div>
 
@@ -118,15 +94,16 @@
   <nav role="navigation" aria-label="Main navigation">
     <a href="#hero" class="nav-logo" aria-label="Home">Hi again</a>
     <ul class="nav-links" role="menubar">
-      <li role="none"><a href="#projects" role="menuitem">projects</a></li>
-      <li role="none"><a href="#skills" role="menuitem">skills</a></li>
+      <li role="none"><a href="#projects"     role="menuitem">projects</a></li>
+      <li role="none"><a href="#skills"       role="menuitem">skills</a></li>
       <li role="none"><a href="#achievements" role="menuitem">achievements</a></li>
       <li role="none"><a href="#certificates" role="menuitem">certs</a></li>
-      <li role="none"><a href="#contact" role="menuitem">contact</a></li>
+      <li role="none"><a href="#contact"      role="menuitem">contact</a></li>
     </ul>
     <div class="nav-right">
       <button class="theme-btn" id="themeBtn" aria-label="Toggle theme (dark/light)">☾</button>
-      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost" target="_blank" rel="noopener noreferrer" aria-label="Download resume (PDF)">📄 Resume</a>
+      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost"
+         target="_blank" rel="noopener noreferrer" aria-label="Download resume (PDF)">📄 Resume</a>
     </div>
   </nav>
 
@@ -136,24 +113,31 @@
     <!-- ===== HERO ===== -->
     <section id="hero" aria-labelledby="heroName">
       <div class="grid-bg" aria-hidden="true"></div>
-      
+
       <div class="hero-inner container">
         <div>
           <p class="hero-eyebrow" id="heroEyebrow" aria-label="Greeting"></p>
-          <h1 class="hero-name" id="heroName">Harshvardhan <span class="accent">Rathod</span></h1>
+
+          <!-- FIX #15 — static markup kept as-is for CLS-free LCP;
+               JS only rewrites innerHTML if data-driven name differs. -->
+          <h1 class="hero-name" id="heroName">
+            Harshvardhan <span class="accent">Rathod</span>
+          </h1>
+
           <p class="hero-tagline" id="heroTagline">Systems Engineer specializing in high-performance computing</p>
           <div id="heroStats" class="hero-stats">
             <div class="loading" aria-live="polite">loading stats…</div>
           </div>
           <div id="heroCtas" class="hero-ctas"></div>
         </div>
+
         <div class="hero-avatar-wrap">
           <div class="avatar-frame">
-            <img 
-              id="profileImg" 
-              src="assets/images/profile.png" 
-              alt="Harshvardhan Rathod - Profile photo" 
-              width="320" 
+            <img
+              id="profileImg"
+              src="assets/images/profile.png"
+              alt="Harshvardhan Rathod - Profile photo"
+              width="320"
               height="320"
               loading="eager"
             />
@@ -233,11 +217,11 @@
   </footer>
 
   <!-- ===== MODAL ===== -->
-  <div 
-    id="modal" 
-    class="modal" 
-    role="dialog" 
-    aria-modal="true" 
+  <div
+    id="modal"
+    class="modal"
+    role="dialog"
+    aria-modal="true"
     aria-labelledby="modalTitle"
     aria-describedby="modalBody"
   >
@@ -252,14 +236,16 @@
   </div>
 
   <!-- ===== DATA ===== -->
-  <script src="data/site.js" defer></script>
-  <script src="data/skills.js" defer></script>
+  <script src="data/site.js"         defer></script>
+  <script src="data/skills.js"       defer></script>
   <script src="data/achievements.js" defer></script>
-  <script src="data/projects.js" defer></script>
+  <script src="data/projects.js"     defer></script>
   <script src="data/certificates.js" defer></script>
 
   <!-- ===== APP ===== -->
   <script src="assets/js/main.js" defer></script>
+
+  <!-- FIX #17 — Schema.org: replace placeholder URLs with real profiles -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -267,11 +253,12 @@
   "name": "Harshvardhan Rathod",
   "jobTitle": "Systems Engineer",
   "url": "https://happiocrz007.github.io",
+  "email": "hmr280606@gmail.com",
   "sameAs": [
-    "https://github.com/yourusername",
-    "https://linkedin.com/in/yourusername"
+    "https://github.com/HAPPIOcrz007"
   ]
 }
-</script>
+  </script>
+
 </body>
 </html>

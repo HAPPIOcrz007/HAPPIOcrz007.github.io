@@ -3,20 +3,20 @@
    ============================================================ */
 
 /* ================================================================
-   SCROLL ANIMATION CONFIG — Apple-style smooth reveal
+   SCROLL ANIMATION CONFIG
 ================================================================ */
-const ANIM_DURATION_MS  = 700;
-const ANIM_STAGGER_MS   = 60;
-const ANIM_STAGGER_MAX  = 350;
-const ANIM_THRESHOLD    = 0.1;
-const ANIM_ROOT_MARGIN  = '0px 0px -80px 0px';
+const ANIM_DURATION_MS = 700;
+const ANIM_STAGGER_MS  = 60;
+const ANIM_STAGGER_MAX = 350;
+const ANIM_THRESHOLD   = 0.1;
+const ANIM_ROOT_MARGIN = '0px 0px -80px 0px';
 
 /* ===== Tiny DOM helpers ===== */
 const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
 
-const escapeHtml = (s = '') => {
-  if (!s) return '';
+/* FIX #6 — guard on `null`/`undefined` only; don't coerce 0/false to '' */
+const escapeHtml = (s) => {
+  if (s == null) return '';
   return String(s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
   );
@@ -26,8 +26,8 @@ async function fetchText(url) {
   try {
     const r = await fetch(url);
     return r.ok ? r.text() : null;
-  } catch (error) {
-    console.warn(`[fetchText] Failed to load ${url}:`, error);
+  } catch (err) {
+    console.warn(`[fetchText] Failed to load ${url}:`, err);
     return null;
   }
 }
@@ -40,46 +40,30 @@ function applyColorCodes(html) {
 
 function renderMarkdown(md) {
   if (!md) return '';
-  
+
   let h = escapeHtml(md);
-  
-  // Custom color codes
   h = applyColorCodes(h);
-  
-  // Code blocks
   h = h.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c.trim()}</code></pre>`);
-  
-  // Headers
   h = h.replace(/^### (.*)$/gm, '<h3>$1</h3>')
-       .replace(/^## (.*)$/gm, '<h2>$1</h2>')
-       .replace(/^# (.*)$/gm, '<h1>$1</h1>');
-  
-  // Inline formatting
+       .replace(/^## (.*)$/gm,  '<h2>$1</h2>')
+       .replace(/^# (.*)$/gm,   '<h1>$1</h1>');
   h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-       .replace(/`([^`]+?)`/g, '<code>$1</code>');
-  
-  // Links
+       .replace(/\*(.+?)\*/g,    '<em>$1</em>')
+       .replace(/`([^`]+?)`/g,   '<code>$1</code>');
   h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  
-  // Lists
   h = h.replace(/(^|\n)((?:[-*] .+\n?)+)/g, (_, pre, block) => {
     const items = block.trim().split('\n')
       .map(l => `<li>${l.replace(/^[-*] /, '').trim()}</li>`).join('');
     return `${pre}<ul>${items}</ul>`;
   });
-  
-  // Paragraphs (with proper handling)
   h = h.split(/\n{2,}/).map(chunk => {
-    const trimmed = chunk.trim();
-    if (!trimmed) return '';
-    if (/^\s*<(h\d|ul|ol|pre|blockquote|table)/.test(trimmed)) {
-      return trimmed;
-    }
-    return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+    const t = chunk.trim();
+    if (!t) return '';
+    if (/^\s*<(h\d|ul|ol|pre|blockquote|table)/.test(t)) return t;
+    return `<p>${t.replace(/\n/g, '<br>')}</p>`;
   }).filter(Boolean).join('\n');
-  
+
   return h;
 }
 
@@ -88,87 +72,80 @@ function initTheme() {
   const saved = localStorage.getItem('theme') || 'dark';
   document.documentElement.dataset.theme = saved;
   const btn = $('#themeBtn');
-  if (btn) {
-    btn.textContent = saved === 'dark' ? '☾' : '☀';
-    btn.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
-      btn.textContent = next === 'dark' ? '☾' : '☀';
-      localStorage.setItem('theme', next);
-      
-      // Dispatch event for other components if needed
-      document.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
-    });
-  }
+  if (!btn) return;
+  btn.textContent = saved === 'dark' ? '☾' : '☀';
+  btn.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    btn.textContent = next === 'dark' ? '☾' : '☀';
+    localStorage.setItem('theme', next);
+    document.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
+  });
 }
 
 /* ===== Modal ===== */
 const modal = {
-  root: null, 
-  title: null, 
-  carousel: null, 
-  body: null,
-  images: [], 
-  index: 0,
-  isOpen: false,
+  root:      null,
+  title:     null,
+  carousel:  null,
+  body:      null,
+  /* FIX #3 — cache closeBtn once in init() */
+  closeBtn:  null,
+  images:    [],
+  index:     0,
+  isOpen:    false,
+  _lastFocused: null,
 
   init() {
     this.root = $('#modal');
     if (!this.root) return;
-    
-    this.title = $('#modalTitle');
+
+    this.title    = $('#modalTitle');
     this.carousel = $('#modalCarousel');
-    this.body = $('#modalBody');
-    
-    const closeBtn = $('#modalClose');
-    if (closeBtn) closeBtn.addEventListener('click', () => this.close());
-    
-    // Close on overlay click
+    this.body     = $('#modalBody');
+    this.closeBtn = $('#modalClose');
+
+    if (this.closeBtn) this.closeBtn.addEventListener('click', () => this.close());
+
     this.root.addEventListener('click', (e) => {
       if (e.target === this.root) this.close();
     });
-    
-    // Keyboard support
+
     document.addEventListener('keydown', (e) => {
       if (!this.isOpen) return;
-      if (e.key === 'Escape') this.close();
-      if (e.key === 'ArrowLeft') this.prev();
+      if (e.key === 'Escape')     this.close();
+      if (e.key === 'ArrowLeft')  this.prev();
       if (e.key === 'ArrowRight') this.next();
     });
-    
-    // Trap focus inside modal when open
+
     this.root.addEventListener('focusin', (e) => {
       if (!this.isOpen) return;
       const focusable = this.root.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
       const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.target === this.root || e.target === last) {
-        if (e.target === last) first?.focus();
-        if (e.target === this.root) last?.focus();
-      }
+      const last  = focusable[focusable.length - 1];
+      if (e.target === last)      first?.focus();
+      else if (e.target === this.root) last?.focus();
     });
   },
 
   open(title, images, mdHtml) {
     if (!this.root) return;
-    
+    this._lastFocused = document.activeElement;
+
     this.title.textContent = title || 'Untitled';
     this.images = (images || []).filter(Boolean);
-    this.index = 0;
+    this.index  = 0;
     this.isOpen = true;
-    
+
     this.renderCarousel();
     this.body.innerHTML = mdHtml || '';
     this.root.classList.add('open');
     document.body.style.overflow = 'hidden';
-    
-    // Focus management
-    setTimeout(() => {
-      const closeBtn = $('#modalClose');
-      if (closeBtn) closeBtn.focus();
-    }, 100);
+
+    /* FIX #3 — reuse cached closeBtn */
+    setTimeout(() => this.closeBtn?.focus(), 100);
   },
 
   close() {
@@ -176,101 +153,96 @@ const modal = {
     this.root.classList.remove('open');
     document.body.style.overflow = '';
     this.isOpen = false;
-    
-    // Return focus to previous element
     if (this._lastFocused) {
       this._lastFocused.focus();
       this._lastFocused = null;
     }
   },
 
+  /* FIX #4 — simplified guard */
   prev() {
-    if (!this.images.length || this.images.length <= 1) return;
+    if (this.images.length <= 1) return;
     this.index = (this.index - 1 + this.images.length) % this.images.length;
     this.renderCarousel();
   },
 
   next() {
-    if (!this.images.length || this.images.length <= 1) return;
+    if (this.images.length <= 1) return;
     this.index = (this.index + 1) % this.images.length;
     this.renderCarousel();
   },
 
   renderCarousel() {
     if (!this.carousel) return;
-    if (!this.images.length) { 
-      this.carousel.innerHTML = ''; 
-      return; 
-    }
-    
-    const src = escapeHtml(this.images[this.index]);
+    if (!this.images.length) { this.carousel.innerHTML = ''; return; }
+
+    const src         = escapeHtml(this.images[this.index]);
     const hasMultiple = this.images.length > 1;
-    
+
     this.carousel.innerHTML = `
-      <img src="${src}" alt="Preview" 
-           loading="lazy" 
-           onerror="this.style.opacity='0.4'; this.alt='Image not available';" />
+      <img src="${src}" alt="Preview" loading="lazy"
+           onerror="this.style.opacity='0.4';this.alt='Image not available';" />
       ${hasMultiple ? `
         <button class="carousel-btn prev" aria-label="Previous image">‹</button>
         <button class="carousel-btn next" aria-label="Next image">›</button>
         <div class="carousel-count">${this.index + 1} / ${this.images.length}</div>
       ` : ''}
     `;
-    
-    const prevBtn = this.carousel.querySelector('.prev');
-    const nextBtn = this.carousel.querySelector('.next');
-    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); this.prev(); });
-    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); this.next(); });
+
+    this.carousel.querySelector('.prev')
+      ?.addEventListener('click', (e) => { e.stopPropagation(); this.prev(); });
+    this.carousel.querySelector('.next')
+      ?.addEventListener('click', (e) => { e.stopPropagation(); this.next(); });
   },
 };
+
+/* ===== Shared helper: attach click+Enter/Space to a card ===== */
+/* FIX #5 — single reusable function replaces two identical loops */
+function attachCardEvents(root, selector, getHandler) {
+  root.addEventListener('click', (e) => {
+    const card = e.target.closest(selector);
+    if (card) getHandler(card)();
+  });
+  root.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest(selector);
+    if (card) { e.preventDefault(); getHandler(card)(); }
+  });
+}
 
 /* ===== Renderers ===== */
 function renderSite(site) {
   if (!site) return;
-  
-  // Title
+
   document.title = `${site.name || 'Portfolio'} | ${site.title || 'Developer'}`;
-  
-  // Hero
-  const heroEyebrow = $('#heroEyebrow');
-  if (heroEyebrow) heroEyebrow.textContent = site.eyebrow || '';
-  
-  const heroTagline = $('#heroTagline');
-  if (heroTagline) heroTagline.textContent = site.tagline || '';
-  
+
+  const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
+  set('#heroEyebrow',    site.eyebrow      || '');
+  set('#heroTagline',    site.tagline      || '');
+  set('#avatarLabel',    site.name         || '');
+  set('#avatarStatus',   site.availability || '');
+  set('#footerName',     site.name         || '');
+  set('#footerLocation', site.footerLocation || '');
+  set('#footerYear',     new Date().getFullYear());
+
   const profileImg = $('#profileImg');
   if (profileImg) {
     profileImg.src = site.profileImage || 'assets/images/profile.png';
     profileImg.alt = escapeHtml(site.name || 'Profile');
   }
-  
-  const avatarLabel = $('#avatarLabel');
-  if (avatarLabel) avatarLabel.textContent = site.name || '';
-  
-  const avatarStatus = $('#avatarStatus');
-  if (avatarStatus) avatarStatus.textContent = site.availability || '';
-  
-  const footerName = $('#footerName');
-  if (footerName) footerName.textContent = site.name || '';
-  
-  const footerLocation = $('#footerLocation');
-  if (footerLocation) footerLocation.textContent = site.footerLocation || '';
-  
-  const footerYear = $('#footerYear');
-  if (footerYear) footerYear.textContent = new Date().getFullYear();
 
-  // Hero name with accent on last part
+  /* FIX #15 — only rewrite heroName if data differs from static HTML */
   const heroName = $('#heroName');
   if (heroName && site.name) {
-    const nameParts = site.name.split(' ');
-    heroName.innerHTML = nameParts
-      .map((w, i) => i === nameParts.length - 1
+    const parts = site.name.split(' ');
+    const built = parts.map((w, i) =>
+      i === parts.length - 1
         ? `<span class="accent">${escapeHtml(w)}</span>`
-        : escapeHtml(w))
-      .join('<br>');
+        : escapeHtml(w)
+    ).join('<br>');
+    if (heroName.innerHTML.trim() !== built) heroName.innerHTML = built;
   }
 
-  // Stats
   const statsEl = $('#heroStats');
   if (statsEl && site.stats?.length) {
     statsEl.innerHTML = site.stats.map(s => `
@@ -281,18 +253,16 @@ function renderSite(site) {
     `).join('');
   }
 
-  // CTAs
   const ctaEl = $('#heroCtas');
   if (ctaEl && site.ctas?.length) {
     ctaEl.innerHTML = site.ctas.map(c => {
-      const isExt = String(c.url).startsWith('http');
-      const extAttrs = isExt ? ' target="_blank" rel="noopener noreferrer"' : '';
-      const cls = c.type === 'primary' ? 'btn-primary' : 'btn-ghost';
-      return `<a href="${escapeHtml(c.url)}" class="btn ${cls} reveal"${extAttrs}>${escapeHtml(c.label)}</a>`;
+      const isExt   = String(c.url).startsWith('http');
+      const extAttr = isExt ? ' target="_blank" rel="noopener noreferrer"' : '';
+      const cls     = c.type === 'primary' ? 'btn-primary' : 'btn-ghost';
+      return `<a href="${escapeHtml(c.url)}" class="btn ${cls} reveal"${extAttr}>${escapeHtml(c.label)}</a>`;
     }).join('');
   }
 
-  // Contact
   const contactWrap = $('#contactWrap');
   const c = site.contact;
   if (contactWrap && c) {
@@ -324,12 +294,8 @@ function renderSite(site) {
 function renderSkills(skills) {
   const container = $('#skillsContainer');
   if (!container) return;
-  
-  if (!skills?.length) {
-    container.innerHTML = '<div class="loading">No skills data</div>';
-    return;
-  }
-  
+  if (!skills?.length) { container.innerHTML = '<div class="loading">No skills data</div>'; return; }
+
   container.innerHTML = skills.map(s => `
     <div class="skill-card reveal">
       <div class="skill-cat">${escapeHtml(s.category)}</div>
@@ -343,14 +309,10 @@ function renderSkills(skills) {
 function renderAchievements(items) {
   const container = $('#achievementsContainer');
   if (!container) return;
-  
-  if (!items?.length) {
-    container.innerHTML = '<div class="loading">No achievements</div>';
-    return;
-  }
-  
-  container.innerHTML = items.map((a, index) => `
-    <div class="ach-item reveal" style="transition-delay: ${Math.min(index * 30, 300)}ms">
+  if (!items?.length) { container.innerHTML = '<div class="loading">No achievements</div>'; return; }
+
+  container.innerHTML = items.map((a, i) => `
+    <div class="ach-item reveal" style="transition-delay:${Math.min(i * 30, 300)}ms">
       <div class="ach-rank">${escapeHtml(a.rank)}</div>
       <div>
         <div class="ach-title">${escapeHtml(a.title)}</div>
@@ -363,20 +325,15 @@ function renderAchievements(items) {
 function renderProjects(projects) {
   const root = $('#projectsGrid');
   if (!root) return;
-  
-  if (!projects?.length) {
-    root.innerHTML = '<div class="loading">No projects</div>';
-    return;
-  }
+  if (!projects?.length) { root.innerHTML = '<div class="loading">No projects</div>'; return; }
 
-  root.innerHTML = projects.map((p, index) => {
-    const thumb = (p.images && p.images[0]) || `content/projects/${p.id}/images/01.png`;
+  root.innerHTML = projects.map((p, i) => {
+    const thumb = (p.images?.[0]) || `content/projects/${p.id}/images/01.png`;
     return `
-      <div class="project-card reveal" data-id="${escapeHtml(p.id)}" 
-           style="transition-delay: ${Math.min(index * 50, 400)}ms" role="button" tabindex="0">
+      <div class="project-card reveal" data-id="${escapeHtml(p.id)}"
+           style="transition-delay:${Math.min(i * 50, 400)}ms" role="button" tabindex="0">
         <div class="project-thumb">
-          <img src="${escapeHtml(thumb)}" alt="${escapeHtml(p.title)}"
-               loading="lazy" 
+          <img src="${escapeHtml(thumb)}" alt="${escapeHtml(p.title)}" loading="lazy"
                onerror="this.parentElement.innerHTML='&lt;div class=&quot;project-thumb-empty&quot;&gt;// no preview&lt;/div&gt;'" />
         </div>
         <div class="project-body">
@@ -390,176 +347,92 @@ function renderProjects(projects) {
       </div>`;
   }).join('');
 
-  // Event listeners
-  projects.forEach(p => {
-    const card = root.querySelector(`.project-card[data-id="${CSS.escape(p.id)}"]`);
-    if (!card) return;
-    
-    const openProject = async () => {
-      const md = await fetchText(`content/projects/${p.id}/index.md`);
-      const images = p.images?.length ? p.images : [`content/projects/${p.id}/images/01.png`];
-      modal.open(p.title, images, renderMarkdown(md || ''));
-    };
-    
-    card.addEventListener('click', openProject);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openProject();
-      }
-    });
+  /* FIX #5 — single event-delegated handler instead of N×2 listeners */
+  const projectMap = new Map(projects.map(p => [p.id, p]));
+  attachCardEvents(root, '.project-card', (card) => async () => {
+    const p  = projectMap.get(card.dataset.id);
+    if (!p) return;
+    const md     = await fetchText(`content/projects/${p.id}/index.md`);
+    const images = p.images?.length ? p.images : [`content/projects/${p.id}/images/01.png`];
+    modal.open(p.title, images, renderMarkdown(md || ''));
   });
 }
 
 function renderCertificates(certs) {
   const root = $('#certificatesContainer');
   if (!root) return;
-  
-  if (!certs?.length) {
-    root.innerHTML = '<div class="loading">No certificates</div>';
-    return;
-  }
+  if (!certs?.length) { root.innerHTML = '<div class="loading">No certificates</div>'; return; }
 
-  root.innerHTML = certs.map((c, index) => `
-    <div class="cert-card reveal" data-id="${escapeHtml(c.id)}" 
-         style="transition-delay: ${Math.min(index * 40, 350)}ms" role="button" tabindex="0">
+  root.innerHTML = certs.map((c, i) => `
+    <div class="cert-card reveal" data-id="${escapeHtml(c.id)}"
+         style="transition-delay:${Math.min(i * 40, 350)}ms" role="button" tabindex="0">
       <div class="cert-issuer">${escapeHtml(c.issuer || 'Certificate')}</div>
       <div class="cert-title">${escapeHtml(c.title)}</div>
       <div class="cert-date">${escapeHtml(c.date || '')}</div>
     </div>
   `).join('');
 
-  certs.forEach(c => {
-    const card = root.querySelector(`.cert-card[data-id="${CSS.escape(c.id)}"]`);
-    if (!card) return;
-    
-    const openCert = async () => {
-      const md = await fetchText(`content/certificates/${c.id}/index.md`);
-      const img = `content/certificates/${c.id}/01.png`;
-      modal.open(c.title, [img], renderMarkdown(md || c.description || ''));
-    };
-    
-    card.addEventListener('click', openCert);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openCert();
-      }
-    });
+  /* FIX #5 — event delegation */
+  const certMap = new Map(certs.map(c => [c.id, c]));
+  attachCardEvents(root, '.cert-card', (card) => async () => {
+    const c  = certMap.get(card.dataset.id);
+    if (!c) return;
+    const md  = await fetchText(`content/certificates/${c.id}/index.md`);
+    const img = `content/certificates/${c.id}/01.png`;
+    modal.open(c.title, [img], renderMarkdown(md || c.description || ''));
   });
 }
 
 /* ================================================================
-   SCROLL REVEAL — Apple-style smooth reveals
+   SCROLL REVEAL — styles now live in CSS; JS only drives visibility
 ================================================================ */
 function initScrollReveal() {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const appleStyle = `
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px) scale(0.98);
-      transition: 
-        opacity ${ANIM_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform ${ANIM_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: opacity, transform;
-    }
-    
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    
-    .project-card.reveal,
-    .cert-card.reveal,
-    .skill-card.reveal {
-      transition: 
-        opacity ${ANIM_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform ${ANIM_DURATION_MS}ms cubic-bezier(0.22, 1, 0.36, 1),
-        border-color 0.25s ease,
-        box-shadow 0.25s ease;
-    }
-    
-    .sec-label.reveal,
-    .sec-title.reveal {
-      transition: 
-        opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
-        transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    
-    /* Prevent FOUC */
-    .reveal:not(.visible) {
-      visibility: hidden;
-    }
-    .reveal.visible {
-      visibility: visible;
-    }
-  `;
-
-  const style = document.createElement('style');
-  style.id = 'anim-preset';
-  style.textContent = reduced
-    ? '.reveal { opacity:1 !important; transform:none !important; transition:none !important; visibility:visible !important; }'
-    : appleStyle;
-  document.head.appendChild(style);
-
+  /* FIX #7 — no more runtime <style> injection; reveal rules are in styles.css.
+     For reduced motion, just flip all .reveal to .visible immediately. */
   if (reduced) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
     return;
   }
 
-  // Mark section headings
+  /* Mark section headings */
   document.querySelectorAll('.sec-label, .sec-title').forEach(el => {
-    if (!el.classList.contains('reveal')) el.classList.add('reveal');
+    el.classList.add('reveal');
   });
 
-  // Mark hero elements
+  /* Mark hero elements */
   document.querySelectorAll('#hero .stat, #hero .btn, .hero-eyebrow, .hero-name, .hero-tagline').forEach(el => {
-    if (!el.classList.contains('reveal')) el.classList.add('reveal');
+    el.classList.add('reveal');
   });
 
-  // Stagger hero elements
-  const heroElements = document.querySelectorAll('#hero .reveal');
-  heroElements.forEach((el, i) => {
-    const delay = Math.min(i * 80, 400);
-    el.style.setProperty('--stagger-delay', `${delay}ms`);
+  /* Stagger hero elements */
+  document.querySelectorAll('#hero .reveal').forEach((el, i) => {
+    el.style.setProperty('--stagger-delay', `${Math.min(i * 80, 400)}ms`);
   });
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
-
-      const el = entry.target;
-      
-      // Check if parent has visible children already
+      const el     = entry.target;
       const parent = el.parentElement;
-      const allRevealChildren = [...parent.querySelectorAll('.reveal:not(.visible)')];
-      const siblingOrder = allRevealChildren.indexOf(el);
-      
-      // Use dataset stagger if available, otherwise calculate from siblings
-      const customDelay = parseFloat(el.style.getPropertyValue('--stagger-delay')) || 0;
-      const staggerDelay = Math.min(siblingOrder * ANIM_STAGGER_MS, ANIM_STAGGER_MAX);
-      
-      const totalDelay = customDelay + staggerDelay;
+      const siblings = [...parent.querySelectorAll('.reveal:not(.visible)')];
+      const sibIdx   = siblings.indexOf(el);
+      const custom   = parseFloat(el.style.getPropertyValue('--stagger-delay')) || 0;
+      const stagger  = Math.min(sibIdx * ANIM_STAGGER_MS, ANIM_STAGGER_MAX);
 
       setTimeout(() => {
         el.classList.add('visible');
-        // Dispatch custom event
         el.dispatchEvent(new CustomEvent('revealed', { bubbles: true }));
-      }, totalDelay);
-      
+      }, custom + stagger);
+
       observer.unobserve(el);
     });
-  }, {
-    threshold: ANIM_THRESHOLD,
-    rootMargin: ANIM_ROOT_MARGIN,
-  });
+  }, { threshold: ANIM_THRESHOLD, rootMargin: ANIM_ROOT_MARGIN });
 
-  // Use microtask to ensure DOM is ready
+  /* FIX #8 — single rAF is enough */
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   });
 }
 
@@ -568,264 +441,192 @@ function initLinkEffects() {
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn');
     if (!btn) return;
-    
-    // Remove existing ripples
+
     btn.querySelectorAll('.ripple').forEach(r => r.remove());
-    
+
     const rect = btn.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height) * 2;
-    const x = e.clientX - rect.left - size / 2;
-    const y = e.clientY - rect.top - size / 2;
-    
+    const x    = e.clientX - rect.left - size / 2;
+    const y    = e.clientY - rect.top  - size / 2;
+
     const ripple = document.createElement('span');
     ripple.className = 'ripple';
-    ripple.style.cssText = `
-      width: ${size}px;
-      height: ${size}px;
-      left: ${x}px;
-      top: ${y}px;
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      pointer-events: none;
-      animation: ripple-expand 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    `;
-    
-    btn.style.position = 'relative';
-    btn.style.overflow = 'hidden';
+    ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
     btn.appendChild(ripple);
-    
     ripple.addEventListener('animationend', () => ripple.remove());
   });
 }
 
 /* ================================================================
-   BACKGROUND SCROLL — Subtle Apple-style effects
+   UNIFIED SCROLL HANDLER
+   FIX #1 — one scroll listener; progress computed once per frame.
+   FIX #12 — skip JS progress-bar update when CSS scroll-driven
+             animation is supported (browser handles it natively).
 ================================================================ */
-function initBackgroundAnimations() {
-  // --- Subtle scroll progress bar ---
+function initScrollEffects() {
+  /* ── progress bar ── */
   const progressBar = document.createElement('div');
   progressBar.className = 'scroll-progress';
   document.body.appendChild(progressBar);
 
-  let lastScroll = 0;
-  
-  window.addEventListener('scroll', () => {
+  const nativePB = CSS.supports('animation-timeline', 'scroll()');
+
+  /* ── heatmap elements ── */
+  const heatmap     = document.getElementById('heatmap');
+  const heatmapBar  = document.getElementById('heatmapBar');
+  const indicator   = document.getElementById('heatmapIndicator');
+  const markers     = document.querySelectorAll('.heatmap-marker');
+  const pctDisplay  = document.querySelector('.heatmap-percentage');
+  const hasHeatmap  = !!(heatmap && heatmapBar && indicator);
+
+  /* ── heatmap particles ── */
+  if (hasHeatmap) {
+    const particlesEl = document.getElementById('heatmapParticles');
+    if (particlesEl) {
+      particlesEl.innerHTML = '';
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'heatmap-particle';
+        const sz = (1 + Math.random() * 3) + 'px';
+        p.style.cssText = [
+          `left:${Math.random() * 100}%`,
+          `width:${sz}`,
+          `height:${sz}`,
+          `opacity:${(0.2 + Math.random() * 0.3).toFixed(2)}`,
+          /* initial speed; CSS var drives dynamic speed — see FIX #2 */
+          `animation-duration:${(3 + Math.random() * 4).toFixed(2)}s`,
+          `animation-delay:${(Math.random() * 5).toFixed(2)}s`,
+        ].join(';');
+        particlesEl.appendChild(p);
+      }
+    }
+
+    /* Heatmap hover */
+    heatmap.addEventListener('mouseenter', () => { heatmap.style.opacity = '0.8'; });
+    heatmap.addEventListener('mouseleave', () => { heatmap.style.opacity = '0.4'; });
+
+    /* Click to jump */
+    heatmap.addEventListener('click', (e) => {
+      const rect       = heatmap.getBoundingClientRect();
+      const pct        = Math.min(Math.max((e.clientY - rect.top) / rect.height, 0), 1);
+      const targetScroll = pct * (document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    });
+  }
+
+  /* ── grid-bg reference (parallax) ── */
+  const gridBg = document.querySelector('.grid-bg');
+
+  let ticking  = false;
+  let lastTop  = 0;
+
+  function onScroll() {
+    /* FIX #1 — computed once, shared by every feature */
     const scrollTop = window.pageYOffset;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    
-    // Use requestAnimationFrame for smooth updates
-    if (Math.abs(scrollTop - lastScroll) > 1) {
-      requestAnimationFrame(() => {
-        progressBar.style.width = Math.min(progress, 100) + '%';
-      });
-      lastScroll = scrollTop;
+    const progress  = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
+    /* Progress bar — FIX #12 */
+    if (!nativePB && Math.abs(scrollTop - lastTop) > 1) {
+      progressBar.style.width = Math.min(progress, 100) + '%';
+      lastTop = scrollTop;
     }
-    
-    // --- Very subtle parallax on grid ---
-    const gridBg = document.querySelector('.grid-bg');
+
+    /* Parallax grid */
     if (gridBg && scrollTop < 1000) {
       gridBg.style.transform = `translateY(${scrollTop * 0.15}px)`;
     }
-  }, { passive: true });
 
-  // --- Smooth scroll for nav links ---
-  document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
-      
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        const navHeight = 60;
-        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
-        
-        window.scrollTo({
-          top: Math.max(0, targetPosition),
-          behavior: 'smooth'
-        });
-        
-        // Update URL without jump
-        if (history.pushState) {
-          history.pushState(null, '', targetId);
-        }
-      }
-    });
-  });
-}
+    /* Heatmap */
+    if (hasHeatmap) {
+      const eased   = Math.pow(progress / 100, 0.7) * 100;
+      const clamped = Math.min(Math.max(eased, 0), 100);
 
-/* ================================================================
-   HEATMAP WATERFALL - Density visualization on the right
-================================================================ */
-function initHeatmap() {
-  const heatmap = document.getElementById('heatmap');
-  if (!heatmap) return;
-  
-  const heatmapBar = document.getElementById('heatmapBar');
-  const indicator = document.getElementById('heatmapIndicator');
-  const particlesContainer = document.getElementById('heatmapParticles');
-  const markers = document.querySelectorAll('.heatmap-marker');
-  const percentageDisplay = document.querySelector('.heatmap-percentage');
+      heatmapBar.style.height = clamped + '%';
 
-  if (!heatmapBar || !indicator) return;
+      const hmH = heatmap.offsetHeight;
+      indicator.style.top = Math.min(Math.max((progress / 100) * hmH, 0), hmH) + 'px';
 
-  // Create floating particles
-  function createParticles() {
-    if (!particlesContainer) return;
-    // Clear existing particles
-    particlesContainer.innerHTML = '';
-    
-    for (let i = 0; i < 30; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'heatmap-particle';
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.animationDuration = (3 + Math.random() * 4) + 's';
-      particle.style.animationDelay = (Math.random() * 5) + 's';
-      particle.style.width = (1 + Math.random() * 3) + 'px';
-      particle.style.height = particle.style.width;
-      particle.style.opacity = 0.2 + Math.random() * 0.3;
-      particlesContainer.appendChild(particle);
+      markers.forEach(m => {
+        const v = parseInt(m.dataset.value, 10);
+        m.classList.toggle('active', !isNaN(v) && progress >= v);
+      });
+
+      if (pctDisplay) pctDisplay.textContent = Math.round(clamped) + '% density';
+
+      /* FIX #2 — one CSS variable write instead of 30 DOM style writes */
+      const speed = (3 + (progress / 100) * 4).toFixed(2);
+      heatmap.style.setProperty('--particle-speed', speed + 's');
+
+      const glow = 0.05 + (progress / 100) * 0.3;
+      heatmapBar.style.boxShadow =
+        `0 0 ${(20 + progress * 1.5).toFixed(1)}px rgba(45,164,78,${glow.toFixed(3)})`;
+
+      const p = progress / 100;
+      heatmapBar.style.background = `linear-gradient(to top,
+        rgba(45,164,78,${(0.05 + p * 0.1).toFixed(3)}) 0%,
+        rgba(45,164,78,${(0.15 + p * 0.2).toFixed(3)}) 15%,
+        rgba(45,164,78,${(0.30 + p * 0.3).toFixed(3)}) 30%,
+        rgba(45,164,78,${(0.50 + p * 0.4).toFixed(3)}) 50%,
+        rgba(45,164,78,${(0.70 + p * 0.3).toFixed(3)}) 70%,
+        rgba(45,164,78,${(0.85 + p * 0.15).toFixed(3)}) 85%,
+        rgba(45,164,78,1) 100%)`;
     }
   }
-  createParticles();
 
-  // Update heatmap on scroll
-  function updateHeatmap() {
-    const scrollTop = window.pageYOffset;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-    
-    // Using a curve that starts slow then accelerates for "density" feel
-    const easedProgress = Math.pow(progress / 100, 0.7) * 100;
-    const clampedProgress = Math.min(Math.max(easedProgress, 0), 100);
-    
-    // Update bar height
-    heatmapBar.style.height = clampedProgress + '%';
-    
-    // Update scroll indicator position
-    const heatmapHeight = heatmap.offsetHeight;
-    const indicatorPosition = (progress / 100) * heatmapHeight;
-    indicator.style.top = Math.min(Math.max(indicatorPosition, 0), heatmapHeight) + 'px';
-    
-    // Update marker states
-    markers.forEach(marker => {
-      const value = parseInt(marker.dataset.value, 10);
-      if (!isNaN(value) && progress >= value) {
-        marker.classList.add('active');
-      } else {
-        marker.classList.remove('active');
-      }
-    });
+  /* Initial paint */
+  onScroll();
 
-    // Update percentage display
-    if (percentageDisplay) {
-      const displayPercent = Math.round(clampedProgress);
-      percentageDisplay.textContent = displayPercent + '% density';
-    }
-
-    // Dynamic particle speed based on density
-    const particleSpeed = 3 + (progress / 100) * 4;
-    document.querySelectorAll('.heatmap-particle').forEach((p, i) => {
-      const delay = i % 5;
-      p.style.animationDuration = (particleSpeed + Math.random() * 2) + 's';
-      p.style.animationDelay = (delay + Math.random() * 2) + 's';
-    });
-
-    // Update heatmap glow intensity
-    const glowIntensity = 0.05 + (progress / 100) * 0.3;
-    heatmapBar.style.boxShadow = `0 0 ${20 + progress * 1.5}px rgba(245, 197, 24, ${glowIntensity})`;
-    
-    // Update bar gradient based on progress
-    const gradientStops = [
-      `rgba(245, 197, 24, ${0.05 + (progress / 100) * 0.1}) 0%`,
-      `rgba(245, 197, 24, ${0.15 + (progress / 100) * 0.2}) 15%`,
-      `rgba(245, 197, 24, ${0.30 + (progress / 100) * 0.3}) 30%`,
-      `rgba(245, 197, 24, ${0.50 + (progress / 100) * 0.4}) 50%`,
-      `rgba(245, 197, 24, ${0.70 + (progress / 100) * 0.3}) 70%`,
-      `rgba(245, 197, 24, ${0.85 + (progress / 100) * 0.15}) 85%`,
-      `rgba(245, 197, 24, ${1}) 100%`
-    ];
-    heatmapBar.style.background = `linear-gradient(to top, ${gradientStops.join(', ')})`;
-  }
-
-  // Initial update
-  updateHeatmap();
-
-  // Update on scroll with throttling for performance
-  let ticking = false;
+  /* Single rAF-throttled scroll listener */
   window.addEventListener('scroll', () => {
     if (!ticking) {
-      window.requestAnimationFrame(() => {
-        updateHeatmap();
-        ticking = false;
-      });
+      requestAnimationFrame(() => { onScroll(); ticking = false; });
       ticking = true;
     }
   }, { passive: true });
 
-  // Update on resize
+  /* Resize */
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(updateHeatmap, 200);
+    resizeTimer = setTimeout(onScroll, 200);
   });
 
-  // Hover interactions
-  heatmap.addEventListener('mouseenter', () => {
-    heatmap.style.opacity = '0.8';
-  });
-  
-  heatmap.addEventListener('mouseleave', () => {
-    heatmap.style.opacity = '0.4';
-  });
-
-  // Click on heatmap to scroll to corresponding position
-  heatmap.addEventListener('click', (e) => {
-    const rect = heatmap.getBoundingClientRect();
-    const clickY = e.clientY - rect.top;
-    const percentage = Math.min(Math.max(clickY / rect.height, 0), 1);
-    const targetScroll = percentage * (document.documentElement.scrollHeight - window.innerHeight);
-    
-    window.scrollTo({
-      top: targetScroll,
-      behavior: 'smooth'
+  /* Smooth scroll for nav links */
+  document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const id = this.getAttribute('href');
+      if (id === '#') return;
+      const target = document.querySelector(id);
+      if (target) {
+        const top = target.getBoundingClientRect().top + window.pageYOffset - 60;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        if (history.pushState) history.pushState(null, '', id);
+      }
     });
   });
 }
 
 /* ================================================================
-   ERROR HANDLING & BOOT
+   ERROR HANDLING
 ================================================================ */
 function handleError(message) {
   console.error('[Portfolio]', message);
-  
-  // Show user-friendly error
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 16px 20px;
-    background: #1a1a1a;
-    border: 1px solid #e74c3c;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    z-index: 9999;
-    max-width: 400px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    animation: slideUp 0.3s ease;
+  const div = document.createElement('div');
+  div.style.cssText = `
+    position:fixed;bottom:20px;right:20px;padding:16px 20px;
+    background:#1a1a1a;border:1px solid #e74c3c;border-radius:8px;
+    color:#fff;font-family:'JetBrains Mono',monospace;font-size:14px;
+    z-index:9999;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,.3);
+    animation:slideUp 0.3s ease;
   `;
-  errorDiv.textContent = `⚠️ ${message}`;
-  document.body.appendChild(errorDiv);
-  
+  div.textContent = `⚠️ ${message}`;
+  document.body.appendChild(div);
   setTimeout(() => {
-    errorDiv.style.opacity = '0';
-    errorDiv.style.transition = 'opacity 0.3s ease';
-    setTimeout(() => errorDiv.remove(), 300);
+    div.style.transition = 'opacity 0.3s ease';
+    div.style.opacity = '0';
+    setTimeout(() => div.remove(), 300);
   }, 5000);
 }
 
@@ -835,7 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     modal.init();
 
-    // Check if data exists
     if (typeof window.DATA_SITE === 'undefined') {
       handleError('Data not loaded. Check your data.js file.');
       return;
@@ -849,12 +649,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initScrollReveal();
     initLinkEffects();
-    initBackgroundAnimations();
-    initHeatmap();
-    
-    // Dispatch ready event
+    /* FIX #1 — single unified function replaces initBackgroundAnimations + initHeatmap */
+    initScrollEffects();
+
     document.dispatchEvent(new CustomEvent('portfolio:ready'));
-    
     console.log('🚀 Portfolio ready!');
   } catch (err) {
     console.error('[Portfolio] Boot error:', err);
@@ -862,27 +660,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Handle errors gracefully
 window.addEventListener('error', (e) => {
   console.error('[Portfolio] Runtime error:', e.message);
 });
 
-// Expose for debugging
-window.__portfolio = {
-  modal,
-  renderMarkdown,
-  escapeHtml,
-  fetchText,
-};
+window.__portfolio = { modal, renderMarkdown, escapeHtml, fetchText };
 
-// In main.js
 if (navigator.share) {
   document.querySelector('#shareBtn')?.addEventListener('click', () => {
-    navigator.share({
-      title: document.title,
-      text: 'Check out my portfolio!',
-      url: window.location.href,
-    });
+    navigator.share({ title: document.title, text: 'Check out my portfolio!', url: location.href });
   });
 }
-

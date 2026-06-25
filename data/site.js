@@ -21,15 +21,15 @@ window.DATA_SITE = {
   contact: {
     intro: "Open to internship opportunities, research collaborations, and discussions on systems programming, hardware design, or competitive programming. I respond within 24 hours.",
     emails: [
-      { label: "primary", address: "harshvardhan.rathod.in@gmail.com" }
+      { label: "primary  🔗", address: "harshvardhan.rathod.in@gmail.com" }
     ],
     phones: [
       { label: "mobile", number: "+91 77092 85391" }
     ],
     links: [
-      { platform: "LinkedIn", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", handle: "harshvardhan-rathod" },
-      { platform: "GitHub", url: "https://github.com/HAPPIOcrz007", handle: "HAPPIOcrz007" },
-      { platform: "Codeforces", url: "https://codeforces.com/profile/Harshvardhan_Rathod", handle: "Harshvardhan · 966" }
+      { platform: "LinkedIn 🔗", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", handle: "harshvardhan-rathod" },
+      { platform: "GitHub 🔗", url: "https://github.com/HAPPIOcrz007", handle: "HAPPIOcrz007" },
+      { platform: "Codeforces 🔗", url: "https://codeforces.com/profile/Harshvardhan_Rathod", handle: "Harshvardhan · 966" }
     ]
   }
 };

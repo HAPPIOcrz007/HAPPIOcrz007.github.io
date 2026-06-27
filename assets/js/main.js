@@ -1213,17 +1213,17 @@ function initScrollEffects() {
       }
 
       .ahm-badge[data-platform="gh"]:hover,
-      .ahm-badge[data-platform="gh"].ahm-badge--active { border-color: #58a6ff; color: #58a6ff; }
+      .ahm-badge[data-platform="gh"].ahm-badge--active { border-color: #2da44e; border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="cf"]:hover,
-      .ahm-badge[data-platform="cf"].ahm-badge--active { border-color: #1890ff; color: #1890ff; }
+      .ahm-badge[data-platform="cf"].ahm-badge--active { border-color: #B82024; border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="lc"]:hover,
-      .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: #ffa116; color: #ffa116; }
+      .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: #ffa116; border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="ac"]:hover,
-      .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: #00c4c4; color: #00c4c4; }
+      .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: #1890ff; border-width: 3px; color: var(--text); font-weight: 800;}
 
       .ahm-badge--active {
         background: rgba(255,255,255,0.05);
-        font-weight: 600;
+        font-weight: 800;
       }
       [data-theme="light"] .ahm-badge--active {
         background: rgba(0,0,0,0.05);

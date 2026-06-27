@@ -99,6 +99,7 @@
       <li role="none"><a href="#achievements" role="menuitem">achievements</a></li>
       <li role="none"><a href="#certificates" role="menuitem">certs</a></li>
       <li role="none"><a href="#contact"      role="menuitem">contact</a></li>
+      <li role="none"><a href="#activity"     role="menuitem">activity</a></li>
     </ul>
     <div class="nav-right">
       <button class="theme-btn" id="themeBtn" aria-label="Toggle theme (dark/light)">☾</button>
@@ -208,6 +209,21 @@
       </div>
     </section>
 
+    <!-- ===== ACTIVITY HEATMAP ===== -->
+    <!-- Edit data-* usernames to match your profiles. Remove an attr to skip that platform. -->
+    <section id="activity" aria-labelledby="activity-title">
+      <div class="container">
+        <p class="sec-label">Coding Activity</p>
+        <h2 class="sec-title reveal" id="activity-title">Submission Heatmap</h2>
+        <div id="activityHeatmap"
+             data-github="HAPPIOcrz007"
+             data-codeforces="Harshvardhan_Rathod"
+             data-leetcode="qBDY2Y4yT2"
+             data-atcoder="HarshRathod">
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ===== FOOTER ===== -->
@@ -243,7 +259,8 @@
   <script src="data/certificates.js" defer></script>
 
   <!-- ===== APP ===== -->
-  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/main.js"   defer></script>
+  <script src="assets/js/heatmap.js" defer></script>
 
   <!-- FIX #17 — Schema.org: replace placeholder URLs with real profiles -->
   <script type="application/ld+json">

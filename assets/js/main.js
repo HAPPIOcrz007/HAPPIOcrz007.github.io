@@ -609,6 +609,853 @@ function initScrollEffects() {
 }
 
 /* ================================================================
+   heatmap.js — Multi-platform Coding Activity Heatmap
+   Fetches: GitHub · Codeforces · LeetCode · AtCoder (optional)
+   No dependencies. Drop alongside main.js and add:
+     <script src="assets/js/heatmap.js" defer></script>
+   ================================================================ */
+
+(function () {
+  'use strict';
+
+  /* ── CONFIG ─────────────────────────────────────────────────── */
+  // Usernames are read from data-* attrs on #activityHeatmap.
+  // Override here if you prefer:
+  const OVERRIDE = {
+    github:      null,
+    codeforces:  null,
+    leetcode:    null,
+    atcoder:     null,   // leave null/empty to skip
+  };
+
+  const WEEKS_TO_SHOW = 53;  // ~1 year
+  const CELL_SIZE     = 11;
+  const CELL_GAP      = 3;
+  const CELL_STEP     = CELL_SIZE + CELL_GAP;
+
+  /*
+   * Theme-aware cell palettes.
+   * Opacity-based greens wash out on light and disappear on very dark backgrounds
+   * — so we use solid hex stops tuned per theme instead.
+   *
+   * Dark  : empty cell is a visible green-tinted slate; greens step muted → vivid.
+   * Light : empty cell is soft sage; greens are deep enough to read on white.
+   */
+  const PALETTES = {
+    dark: [
+      'transparent', // 0 — empty : invisible, blends into dark bg
+      '#1a6130',   // 1 — low   : deep forest
+      '#216e39',   // 2 — mid
+      '#2da44e',   // 3 — high
+      '#3fb950',   // 4 — peak  : bright GitHub green
+    ],
+    light: [
+      'transparent', // 0 — empty : invisible, blends into light bg
+      '#6abf6a',   // 1 — low   : mid green
+      '#3a9e46',   // 2 — mid
+      '#1e7a33',   // 3 — high
+      '#0f5323',   // 4 — peak  : deep forest, max contrast on light bg
+    ],
+  };
+
+  function getLevels() {
+    const theme = document.documentElement.dataset.theme || 'dark';
+    return PALETTES[theme] || PALETTES.dark;
+  }
+
+  /* ── HELPERS ─────────────────────────────────────────────────── */
+  /** ISO date string YYYY-MM-DD for a Date object */
+  const toISO = (d) => d.toISOString().slice(0, 10);
+
+  /** Date object for a YYYY-MM-DD string (local time) */
+  const fromISO = (s) => new Date(s + 'T00:00:00');
+
+  /** Number of days between two Date objects */
+  const daysBetween = (a, b) => Math.round((b - a) / 86_400_000);
+
+  /** Add n days to Date d */
+  const addDays = (d, n) => new Date(d.getTime() + n * 86_400_000);
+
+  /** Returns the Sunday that starts the week containing d */
+  function weekStart(d) {
+    const copy = new Date(d);
+    copy.setDate(copy.getDate() - copy.getDay());
+    return copy;
+  }
+
+  /* ── DATA FETCHERS ───────────────────────────────────────────── */
+
+  /**
+   * GitHub: contributions via the public contributions endpoint.
+   * Uses the undocumented but stable ?from=&to= calendar endpoint
+   * (same one the profile page uses).  Falls back gracefully.
+   */
+  async function fetchGitHub(username) {
+    if (!username) return {};
+    const map = {};
+    try {
+      // GitHub's contributions calendar is only exposed via HTML scraping
+      // or the GraphQL API (needs token).  We use the public
+      // contributions-collection via the v4 API without a token by
+      // hitting the public JSON that the contribution graph uses.
+      // As a reliable no-token alternative we use ghchart.rshah.org.
+      const url = `https://github-contributions-api.jogruber.de/v4/${username}?y=last`;
+      const r   = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) throw new Error(r.status);
+      const json = await r.json();
+      // Response: { contributions: [{date:'YYYY-MM-DD', count:N}, ...] }
+      for (const { date, count } of (json.contributions || [])) {
+        if (count > 0) map[date] = (map[date] || 0) + count;
+      }
+    } catch (e) {
+      console.warn('[heatmap] GitHub fetch failed:', e.message);
+    }
+    return map;
+  }
+
+  /**
+   * Codeforces: /user.status returns all submissions.
+   * We count AC submissions per day (others count too if you want).
+   */
+  async function fetchCodeforces(handle) {
+    if (!handle) return {};
+    const map = {};
+    try {
+      const url = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`;
+      const r   = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!r.ok) throw new Error(r.status);
+      const json = await r.json();
+      if (json.status !== 'OK') throw new Error(json.comment);
+      for (const sub of json.result) {
+        const date = toISO(new Date(sub.creationTimeSeconds * 1000));
+        map[date] = (map[date] || 0) + 1;
+      }
+    } catch (e) {
+      console.warn('[heatmap] Codeforces fetch failed:', e.message);
+    }
+    return map;
+  }
+
+  /**
+   * LeetCode: public GraphQL API.
+   * submissionCalendar is a JSON-encoded map of Unix timestamps → count.
+   */
+  async function fetchLeetCode(username) {
+    if (!username) return {};
+    const map = {};
+    try {
+      // leetcode.com/graphql blocks CORS from browsers.
+      // alfa-leetcode-api is a free public CORS proxy that mirrors the same data.
+      // Fallback chain: proxy → silent fail (heatmap still renders other platforms).
+      const r = await fetch(
+        `https://alfa-leetcode-api.onrender.com/userProfileCalendar?username=${encodeURIComponent(username)}&year=${new Date().getFullYear()}`,
+        { signal: AbortSignal.timeout(12000) }
+      );
+      if (!r.ok) throw new Error(r.status);
+      const json = await r.json();
+      // Response: { submissionCalendar: '{"timestamp": count, ...}' }
+      const raw = json?.submissionCalendar;
+      if (!raw) throw new Error('empty response');
+      const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      for (const [ts, count] of Object.entries(cal)) {
+        const date = toISO(new Date(Number(ts) * 1000));
+        map[date] = (map[date] || 0) + count;
+      }
+    } catch (e) {
+      console.warn('[heatmap] LeetCode fetch failed:', e.message);
+    }
+    return map;
+  }
+
+  /**
+   * AtCoder: uses the unofficial kenkoooo contest results API.
+   * Returns one entry per accepted submission.
+   */
+  async function fetchAtCoder(username) {
+    if (!username) return {};
+    const map = {};
+    try {
+      const url = `https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${username}&from_second=0`;
+      const r   = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!r.ok) throw new Error(r.status);
+      const json = await r.json();
+      for (const sub of json) {
+        if (sub.result !== 'AC') continue;
+        const date = toISO(new Date(sub.epoch_second * 1000));
+        map[date] = (map[date] || 0) + 1;
+      }
+    } catch (e) {
+      console.warn('[heatmap] AtCoder fetch failed:', e.message);
+    }
+    return map;
+  }
+
+  /* ── MERGE + STATS ────────────────────────────────────────────── */
+  /**
+   * Merge per-platform maps into { date → { total, gh, cf, lc, ac } }
+   */
+  function merge(gh, cf, lc, ac) {
+    const all = {};
+    const add = (src, key) => {
+      for (const [d, n] of Object.entries(src)) {
+        if (!all[d]) all[d] = { total: 0, gh: 0, cf: 0, lc: 0, ac: 0 };
+        all[d][key]   += n;
+        all[d].total  += n;
+      }
+    };
+    add(gh, 'gh');
+    add(cf, 'cf');
+    add(lc, 'lc');
+    add(ac, 'ac');
+    return all;
+  }
+
+  function computeStats(data) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Only look at the past 365 days
+    const cutoff = addDays(today, -364);
+    let total        = 0;
+    let longest      = 0;
+    let current      = 0;
+    let lastDate     = null;
+    let activeDays   = 0;
+    let githubTotal  = 0;
+    let cfTotal      = 0;
+    let lcTotal      = 0;
+    let acTotal      = 0;
+
+    // Walk every day in range in order
+    const start = new Date(cutoff);
+    for (let i = 0; i <= 364; i++) {
+      const d   = addDays(start, i);
+      const iso = toISO(d);
+      const day = data[iso];
+
+      if (day && day.total > 0) {
+        total       += day.total;
+        githubTotal += day.gh;
+        cfTotal     += day.cf;
+        lcTotal     += day.lc;
+        acTotal     += day.ac;
+        activeDays++;
+
+        if (lastDate && daysBetween(lastDate, d) === 1) {
+          current++;
+        } else {
+          current = 1;
+        }
+        if (current > longest) longest = current;
+        lastDate = d;
+      } else {
+        current  = 0;
+        lastDate = null;
+      }
+    }
+
+    // Current streak (up to and including today)
+    let streak = 0;
+    for (let i = 364; i >= 0; i--) {
+      const iso = toISO(addDays(start, i));
+      if (data[iso]?.total > 0) streak++;
+      else break;
+    }
+
+    return { total, longest, streak, activeDays, githubTotal, cfTotal, lcTotal, acTotal };
+  }
+
+  /* ── LEVEL MAPPING ───────────────────────────────────────────── */
+  function countToLevel(count, max) {
+    if (!count || count === 0) return 0;
+    if (max <= 0) return 1;
+    const pct = count / max;
+    if (pct < 0.15) return 1;
+    if (pct < 0.35) return 2;
+    if (pct < 0.65) return 3;
+    return 4;
+  }
+
+  /* ── RENDER ──────────────────────────────────────────────────── */
+  function render(root, data, stats, usernames) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Grid starts WEEKS_TO_SHOW weeks ago, on a Sunday
+    const gridStart = weekStart(addDays(today, -(WEEKS_TO_SHOW - 1) * 7));
+
+    // Build week columns: array of 7-day arrays
+    const weeks = [];
+    for (let w = 0; w < WEEKS_TO_SHOW; w++) {
+      const week = [];
+      for (let d = 0; d < 7; d++) {
+        const date = addDays(gridStart, w * 7 + d);
+        if (date > today) { week.push(null); continue; }
+        const iso  = toISO(date);
+        week.push({ date, iso, day: data[iso] || null });
+      }
+      weeks.push(week);
+    }
+
+    // Max count for level scaling
+    const maxCount = Math.max(1, ...Object.values(data).map(d => d.total));
+
+    // SVG dimensions
+    const svgW = WEEKS_TO_SHOW * CELL_STEP - CELL_GAP + 32; // +32 for day labels
+    const svgH = 7 * CELL_STEP - CELL_GAP + 28;             // +28 for month labels
+
+    // Month label positions
+    const monthLabels = [];
+    let lastMonth = -1;
+    weeks.forEach((week, wi) => {
+      const firstDay = week.find(d => d !== null);
+      if (!firstDay) return;
+      const m = firstDay.date.getMonth();
+      if (m !== lastMonth) {
+        monthLabels.push({ x: 32 + wi * CELL_STEP, label: firstDay.date.toLocaleString('default', { month: 'short' }) });
+        lastMonth = m;
+      }
+    });
+
+    // Day labels (S M T W T F S)
+    const dayNames = ['S','M','T','W','T','F','S'];
+
+    root.innerHTML = `
+      <div class="ahm-wrap">
+
+        <!-- Stats bar -->
+        <div class="ahm-stats">
+          <div class="ahm-stat">
+            <span class="ahm-stat-value">${stats.total.toLocaleString()}</span>
+            <span class="ahm-stat-label">total submissions</span>
+          </div>
+          <div class="ahm-stat">
+            <span class="ahm-stat-value">${stats.activeDays}</span>
+            <span class="ahm-stat-label">active days</span>
+          </div>
+          <div class="ahm-stat">
+            <span class="ahm-stat-value">${stats.streak}</span>
+            <span class="ahm-stat-label">current streak</span>
+          </div>
+          <div class="ahm-stat">
+            <span class="ahm-stat-value">${stats.longest}</span>
+            <span class="ahm-stat-label">longest streak</span>
+          </div>
+          <div class="ahm-platform-badges">
+            ${usernames.github     ? `<span class="ahm-badge" data-platform="gh">⬡ GitHub <em>${stats.githubTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.codeforces ? `<span class="ahm-badge" data-platform="cf">● CF <em>${stats.cfTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.leetcode   ? `<span class="ahm-badge" data-platform="lc">◆ LC <em>${stats.lcTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.atcoder    ? `<span class="ahm-badge" data-platform="ac">▲ AC <em>${stats.acTotal.toLocaleString()}</em></span>` : ''}
+          </div>
+        </div>
+
+        <!-- Heatmap grid -->
+        <div class="ahm-grid-wrap">
+          <svg class="ahm-svg" viewBox="0 0 ${svgW} ${svgH}"
+               role="img" aria-label="Coding activity heatmap for the past year">
+
+            <!-- Month labels -->
+            ${monthLabels.map(({ x, label }) =>
+              `<text x="${x}" y="10" class="ahm-month">${label}</text>`
+            ).join('')}
+
+            <!-- Day labels -->
+            ${dayNames.map((name, i) =>
+              (i % 2 === 1)   // only M W F for density
+                ? `<text x="14" y="${18 + i * CELL_STEP + CELL_SIZE * 0.75}" class="ahm-day">${name}</text>`
+                : ''
+            ).join('')}
+
+            <!-- Cells -->
+            ${weeks.map((week, wi) =>
+              week.map((cell, di) => {
+                if (!cell) return '';
+                const x     = 32 + wi * CELL_STEP;
+                const y     = 18 + di * CELL_STEP;
+                const count = cell.day?.total || 0;
+                const level = countToLevel(count, maxCount);
+                const fill  = getLevels()[level];
+
+                // Tooltip data
+                const iso  = cell.iso;
+                const d    = cell.day;
+                const tip  = count === 0
+                  ? `No activity · ${iso}`
+                  : [
+                      `${count} submission${count > 1 ? 's' : ''} · ${iso}`,
+                      d?.gh ? `GitHub: ${d.gh}` : '',
+                      d?.cf ? `Codeforces: ${d.cf}` : '',
+                      d?.lc ? `LeetCode: ${d.lc}` : '',
+                      d?.ac ? `AtCoder: ${d.ac}` : '',
+                    ].filter(Boolean).join('|');
+
+                return `<rect
+                  x="${x}" y="${y}"
+                  width="${CELL_SIZE}" height="${CELL_SIZE}"
+                  rx="2" ry="2"
+                  fill="${fill}"
+                  class="ahm-cell${level > 0 ? ' ahm-cell--active' : ''}"
+                  data-date="${iso}"
+                  data-count="${count}"
+                  data-gh="${d?.gh || 0}"
+                  data-cf="${d?.cf || 0}"
+                  data-lc="${d?.lc || 0}"
+                  data-ac="${d?.ac || 0}"
+                  data-tip="${tip}"
+                />`;
+              }).join('')
+            ).join('')}
+
+          </svg>
+
+          <!-- Legend -->
+          <div class="ahm-legend" aria-hidden="true">
+            <span>less</span>
+            ${getLevels().map((c) => `<span class="ahm-legend-cell" style="background:${c}"></span>`).join('')}
+            <span>more</span>
+          </div>
+        </div>
+
+        <!-- Tooltip (positioned by JS) -->
+        <div class="ahm-tooltip" id="ahmTooltip" role="tooltip" aria-hidden="true"></div>
+      </div>
+    `;
+
+    attachTooltip(root);
+    attachBadgeFilter(root, maxCount);
+  }
+
+  function renderLoading(root) {
+    root.innerHTML = `
+      <div class="ahm-wrap ahm-loading">
+        <div class="ahm-skeleton-stats">
+          ${[...Array(4)].map(() => `<div class="ahm-skeleton ahm-skeleton-stat"></div>`).join('')}
+        </div>
+        <div class="ahm-skeleton ahm-skeleton-grid"></div>
+        <p class="ahm-loading-text">Fetching activity data…</p>
+      </div>`;
+  }
+
+  function renderError(root, msg) {
+    root.innerHTML = `
+      <div class="ahm-wrap ahm-error">
+        <p class="ahm-error-msg">⚠ ${msg}</p>
+      </div>`;
+  }
+
+  /* ── TOOLTIP ─────────────────────────────────────────────────── */
+  function attachTooltip(root) {
+    const tip   = root.querySelector('#ahmTooltip');
+    const cells = root.querySelectorAll('.ahm-cell');
+
+    cells.forEach(cell => {
+      cell.addEventListener('mouseenter', (e) => {
+        const parts = cell.dataset.tip.split('|');
+        tip.innerHTML = parts.map((p, i) =>
+          i === 0
+            ? `<strong>${p}</strong>`
+            : `<span>${p}</span>`
+        ).join('');
+        tip.setAttribute('aria-hidden', 'false');
+        moveTip(e, tip, root);
+        tip.classList.add('ahm-tooltip--visible');
+      });
+
+      cell.addEventListener('mousemove', (e) => moveTip(e, tip, root));
+
+      cell.addEventListener('mouseleave', () => {
+        tip.classList.remove('ahm-tooltip--visible');
+        tip.setAttribute('aria-hidden', 'true');
+      });
+    });
+  }
+
+  function moveTip(e, tip, root) {
+    const rect   = root.getBoundingClientRect();
+    const tipW   = tip.offsetWidth  || 180;
+    const tipH   = tip.offsetHeight || 60;
+    let   left   = e.clientX - rect.left + 12;
+    let   top    = e.clientY - rect.top  - tipH - 8;
+
+    if (left + tipW > rect.width - 8)  left = e.clientX - rect.left - tipW - 12;
+    if (top < 4)                        top  = e.clientY - rect.top  + 20;
+
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+  }
+
+  /* ── BADGE FILTER ───────────────────────────────────────────── */
+  /*
+   * Single-click  → filter to that platform (toggle on).
+   * Click again   → clear filter, show all.
+   * Only one platform active at a time.
+   *
+   * Works purely on already-rendered rects — no re-render.
+   * Reads data-gh / data-cf / data-lc / data-ac set on each rect.
+   */
+  function attachBadgeFilter(root, maxCount) {
+    const badges = root.querySelectorAll('.ahm-badge[data-platform]');
+    const cells  = root.querySelectorAll('.ahm-cell');
+    let   active = null;   // currently filtered platform key, or null = all
+
+    function applyFilter(platform) {
+      const levels = getLevels();
+      cells.forEach(cell => {
+        const count = platform
+          ? parseInt(cell.dataset[platform] || '0', 10)
+          : parseInt(cell.dataset.count     || '0', 10);
+
+        // recolour
+        const pct  = maxCount > 0 ? count / maxCount : 0;
+        const lvl  = count === 0 ? 0 : pct < .15 ? 1 : pct < .35 ? 2 : pct < .65 ? 3 : 4;
+        cell.setAttribute('fill', levels[lvl]);
+
+        // fade cells that have zero count for this platform
+        cell.style.opacity = (platform && count === 0) ? '0.18' : '1';
+      });
+    }
+
+    badges.forEach(badge => {
+      badge.style.cursor = 'pointer';
+      badge.setAttribute('role', 'button');
+      badge.setAttribute('tabindex', '0');
+      badge.title = 'Click to filter · click again to clear';
+
+      const activate = () => {
+        const key = badge.dataset.platform;   // 'gh' | 'cf' | 'lc' | 'ac'
+
+        if (active === key) {
+          // toggle off → show all
+          active = null;
+          badges.forEach(b => b.classList.remove('ahm-badge--active'));
+          applyFilter(null);
+        } else {
+          active = key;
+          badges.forEach(b => b.classList.toggle('ahm-badge--active', b === badge));
+          applyFilter(key);
+        }
+      };
+
+      badge.addEventListener('click', activate);
+      badge.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+      });
+    });
+  }
+
+  /* ── INJECT STYLES ───────────────────────────────────────────── */
+  function injectStyles() {
+    if (document.getElementById('ahm-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'ahm-styles';
+    style.textContent = `
+      /* ── Heatmap section wrapper ── */
+      .ahm-wrap {
+        position: relative;
+        font-family: var(--font-mono, 'JetBrains Mono', monospace);
+      }
+
+      /* ── Stats bar ── */
+      .ahm-stats {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.5rem 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ahm-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .ahm-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--green, #2da44e);
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+
+      .ahm-stat-label {
+        font-size: 0.65rem;
+        color: var(--text-muted, #666);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      /* ── Platform badges ── */
+      .ahm-platform-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-left: auto;
+      }
+
+      .ahm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.7rem;
+        border: 1px solid var(--border, #222);
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        color: var(--text-dim, #a0a0a0);
+        background: var(--bg3, #181818);
+        transition: border-color 0.2s, color 0.2s;
+      }
+
+      .ahm-badge em {
+        font-style: normal;
+        color: var(--green, #2da44e);
+        font-weight: 600;
+      }
+
+      .ahm-badge[data-platform="gh"]:hover,
+      .ahm-badge[data-platform="gh"].ahm-badge--active { border-color: #58a6ff; color: #58a6ff; }
+      .ahm-badge[data-platform="cf"]:hover,
+      .ahm-badge[data-platform="cf"].ahm-badge--active { border-color: #1890ff; color: #1890ff; }
+      .ahm-badge[data-platform="lc"]:hover,
+      .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: #ffa116; color: #ffa116; }
+      .ahm-badge[data-platform="ac"]:hover,
+      .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: #00c4c4; color: #00c4c4; }
+
+      .ahm-badge--active {
+        background: rgba(255,255,255,0.05);
+        font-weight: 600;
+      }
+      [data-theme="light"] .ahm-badge--active {
+        background: rgba(0,0,0,0.05);
+      }
+
+      /* ── SVG grid ── */
+      .ahm-grid-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;
+      }
+
+      .ahm-svg {
+        display: block;
+        min-width: 640px;
+      }
+
+      /* Cell SVG text */
+      .ahm-month {
+        font-family: var(--font-mono, monospace);
+        font-size: 9px;
+        fill: var(--text-muted, #666);
+        letter-spacing: 0.05em;
+      }
+
+      .ahm-day {
+        font-family: var(--font-mono, monospace);
+        font-size: 9px;
+        fill: var(--text-muted, #666);
+        text-anchor: middle;
+      }
+
+      /* Cells */
+      .ahm-cell {
+        cursor: default;
+        transition: opacity 0.15s, filter 0.15s;
+        stroke-width: 1.5;
+      }
+      [data-theme="dark"]  .ahm-cell { stroke: #0A0A0A; }
+      [data-theme="light"] .ahm-cell { stroke: #F5F5F0; }
+
+      .ahm-cell--active {
+        cursor: pointer;
+      }
+
+      .ahm-cell--active:hover {
+        opacity: 0.85;
+        filter: brightness(1.2);
+      }
+
+      /* Legend */
+      .ahm-legend {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 0.6rem;
+        justify-content: flex-end;
+        font-size: 0.65rem;
+        color: var(--text-muted, #666);
+      }
+
+      .ahm-legend-cell {
+        width: 11px;
+        height: 11px;
+        border-radius: 2px;
+        display: inline-block;
+      }
+      [data-theme="dark"]  .ahm-legend-cell { border: 1px solid rgba(255,255,255,0.06); }
+      [data-theme="light"] .ahm-legend-cell { border: 1px solid rgba(0,0,0,0.08); }
+
+      /* ── Tooltip ── */
+      .ahm-tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: var(--bg2, #111);
+        border: 1px solid var(--border2, #2a2a2a);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.72rem;
+        color: var(--text, #ededed);
+        white-space: nowrap;
+        z-index: 50;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.12s ease, transform 0.12s ease;
+        line-height: 1.65;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .ahm-tooltip--visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .ahm-tooltip strong {
+        color: var(--green, #2da44e);
+        display: block;
+      }
+
+      .ahm-tooltip span {
+        color: var(--text-dim, #a0a0a0);
+        display: block;
+        padding-left: 0.5rem;
+        border-left: 2px solid var(--border, #222);
+      }
+
+      /* ── Loading skeleton ── */
+      .ahm-skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--bg3, #181818) 25%,
+          var(--bg2, #111)    50%,
+          var(--bg3, #181818) 75%
+        );
+        background-size: 200% 100%;
+        animation: ahm-shimmer 1.5s infinite;
+        border-radius: 6px;
+      }
+
+      @keyframes ahm-shimmer {
+        from { background-position: 200% 0; }
+        to   { background-position: -200% 0; }
+      }
+
+      .ahm-skeleton-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ahm-skeleton-stat {
+        width: 80px;
+        height: 48px;
+      }
+
+      .ahm-skeleton-grid {
+        width: 100%;
+        height: 120px;
+      }
+
+      .ahm-loading-text {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-muted, #666);
+        font-family: var(--font-mono, monospace);
+        text-align: center;
+      }
+
+      .ahm-error-msg {
+        color: var(--text-dim, #a0a0a0);
+        font-size: 0.85rem;
+        font-family: var(--font-mono, monospace);
+        padding: 1.5rem 0;
+      }
+
+      /* ── Reduced motion ── */
+      @media (prefers-reduced-motion: reduce) {
+        .ahm-skeleton { animation: none; }
+        .ahm-tooltip  { transition: none; }
+        .ahm-cell      { transition: none; }
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 640px) {
+        .ahm-stats { gap: 1rem 1.5rem; }
+        .ahm-stat-value { font-size: 1.2rem; }
+        .ahm-platform-badges { margin-left: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /* ── BOOT ────────────────────────────────────────────────────── */
+
+  // Cached data so theme-toggle re-renders don't refetch
+  let _cachedMerged   = null;
+  let _cachedStats    = null;
+  let _cachedUsernames = null;
+
+  async function init() {
+    const root = document.getElementById('activityHeatmap');
+    if (!root) return;
+
+    const usernames = {
+      github:      OVERRIDE.github      ?? root.dataset.github     ?? '',
+      codeforces:  OVERRIDE.codeforces  ?? root.dataset.codeforces ?? '',
+      leetcode:    OVERRIDE.leetcode    ?? root.dataset.leetcode   ?? '',
+      atcoder:     OVERRIDE.atcoder     ?? root.dataset.atcoder    ?? '',
+    };
+    _cachedUsernames = usernames;
+
+    injectStyles();
+    renderLoading(root);
+
+    try {
+      const [gh, cf, lc, ac] = await Promise.all([
+        fetchGitHub(usernames.github),
+        fetchCodeforces(usernames.codeforces),
+        fetchLeetCode(usernames.leetcode),
+        fetchAtCoder(usernames.atcoder),
+      ]);
+
+      _cachedMerged = merge(gh, cf, lc, ac);
+      _cachedStats  = computeStats(_cachedMerged);
+
+      render(root, _cachedMerged, _cachedStats, _cachedUsernames);
+    } catch (err) {
+      console.error('[heatmap] Fatal error:', err);
+      renderError(root, 'Could not load activity data. Check console for details.');
+    }
+  }
+
+  // Re-render cells when the portfolio theme toggle fires — no refetch needed
+  document.addEventListener('themeChange', () => {
+    const root = document.getElementById('activityHeatmap');
+    if (!root || !_cachedMerged) return;
+    render(root, _cachedMerged, _cachedStats, _cachedUsernames);
+  });
+
+  // Run after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+
+/* ================================================================
    ERROR HANDLING
 ================================================================ */
 function handleError(message) {

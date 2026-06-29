@@ -7,16 +7,16 @@ window.DATA_SITE = {
   availability: "Intern @ pravii Technologies and Industry solutions",
   footerLocation: "MIT World Peace University, Kothrud, Pune, India",
   stats: [
-    { value: "966 - Newbie", label: "Codeforces" },
-    { value: "1367 - 2★", label: "CodeChef" },
-    { value: "500+", label: "Problems Solved" },
-    { value: "8.88", label: "SGPA (Sem I)" }
+    { value: "1036 - Newbie", label: "Codeforces", id: "codeforces-rating" },
+    { value: "226", label: "GitHub Commits", id: "github-commits" },
+    { value: "277", label: "Problems Solved", id: "problems-solved" },
+    { value: "8.67", label: "CGPA (Sem II)" }
   ],
   ctas: [
     { label: "Contact me", url: "#contact", type: "primary" },
     { label: "GitHub", url: "https://github.com/HAPPIOcrz007", type: "ghost" },
     { label: "LinkedIn", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", type: "ghost" },
-    { label: "Coding Profile", url: "https://codolio.com/profile/Happiocrz", type: "ghost"}
+    { label: "Coding Profile", url: "https://codolio.com/profile/Happiocrz", type: "ghost" }
   ],
   contact: {
     intro: "Open to internship opportunities, research collaborations, and discussions on systems programming, hardware design, or competitive programming. I respond within 24 hours.",
@@ -34,34 +34,34 @@ window.DATA_SITE = {
   }
 };
 document.getElementById('resumeBtn').addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    // Build resume from existing data
-    const site = window.DATA_SITE;
-    const skills = window.DATA_SKILLS;
-    const projects = window.DATA_PROJECTS;
-    
-    let resumeContent = `# ${site.name}\n\n`;
-    resumeContent += `${site.tagline}\n\n`;
-    resumeContent += `## Contact\n- Email: ${site.contact?.emails?.[0]?.address}\n\n`;
-    resumeContent += `## Skills\n`;
-    skills.forEach(skill => {
-        resumeContent += `### ${skill.category}\n`;
-        resumeContent += `${skill.items.join(', ')}\n\n`;
-    });
-    resumeContent += `## Projects\n`;
-    projects.forEach(project => {
-        resumeContent += `### ${project.title}\n`;
-        resumeContent += `${project.shortDesc}\n`;
-        resumeContent += `Technologies: ${project.tech.join(', ')}\n\n`;
-    });
-    
-    // Download
-    const blob = new Blob([resumeContent], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Harshvardhan_Rathod_Resume.md';
-    a.click();
-    URL.revokeObjectURL(url);
+  e.preventDefault();
+
+  // Build resume from existing data
+  const site = window.DATA_SITE;
+  const skills = window.DATA_SKILLS;
+  const projects = window.DATA_PROJECTS;
+
+  let resumeContent = `# ${site.name}\n\n`;
+  resumeContent += `${site.tagline}\n\n`;
+  resumeContent += `## Contact\n- Email: ${site.contact?.emails?.[0]?.address}\n\n`;
+  resumeContent += `## Skills\n`;
+  skills.forEach(skill => {
+    resumeContent += `### ${skill.category}\n`;
+    resumeContent += `${skill.items.join(', ')}\n\n`;
+  });
+  resumeContent += `## Projects\n`;
+  projects.forEach(project => {
+    resumeContent += `### ${project.title}\n`;
+    resumeContent += `${project.shortDesc}\n`;
+    resumeContent += `Technologies: ${project.tech.join(', ')}\n\n`;
+  });
+
+  // Download
+  const blob = new Blob([resumeContent], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Harshvardhan_Rathod_Resume.md';
+  a.click();
+  URL.revokeObjectURL(url);
 });

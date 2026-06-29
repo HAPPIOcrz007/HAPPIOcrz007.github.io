@@ -210,6 +210,51 @@ function attachCardEvents(root, selector, getHandler) {
   });
 }
 
+/* ================================================================
+   UPDATE HERO STATS FROM HEATMAP
+================================================================ */
+function updateHeroStatsFromHeatmap(stats) {
+  if (!stats) return;
+  
+  // Update Codeforces Rating
+  const cfStat = document.querySelector('[data-stat-id="codeforces-rating"] .stat-value');
+  if (cfStat && stats.cfRating !== undefined && stats.cfRating !== null) {
+    // Get rank from rating
+    let rank = 'Newbie';
+    if (stats.cfRating >= 2900) rank = 'Legendary Grandmaster';
+    else if (stats.cfRating >= 2600) rank = 'International Grandmaster';
+    else if (stats.cfRating >= 2400) rank = 'Grandmaster';
+    else if (stats.cfRating >= 2300) rank = 'International Master';
+    else if (stats.cfRating >= 2100) rank = 'Master';
+    else if (stats.cfRating >= 1900) rank = 'Candidate Master';
+    else if (stats.cfRating >= 1600) rank = 'Expert';
+    else if (stats.cfRating >= 1400) rank = 'Specialist';
+    else if (stats.cfRating >= 1200) rank = 'Pupil';
+    else rank = 'Newbie';
+    
+    cfStat.textContent = `${stats.cfRating} - ${rank}`;
+    const parent = cfStat.closest('.stat');
+    if (parent) parent.classList.add('reveal', 'visible');
+  }
+
+  // Update GitHub Commits
+  const ghStat = document.querySelector('[data-stat-id="github-commits"] .stat-value');
+  if (ghStat) {
+    ghStat.textContent = stats.githubTotal.toLocaleString();
+    const parent = ghStat.closest('.stat');
+    if (parent) parent.classList.add('reveal', 'visible');
+  }
+
+  // Update Problems Solved (CF + LC + AC)
+  const psStat = document.querySelector('[data-stat-id="problems-solved"] .stat-value');
+  if (psStat) {
+    const total = stats.cfTotal + stats.lcTotal + stats.acTotal;
+    psStat.textContent = total.toLocaleString();
+    const parent = psStat.closest('.stat');
+    if (parent) parent.classList.add('reveal', 'visible');
+  }
+}
+
 /* ===== Renderers ===== */
 function renderSite(site) {
   if (!site) return;
@@ -246,7 +291,7 @@ function renderSite(site) {
   const statsEl = $('#heroStats');
   if (statsEl && site.stats?.length) {
     statsEl.innerHTML = site.stats.map(s => `
-      <div class="stat reveal">
+      <div class="stat reveal" ${s.id ? `data-stat-id="${s.id}"` : ''}>
         <div class="stat-value">${escapeHtml(s.value)}</div>
         <div class="stat-label">${escapeHtml(s.label)}</div>
       </div>
@@ -714,13 +759,25 @@ function initScrollEffects() {
   }
 
   /**
-   * Codeforces: /user.status returns all submissions.
-   * We count AC submissions per day (others count too if you want).
+   * Codeforces: /user.status returns all submissions AND rating.
+   * Returns { submissions: {}, rating: 0 }
    */
   async function fetchCodeforces(handle) {
-    if (!handle) return {};
+    if (!handle) return { submissions: {}, rating: 0 };
     const map = {};
+    let rating = 0;
     try {
+      // Get user info for rating
+      const userUrl = `https://codeforces.com/api/user.info?handles=${handle}`;
+      const userRes = await fetch(userUrl, { signal: AbortSignal.timeout(5000) });
+      if (userRes.ok) {
+        const userJson = await userRes.json();
+        if (userJson.status === 'OK' && userJson.result.length > 0) {
+          rating = userJson.result[0].rating || 0;
+        }
+      }
+
+      // Get submissions
       const url = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`;
       const r   = await fetch(url, { signal: AbortSignal.timeout(10000) });
       if (!r.ok) throw new Error(r.status);
@@ -733,7 +790,7 @@ function initScrollEffects() {
     } catch (e) {
       console.warn('[heatmap] Codeforces fetch failed:', e.message);
     }
-    return map;
+    return { submissions: map, rating };
   }
 
   /**
@@ -1405,6 +1462,7 @@ function initScrollEffects() {
   let _cachedMerged   = null;
   let _cachedStats    = null;
   let _cachedUsernames = null;
+  let _cachedCfRating = 0;
 
   async function init() {
     const root = document.getElementById('activityHeatmap');
@@ -1429,10 +1487,21 @@ function initScrollEffects() {
         fetchAtCoder(usernames.atcoder),
       ]);
 
-      _cachedMerged = merge(gh, cf, lc, ac);
+      // Extract submissions and rating from CF response
+      const cfSubmissions = cf.submissions || {};
+      _cachedCfRating = cf.rating || 0;
+
+      _cachedMerged = merge(gh, cfSubmissions, lc, ac);
       _cachedStats  = computeStats(_cachedMerged);
+      
+      // Add CF rating to stats
+      _cachedStats.cfRating = _cachedCfRating;
 
       render(root, _cachedMerged, _cachedStats, _cachedUsernames);
+      
+      // Update hero stats with real data
+      updateHeroStatsFromHeatmap(_cachedStats);
+
     } catch (err) {
       console.error('[heatmap] Fatal error:', err);
       renderError(root, 'Could not load activity data. Check console for details.');
@@ -1444,6 +1513,8 @@ function initScrollEffects() {
     const root = document.getElementById('activityHeatmap');
     if (!root || !_cachedMerged) return;
     render(root, _cachedMerged, _cachedStats, _cachedUsernames);
+    // Update hero stats on theme change too
+    updateHeroStatsFromHeatmap(_cachedStats);
   });
 
   // Run after DOM is ready

@@ -80,7 +80,23 @@ function initTheme() {
     btn.textContent = next === 'dark' ? '☾' : '☀';
     localStorage.setItem('theme', next);
     document.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: next } }));
+    // Update profile image when theme changes
+    updateProfileImage();
   });
+}
+
+/* ===== Profile Image Theme Switcher ===== */
+function updateProfileImage() {
+  const profileImg = document.getElementById('profileImg');
+  if (!profileImg) return;
+  
+  const theme = document.documentElement.dataset.theme || 'dark';
+  // Use profile_dark.png for dark theme, profile_light.png for light theme
+  const imagePath = theme === 'dark' 
+    ? 'assets/images/profile_dark.png' 
+    : 'assets/images/profile_light.png';
+  
+  profileImg.src = imagePath;
 }
 
 /* ===== Modal ===== */
@@ -270,9 +286,11 @@ function renderSite(site) {
   set('#footerLocation', site.footerLocation || '');
   set('#footerYear',     new Date().getFullYear());
 
+  // Profile image with theme support
   const profileImg = $('#profileImg');
   if (profileImg) {
-    profileImg.src = site.profileImage || 'assets/images/profile.png';
+    // Set initial image based on current theme
+    updateProfileImage();
     profileImg.alt = escapeHtml(site.name || 'Profile');
   }
 

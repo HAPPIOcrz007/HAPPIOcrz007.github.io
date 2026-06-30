@@ -1,5 +1,43 @@
 /* ============================================================
    main.js — Portfolio runtime with Apple-style animations
+
+   Contains two modules:
+     1. Site runtime (theme, modal, renderers, scroll/reveal fx)
+     2. Multi-platform activity heatmap (IIFE, line ~675+)
+
+   ---------------------------------------------------------------
+   AUDIT NOTES — optimization pass, referenced by line number below
+   ---------------------------------------------------------------
+   #1  One shared scroll listener (rAF-throttled) drives the progress
+       bar, parallax, and heatmap fill, instead of three separate
+       listeners. See initScrollEffects() ~L529, onScroll() ~L586,
+       and its call site in the boot block near the end of the file.
+   #2  Heatmap particle speed is set via a single CSS variable
+       (--particle-speed) instead of writing inline styles to all
+       30 particle nodes on every scroll frame. ~L620
+       (matching rule lives in styles.css).
+   #3  Modal's close button is queried once in init() and cached on
+       modal.closeBtn, instead of re-querying on every open(). ~L108
+   #4  Carousel prev()/next() share one modulo-wrap guard instead of
+       duplicated bounds checks. ~L178
+   #5  attachCardEvents() is one reusable click/keyboard handler
+       used for both project and certificate cards (event
+       delegation), replacing two near-identical listener pairs.
+       Defined ~L216, used at the project grid and certificate grid
+       renderers below it.
+   #6  escapeHtml() only guards against null/undefined so falsy
+       values like 0 or false aren't silently coerced to ''. ~L18
+   #7  Scroll-reveal CSS now lives in styles.css; JS only toggles
+       the .visible class via IntersectionObserver — no runtime
+       <style> injection for this feature. ~L452
+   #8  Reveal observer attaches inside a single requestAnimationFrame
+       call rather than nested rAFs. ~L497
+   #12 Progress bar skips JS updates entirely when the browser
+       supports native CSS scroll-driven animation
+       (animation-timeline: scroll()). ~L535
+   #15 Hero name markup is only rewritten if the data-driven name
+       differs from the static HTML already in the page, avoiding
+       an unnecessary reflow on load. ~L297
    ============================================================ */
 
 /* ================================================================
@@ -14,7 +52,6 @@ const ANIM_ROOT_MARGIN = '0px 0px -80px 0px';
 /* ===== Tiny DOM helpers ===== */
 const $ = (sel) => document.querySelector(sel);
 
-/* FIX #6 — guard on `null`/`undefined` only; don't coerce 0/false to '' */
 const escapeHtml = (s) => {
   if (s == null) return '';
   return String(s).replace(/[&<>"']/g, (c) =>
@@ -105,7 +142,6 @@ const modal = {
   title:     null,
   carousel:  null,
   body:      null,
-  /* FIX #3 — cache closeBtn once in init() */
   closeBtn:  null,
   images:    [],
   index:     0,
@@ -160,7 +196,6 @@ const modal = {
     this.root.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    /* FIX #3 — reuse cached closeBtn */
     setTimeout(() => this.closeBtn?.focus(), 100);
   },
 
@@ -175,7 +210,6 @@ const modal = {
     }
   },
 
-  /* FIX #4 — simplified guard */
   prev() {
     if (this.images.length <= 1) return;
     this.index = (this.index - 1 + this.images.length) % this.images.length;
@@ -212,8 +246,7 @@ const modal = {
   },
 };
 
-/* ===== Shared helper: attach click+Enter/Space to a card ===== */
-/* FIX #5 — single reusable function replaces two identical loops */
+/* Shared helper: attach click + Enter/Space handling to a card grid (event delegation) */
 function attachCardEvents(root, selector, getHandler) {
   root.addEventListener('click', (e) => {
     const card = e.target.closest(selector);
@@ -294,7 +327,7 @@ function renderSite(site) {
     profileImg.alt = escapeHtml(site.name || 'Profile');
   }
 
-  /* FIX #15 — only rewrite heroName if data differs from static HTML */
+  // Only rewrite heroName markup if the data-driven name differs from static HTML
   const heroName = $('#heroName');
   if (heroName && site.name) {
     const parts = site.name.split(' ');
@@ -410,7 +443,7 @@ function renderProjects(projects) {
       </div>`;
   }).join('');
 
-  /* FIX #5 — single event-delegated handler instead of N×2 listeners */
+  // Event delegation: one listener for the whole grid instead of one per card
   const projectMap = new Map(projects.map(p => [p.id, p]));
   attachCardEvents(root, '.project-card', (card) => async () => {
     const p  = projectMap.get(card.dataset.id);
@@ -435,7 +468,6 @@ function renderCertificates(certs) {
     </div>
   `).join('');
 
-  /* FIX #5 — event delegation */
   const certMap = new Map(certs.map(c => [c.id, c]));
   attachCardEvents(root, '.cert-card', (card) => async () => {
     const c  = certMap.get(card.dataset.id);
@@ -447,13 +479,12 @@ function renderCertificates(certs) {
 }
 
 /* ================================================================
-   SCROLL REVEAL — styles now live in CSS; JS only drives visibility
+   SCROLL REVEAL — visibility rules live in CSS; JS only drives state
 ================================================================ */
 function initScrollReveal() {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* FIX #7 — no more runtime <style> injection; reveal rules are in styles.css.
-     For reduced motion, just flip all .reveal to .visible immediately. */
+  // Reduced motion: skip the observer, show everything immediately
   if (reduced) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
     return;
@@ -493,7 +524,6 @@ function initScrollReveal() {
     });
   }, { threshold: ANIM_THRESHOLD, rootMargin: ANIM_ROOT_MARGIN });
 
-  /* FIX #8 — single rAF is enough */
   requestAnimationFrame(() => {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   });
@@ -522,9 +552,8 @@ function initLinkEffects() {
 
 /* ================================================================
    UNIFIED SCROLL HANDLER
-   FIX #1 — one scroll listener; progress computed once per frame.
-   FIX #12 — skip JS progress-bar update when CSS scroll-driven
-             animation is supported (browser handles it natively).
+   One rAF-throttled listener drives the progress bar, parallax, and
+   heatmap fill — progress is computed once per frame and shared.
 ================================================================ */
 function initScrollEffects() {
   /* ── progress bar ── */
@@ -556,7 +585,6 @@ function initScrollEffects() {
           `width:${sz}`,
           `height:${sz}`,
           `opacity:${(0.2 + Math.random() * 0.3).toFixed(2)}`,
-          /* initial speed; CSS var drives dynamic speed — see FIX #2 */
           `animation-duration:${(3 + Math.random() * 4).toFixed(2)}s`,
           `animation-delay:${(Math.random() * 5).toFixed(2)}s`,
         ].join(';');
@@ -584,12 +612,12 @@ function initScrollEffects() {
   let lastTop  = 0;
 
   function onScroll() {
-    /* FIX #1 — computed once, shared by every feature */
+    // Computed once per frame, shared by every effect below
     const scrollTop = window.pageYOffset;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     const progress  = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-    /* Progress bar — FIX #12 */
+    // Skip JS-driven width updates if native CSS scroll-timeline is supported
     if (!nativePB && Math.abs(scrollTop - lastTop) > 1) {
       progressBar.style.width = Math.min(progress, 100) + '%';
       lastTop = scrollTop;
@@ -617,7 +645,7 @@ function initScrollEffects() {
 
       if (pctDisplay) pctDisplay.textContent = Math.round(clamped) + '% density';
 
-      /* FIX #2 — one CSS variable write instead of 30 DOM style writes */
+      // Single CSS var write instead of restyling all 30 particle nodes
       const speed = (3 + (progress / 100) * 4).toFixed(2);
       heatmap.style.setProperty('--particle-speed', speed + 's');
 
@@ -1585,7 +1613,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initScrollReveal();
     initLinkEffects();
-    /* FIX #1 — single unified function replaces initBackgroundAnimations + initHeatmap */
     initScrollEffects();
 
     document.dispatchEvent(new CustomEvent('portfolio:ready'));

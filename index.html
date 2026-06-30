@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  AUDIT NOTES — optimization pass, referenced by line number below
+  #15  hero-name (~L130 below) keeps its static markup as-is for a
+       CLS-free LCP; main.js only rewrites its innerHTML if the
+       data-driven name actually differs from this markup.
+  #16  Twitter Card meta tags below (~L33) ship without
+       twitter:site/twitter:creator handles — fill in a real handle
+       or remove those two lines once one exists.
+  #17  Schema.org JSON-LD block at the end of <body> uses this site's
+       real GitHub URL; update "sameAs" if more verified profiles
+       (LinkedIn, CF, etc.) are added later.
+-->
 <html lang="en" data-theme="dark">
 
 <head>
@@ -30,7 +42,7 @@
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
-  <!-- FIX #16 — fill in your real Twitter handle or remove these two lines -->
+  <!-- twitter:site / twitter:creator intentionally omitted — see audit note #16 above -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Harshvardhan Rathod — Systems Engineer" />
   <meta name="twitter:description"
@@ -123,8 +135,6 @@
         <div>
           <p class="hero-eyebrow" id="heroEyebrow" aria-label="Greeting"></p>
 
-          <!-- FIX #15 — static markup kept as-is for CLS-free LCP;
-               JS only rewrites innerHTML if data-driven name differs. -->
           <h1 class="hero-name" id="heroName">
             Harshvardhan <span class="accent">Rathod</span>
           </h1>
@@ -252,7 +262,6 @@
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/heatmap.js" defer></script>
 
-  <!-- FIX #17 — Schema.org: replace placeholder URLs with real profiles -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",

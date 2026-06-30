@@ -1,10 +1,25 @@
-# Linux Systems Programming
+# =(#1866E1)AlgoZenith Scriptwise — Linux Shell=
 
-Hands-on coursework on Linux/POSIX systems programming.
+## =(#2da44e)★ Certificate of Completion=
 
-**Projects built**
+Mastered =(#ff6b6b)Linux Shell Scripting= with a focus on automation, system administration, and developer productivity.
 
-- A minimal POSIX shell with pipes and job control
-- A multiplexed TCP echo server using `epoll`
-- A thread-pool work scheduler
-- A signal-safe logging library
+## =(#f0a030)Key Skills Acquired=
+
+- =(#2da44e)Bash Scripting= — Variables, Conditionals, Loops, Functions
+- =(#58a6ff)Process Management= — Background jobs, signals, process control
+- =(#f0a030)Text Processing= — grep, sed, awk, cut, sort, uniq
+- =(#ff6b6b)System Automation= — Cron jobs, systemd services, monitoring
+- =(#2da44e)File System Operations= — Permissions, links, mounting
+
+## =(#1866E1)Tools Mastered=
+
+`Bash` · `sed` · `awk` · `grep` · `cron` · `systemd` · `Linux CLI`
+
+## =(#f0a030)Issued By=
+
+**AlgoZenith** — Empowering developers with practical Linux and systems skills.
+
+## =(#58a6ff)Date=
+
+2026

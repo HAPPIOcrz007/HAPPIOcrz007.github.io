@@ -1,5 +1,36 @@
 /* ================================================================
    RESET + BASE
+
+   ---------------------------------------------------------------
+   AUDIT NOTES — optimization pass, referenced by line number below
+   ---------------------------------------------------------------
+   #2  Heatmap particle animation speed reads from a single
+       --particle-speed CSS var (set once per scroll frame by JS)
+       instead of being restyled per-particle. See .heatmap-particle
+       below and onScroll() in main.js.
+   #7  Scroll-reveal rules (.reveal / .reveal.visible) live here
+       instead of being injected at runtime from JS. See the
+       "SCROLL REVEAL" section further down.
+   #9  Card/stat-specific reveal transitions are extended directly
+       in the .reveal block so they also cover theme-change
+       transitions, removing the need for a separate
+       .hero-ctas .btn transition rule (the base .btn rule already
+       covers it).
+   #10 body{} is one consolidated rule (background, color, font,
+       transitions) instead of being split across multiple rules.
+   #11 ::-moz-selection was removed — Firefox 62+ honours the
+       standard ::selection selector, so the prefixed copy was dead
+       weight.
+   #12 .scroll-progress includes transform-origin: left so its
+       scaleX animation starts from the left edge; JS skips updating
+       it manually whenever the browser supports native CSS
+       scroll-driven animation (@supports animation-timeline: scroll()).
+   #13 An empty @media (prefers-color-scheme: dark) block was
+       removed — theme switching is handled via the data-theme
+       attribute toggle, not a media query.
+   #14 All green tones derive from one --green-rgb token, so any
+       alpha variant is written as rgba(var(--green-rgb), α) instead
+       of hardcoding new hex/rgba values per use site.
    ================================================================ */
 *, *::before, *::after {
   margin: 0;
@@ -22,7 +53,6 @@
   --ease-apple:  cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.8, 0.64, 1);
 
-  /* FIX #14 — single green RGB token; use rgba(var(--green-rgb), α) everywhere */
   --green-rgb:   45, 164, 78;
   --green:       #2da44e;
   --green-dim:   rgba(45, 164, 78, 0.08);
@@ -83,7 +113,6 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* FIX #10 — single consolidated body rule */
 body {
   background: var(--bg);
   color: var(--text);
@@ -102,7 +131,6 @@ body.loading {
   opacity: 0;
 }
 
-/* FIX #11 — ::-moz-selection removed; Firefox 62+ honours ::selection */
 ::selection {
   background: var(--green);
   color: #000;
@@ -137,8 +165,6 @@ a {
   background: var(--bg);
 }
 
-/* FIX #12 — JS skips updating this when @supports block is active.
-   Added transform-origin so the scaleX animation starts from the left. */
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -337,7 +363,6 @@ a {
   overflow: visible;
 }
 
-/* FIX #2 — particle speed driven by a single CSS var set on the container */
 .heatmap-particle {
   position: absolute;
   width: 2px;
@@ -507,9 +532,6 @@ nav {
   min-width: 44px;
   justify-content: center;
 }
-
-/* FIX #9 — removed redundant .hero-ctas .btn transition block;
-   .btn already has these transitions. */
 
 .btn-primary {
   background: var(--green);
@@ -723,9 +745,6 @@ nav {
 
 /* ================================================================
    SCROLL REVEAL
-   FIX #7 — moved here from JS runtime injection.
-   FIX #9 — card/stat specific transitions extended here so they
-             include theme-change transitions as well.
    ================================================================ */
 .reveal {
   opacity: 0;
@@ -1825,8 +1844,6 @@ footer {
 
   .scroll-progress  { transition: none !important; }
 }
-
-/* FIX #13 — removed empty @media (prefers-color-scheme: dark) block */
 
 /* ================================================================
    UTILITY CLASSES

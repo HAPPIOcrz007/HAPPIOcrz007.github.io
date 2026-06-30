@@ -11,7 +11,7 @@ window.DATA_SITE = {
     { value: "226", label: "GitHub Commits", id: "github-commits" },
     { value: "277", label: "Problems Solved", id: "problems-solved" },
     { value: "8.67", label: "CGPA (Sem II)" }
-  ],
+  ],  
   ctas: [
     { label: "Contact me", url: "#contact", type: "primary" },
     { label: "GitHub", url: "https://github.com/HAPPIOcrz007", type: "ghost" },

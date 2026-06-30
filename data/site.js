@@ -33,35 +33,3 @@ window.DATA_SITE = {
     ]
   }
 };
-document.getElementById('resumeBtn').addEventListener('click', async (e) => {
-  e.preventDefault();
-
-  // Build resume from existing data
-  const site = window.DATA_SITE;
-  const skills = window.DATA_SKILLS;
-  const projects = window.DATA_PROJECTS;
-
-  let resumeContent = `# ${site.name}\n\n`;
-  resumeContent += `${site.tagline}\n\n`;
-  resumeContent += `## Contact\n- Email: ${site.contact?.emails?.[0]?.address}\n\n`;
-  resumeContent += `## Skills\n`;
-  skills.forEach(skill => {
-    resumeContent += `### ${skill.category}\n`;
-    resumeContent += `${skill.items.join(', ')}\n\n`;
-  });
-  resumeContent += `## Projects\n`;
-  projects.forEach(project => {
-    resumeContent += `### ${project.title}\n`;
-    resumeContent += `${project.shortDesc}\n`;
-    resumeContent += `Technologies: ${project.tech.join(', ')}\n\n`;
-  });
-
-  // Download
-  const blob = new Blob([resumeContent], { type: 'text/markdown' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'Harshvardhan_Rathod_Resume.md';
-  a.click();
-  URL.revokeObjectURL(url);
-});

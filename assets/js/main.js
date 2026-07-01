@@ -846,28 +846,37 @@ function initScrollEffects() {
   async function fetchLeetCode(username) {
     if (!username) return {};
     const map = {};
-    try {
-      // leetcode.com/graphql blocks CORS from browsers.
-      // alfa-leetcode-api is a free public CORS proxy that mirrors the same data.
-      // Fallback chain: proxy → silent fail (heatmap still renders other platforms).
-      const r = await fetch(
-        `https://alfa-leetcode-api.onrender.com/userProfileCalendar?username=${encodeURIComponent(username)}&year=${new Date().getFullYear()}`,
-        { signal: AbortSignal.timeout(12000) }
-      );
-      if (!r.ok) throw new Error(r.status);
-      const json = await r.json();
-      // Response: { submissionCalendar: '{"timestamp": count, ...}' }
-      const raw = json?.submissionCalendar;
-      if (!raw) throw new Error('empty response');
-      const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      for (const [ts, count] of Object.entries(cal)) {
-        const date = toISO(new Date(Number(ts) * 1000));
-        map[date] = (map[date] || 0) + count;
+
+    // leetcode.com/graphql blocks CORS from browsers.
+    // alfa-leetcode-api is a free public CORS proxy that mirrors the same data.
+    // Endpoint is path-param style: /:username/calendar?year=YYYY
+    // (the old ?username=&year= query-string route is retired and 404s).
+    const url = `https://alfa-leetcode-api.onrender.com/${encodeURIComponent(username)}/calendar?year=${new Date().getFullYear()}`;
+
+    // The free Render instance sleeps when idle and can take 20-50s to cold-start
+    // on the first request. One retry with a longer timeout covers that case
+    // instead of giving up after a single 12s attempt.
+    const attempts = [12000, 25000];
+
+    for (let i = 0; i < attempts.length; i++) {
+      try {
+        const r = await fetch(url, { signal: AbortSignal.timeout(attempts[i]) });
+        if (!r.ok) throw new Error(r.status);
+        const json = await r.json();
+        // Response: { submissionCalendar: '{"timestamp": count, ...}' }
+        const raw = json?.submissionCalendar;
+        if (!raw) throw new Error('empty response');
+        const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        for (const [ts, count] of Object.entries(cal)) {
+          const date = toISO(new Date(Number(ts) * 1000));
+          map[date] = (map[date] || 0) + count;
+        }
+        return map; // success
+      } catch (e) {
+        console.warn(`[heatmap] LeetCode fetch attempt ${i + 1} failed:`, e.message);
       }
-    } catch (e) {
-      console.warn('[heatmap] LeetCode fetch failed:', e.message);
     }
-    return map;
+    return map; // both attempts failed — heatmap still renders other platforms
   }
 
   /**

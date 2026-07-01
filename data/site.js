@@ -29,7 +29,7 @@ window.DATA_SITE = {
     links: [
       { platform: "LinkedIn 🔗", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", handle: "harshvardhan-rathod" },
       { platform: "GitHub 🔗", url: "https://github.com/HAPPIOcrz007", handle: "HAPPIOcrz007" },
-      { platform: "Codeforces 🔗", url: "https://codeforces.com/profile/Harshvardhan_Rathod", handle: "Harshvardhan · 966" }
+      { platform: "Codeforces 🔗", url: "https://codeforces.com/profile/Harshvardhan_Rathod", handle: "Harshvardhan_Rathod" }
     ]
   }
 };

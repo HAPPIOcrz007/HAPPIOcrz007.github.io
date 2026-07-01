@@ -15,8 +15,7 @@ window.DATA_SITE = {
   ctas: [
     { label: "Contact me", url: "#contact", type: "primary" },
     { label: "GitHub", url: "https://github.com/HAPPIOcrz007", type: "ghost" },
-    { label: "LinkedIn", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", type: "ghost" },
-    { label: "Coding Profile", url: "https://codolio.com/profile/Happiocrz", type: "ghost" }
+    { label: "LinkedIn", url: "https://www.linkedin.com/in/harshvardhan-rathod-436624293/", type: "ghost" }
   ],
   contact: {
     intro: "Open to internship opportunities, research collaborations, and discussions on systems programming, hardware design, or competitive programming. I respond within 24 hours.",

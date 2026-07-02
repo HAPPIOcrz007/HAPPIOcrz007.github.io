@@ -1,5 +1,15 @@
 window.DATA_ACHIEVEMENTS = [
   {
+    rank: "Amb",
+    title: "Official Campus Ambassador — ICPC Amritapuri Regionals 2026",
+    desc: "Selected to represent ICPC at MIT-WPU · Driving CP outreach, team-matching & student participation"
+  },
+  {
+    rank: "8.67",
+    title: "CGPA — Semester II, B.Tech ECE",
+    desc: "MIT World Peace University · Scholarship recipient · AlgoZenith college-funded access"
+  },
+  {
     rank: "76",
     title: "Code Uncode — Inter-collegiate CP Contest",
     desc: "2000+ participants · COEP Pune, SPIT & DJSCE Mumbai · Finals qualifier"
@@ -18,10 +28,5 @@ window.DATA_ACHIEVEMENTS = [
     rank: "Kit",
     title: "PCB Project Adopted as College Learning Kit",
     desc: "Official learning resource for digital electronics · Hardware hackathon finalist"
-  },
-  {
-    rank: "8.88",
-    title: "SGPA — Semester I, B.Tech ECE",
-    desc: "MIT World Peace University · Scholarship recipient · AlgoZenith college-funded access"
   }
 ];

@@ -3,7 +3,7 @@ window.DATA_SITE = {
   title: "Systems Engineer & Low-Latency Programmer",
   eyebrow: "B.Tech ECE · MIT World Peace University, Pune",
   tagline: "Systems engineer focused on low-latency programming, memory management, and OS-level optimisation — with a strong competitive programming foundation.",
-  profileImage: "assets/images/profile.png",
+  profileImage: "assets/images/profile_light.png",
   availability: "Intern @ pravii Technologies and Industry solutions",
   footerLocation: "MIT World Peace University, Kothrud, Pune, India",
   stats: [

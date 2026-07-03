@@ -44,9 +44,9 @@
    SCROLL ANIMATION CONFIG
 ================================================================ */
 const ANIM_DURATION_MS = 700;
-const ANIM_STAGGER_MS  = 60;
+const ANIM_STAGGER_MS = 60;
 const ANIM_STAGGER_MAX = 350;
-const ANIM_THRESHOLD   = 0.1;
+const ANIM_THRESHOLD = 0.1;
 const ANIM_ROOT_MARGIN = '0px 0px -80px 0px';
 
 /* ===== Tiny DOM helpers ===== */
@@ -82,11 +82,11 @@ function renderMarkdown(md) {
   h = applyColorCodes(h);
   h = h.replace(/```([\s\S]*?)```/g, (_, c) => `<pre><code>${c.trim()}</code></pre>`);
   h = h.replace(/^### (.*)$/gm, '<h3>$1</h3>')
-       .replace(/^## (.*)$/gm,  '<h2>$1</h2>')
-       .replace(/^# (.*)$/gm,   '<h1>$1</h1>');
+    .replace(/^## (.*)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.*)$/gm, '<h1>$1</h1>');
   h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-       .replace(/\*(.+?)\*/g,    '<em>$1</em>')
-       .replace(/`([^`]+?)`/g,   '<code>$1</code>');
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+?)`/g, '<code>$1</code>');
   h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   h = h.replace(/(^|\n)((?:[-*] .+\n?)+)/g, (_, pre, block) => {
@@ -126,35 +126,35 @@ function initTheme() {
 function updateProfileImage() {
   const profileImg = document.getElementById('profileImg');
   if (!profileImg) return;
-  
+
   const theme = document.documentElement.dataset.theme || 'dark';
   // Use profile_dark.png for dark theme, profile_light.png for light theme
-  const imagePath = theme === 'dark' 
-    ? 'assets/images/profile_dark.png' 
+  const imagePath = theme === 'dark'
+    ? 'assets/images/profile_dark.png'
     : 'assets/images/profile_light.png';
-  
+
   profileImg.src = imagePath;
 }
 
 /* ===== Modal ===== */
 const modal = {
-  root:      null,
-  title:     null,
-  carousel:  null,
-  body:      null,
-  closeBtn:  null,
-  images:    [],
-  index:     0,
-  isOpen:    false,
+  root: null,
+  title: null,
+  carousel: null,
+  body: null,
+  closeBtn: null,
+  images: [],
+  index: 0,
+  isOpen: false,
   _lastFocused: null,
 
   init() {
     this.root = $('#modal');
     if (!this.root) return;
 
-    this.title    = $('#modalTitle');
+    this.title = $('#modalTitle');
     this.carousel = $('#modalCarousel');
-    this.body     = $('#modalBody');
+    this.body = $('#modalBody');
     this.closeBtn = $('#modalClose');
 
     if (this.closeBtn) this.closeBtn.addEventListener('click', () => this.close());
@@ -165,8 +165,8 @@ const modal = {
 
     document.addEventListener('keydown', (e) => {
       if (!this.isOpen) return;
-      if (e.key === 'Escape')     this.close();
-      if (e.key === 'ArrowLeft')  this.prev();
+      if (e.key === 'Escape') this.close();
+      if (e.key === 'ArrowLeft') this.prev();
       if (e.key === 'ArrowRight') this.next();
     });
 
@@ -176,8 +176,8 @@ const modal = {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
       const first = focusable[0];
-      const last  = focusable[focusable.length - 1];
-      if (e.target === last)      first?.focus();
+      const last = focusable[focusable.length - 1];
+      if (e.target === last) first?.focus();
       else if (e.target === this.root) last?.focus();
     });
   },
@@ -188,7 +188,7 @@ const modal = {
 
     this.title.textContent = title || 'Untitled';
     this.images = (images || []).filter(Boolean);
-    this.index  = 0;
+    this.index = 0;
     this.isOpen = true;
 
     this.renderCarousel();
@@ -226,7 +226,7 @@ const modal = {
     if (!this.carousel) return;
     if (!this.images.length) { this.carousel.innerHTML = ''; return; }
 
-    const src         = escapeHtml(this.images[this.index]);
+    const src = escapeHtml(this.images[this.index]);
     const hasMultiple = this.images.length > 1;
 
     this.carousel.innerHTML = `
@@ -264,7 +264,7 @@ function attachCardEvents(root, selector, getHandler) {
 ================================================================ */
 function updateHeroStatsFromHeatmap(stats) {
   if (!stats) return;
-  
+
   // Update Codeforces Rating
   const cfStat = document.querySelector('[data-stat-id="codeforces-rating"] .stat-value');
   if (cfStat && stats.cfRating !== undefined && stats.cfRating !== null) {
@@ -280,7 +280,7 @@ function updateHeroStatsFromHeatmap(stats) {
     else if (stats.cfRating >= 1400) rank = 'Specialist';
     else if (stats.cfRating >= 1200) rank = 'Pupil';
     else rank = 'Newbie';
-    
+
     cfStat.textContent = `${stats.cfRating} - ${rank}`;
     const parent = cfStat.closest('.stat');
     if (parent) parent.classList.add('reveal', 'visible');
@@ -311,13 +311,13 @@ function renderSite(site) {
   document.title = `${site.name || 'Portfolio'} | ${site.title || 'Developer'}`;
 
   const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
-  set('#heroEyebrow',    site.eyebrow      || '');
-  set('#heroTagline',    site.tagline      || '');
-  set('#avatarLabel',    site.name         || '');
-  set('#avatarStatus',   site.availability || '');
-  set('#footerName',     site.name         || '');
+  set('#heroEyebrow', site.eyebrow || '');
+  set('#heroTagline', site.tagline || '');
+  set('#avatarLabel', site.name || '');
+  set('#avatarStatus', site.availability || '');
+  set('#footerName', site.name || '');
   set('#footerLocation', site.footerLocation || '');
-  set('#footerYear',     new Date().getFullYear());
+  set('#footerYear', new Date().getFullYear());
 
   // Profile image with theme support
   const profileImg = $('#profileImg');
@@ -352,9 +352,9 @@ function renderSite(site) {
   const ctaEl = $('#heroCtas');
   if (ctaEl && site.ctas?.length) {
     ctaEl.innerHTML = site.ctas.map(c => {
-      const isExt   = String(c.url).startsWith('http');
+      const isExt = String(c.url).startsWith('http');
       const extAttr = isExt ? ' target="_blank" rel="noopener noreferrer"' : '';
-      const cls     = c.type === 'primary' ? 'btn-primary' : 'btn-ghost';
+      const cls = c.type === 'primary' ? 'btn-primary' : 'btn-ghost';
       return `<a href="${escapeHtml(c.url)}" class="btn ${cls} reveal"${extAttr}>${escapeHtml(c.label)}</a>`;
     }).join('');
   }
@@ -446,9 +446,9 @@ function renderProjects(projects) {
   // Event delegation: one listener for the whole grid instead of one per card
   const projectMap = new Map(projects.map(p => [p.id, p]));
   attachCardEvents(root, '.project-card', (card) => async () => {
-    const p  = projectMap.get(card.dataset.id);
+    const p = projectMap.get(card.dataset.id);
     if (!p) return;
-    const md     = await fetchText(`content/projects/${p.id}/index.md`);
+    const md = await fetchText(`content/projects/${p.id}/index.md`);
     const images = p.images?.length ? p.images : [`content/projects/${p.id}/images/01.png`];
     modal.open(p.title, images, renderMarkdown(md || ''));
   });
@@ -470,9 +470,9 @@ function renderCertificates(certs) {
 
   const certMap = new Map(certs.map(c => [c.id, c]));
   attachCardEvents(root, '.cert-card', (card) => async () => {
-    const c  = certMap.get(card.dataset.id);
+    const c = certMap.get(card.dataset.id);
     if (!c) return;
-    const md  = await fetchText(`content/certificates/${c.id}/index.md`);
+    const md = await fetchText(`content/certificates/${c.id}/index.md`);
     const img = `content/certificates/${c.id}/01.png`;
     modal.open(c.title, [img], renderMarkdown(md || c.description || ''));
   });
@@ -508,12 +508,12 @@ function initScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
-      const el     = entry.target;
+      const el = entry.target;
       const parent = el.parentElement;
       const siblings = [...parent.querySelectorAll('.reveal:not(.visible)')];
-      const sibIdx   = siblings.indexOf(el);
-      const custom   = parseFloat(el.style.getPropertyValue('--stagger-delay')) || 0;
-      const stagger  = Math.min(sibIdx * ANIM_STAGGER_MS, ANIM_STAGGER_MAX);
+      const sibIdx = siblings.indexOf(el);
+      const custom = parseFloat(el.style.getPropertyValue('--stagger-delay')) || 0;
+      const stagger = Math.min(sibIdx * ANIM_STAGGER_MS, ANIM_STAGGER_MAX);
 
       setTimeout(() => {
         el.classList.add('visible');
@@ -539,8 +539,8 @@ function initLinkEffects() {
 
     const rect = btn.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height) * 2;
-    const x    = e.clientX - rect.left - size / 2;
-    const y    = e.clientY - rect.top  - size / 2;
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
 
     const ripple = document.createElement('span');
     ripple.className = 'ripple';
@@ -564,12 +564,12 @@ function initScrollEffects() {
   const nativePB = CSS.supports('animation-timeline', 'scroll()');
 
   /* ── heatmap elements ── */
-  const heatmap     = document.getElementById('heatmap');
-  const heatmapBar  = document.getElementById('heatmapBar');
-  const indicator   = document.getElementById('heatmapIndicator');
-  const markers     = document.querySelectorAll('.heatmap-marker');
-  const pctDisplay  = document.querySelector('.heatmap-percentage');
-  const hasHeatmap  = !!(heatmap && heatmapBar && indicator);
+  const heatmap = document.getElementById('heatmap');
+  const heatmapBar = document.getElementById('heatmapBar');
+  const indicator = document.getElementById('heatmapIndicator');
+  const markers = document.querySelectorAll('.heatmap-marker');
+  const pctDisplay = document.querySelector('.heatmap-percentage');
+  const hasHeatmap = !!(heatmap && heatmapBar && indicator);
 
   /* ── heatmap particles ── */
   if (hasHeatmap) {
@@ -598,8 +598,8 @@ function initScrollEffects() {
 
     /* Click to jump */
     heatmap.addEventListener('click', (e) => {
-      const rect       = heatmap.getBoundingClientRect();
-      const pct        = Math.min(Math.max((e.clientY - rect.top) / rect.height, 0), 1);
+      const rect = heatmap.getBoundingClientRect();
+      const pct = Math.min(Math.max((e.clientY - rect.top) / rect.height, 0), 1);
       const targetScroll = pct * (document.documentElement.scrollHeight - window.innerHeight);
       window.scrollTo({ top: targetScroll, behavior: 'smooth' });
     });
@@ -608,14 +608,14 @@ function initScrollEffects() {
   /* ── grid-bg reference (parallax) ── */
   const gridBg = document.querySelector('.grid-bg');
 
-  let ticking  = false;
-  let lastTop  = 0;
+  let ticking = false;
+  let lastTop = 0;
 
   function onScroll() {
     // Computed once per frame, shared by every effect below
     const scrollTop = window.pageYOffset;
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress  = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
     // Skip JS-driven width updates if native CSS scroll-timeline is supported
     if (!nativePB && Math.abs(scrollTop - lastTop) > 1) {
@@ -630,7 +630,7 @@ function initScrollEffects() {
 
     /* Heatmap */
     if (hasHeatmap) {
-      const eased   = Math.pow(progress / 100, 0.7) * 100;
+      const eased = Math.pow(progress / 100, 0.7) * 100;
       const clamped = Math.min(Math.max(eased, 0), 100);
 
       heatmapBar.style.height = clamped + '%';
@@ -713,16 +713,16 @@ function initScrollEffects() {
   // Usernames are read from data-* attrs on #activityHeatmap.
   // Override here if you prefer:
   const OVERRIDE = {
-    github:      null,
-    codeforces:  null,
-    leetcode:    null,
-    atcoder:     null,   // leave null/empty to skip
+    github: null,
+    codeforces: null,
+    leetcode: null,
+    atcoder: null,   // leave null/empty to skip
   };
 
   const WEEKS_TO_SHOW = 53;  // ~1 year
-  const CELL_SIZE     = 11;
-  const CELL_GAP      = 3;
-  const CELL_STEP     = CELL_SIZE + CELL_GAP;
+  const CELL_SIZE = 11;
+  const CELL_GAP = 3;
+  const CELL_STEP = CELL_SIZE + CELL_GAP;
 
   /*
    * Theme-aware cell palettes.
@@ -791,7 +791,7 @@ function initScrollEffects() {
       // hitting the public JSON that the contribution graph uses.
       // As a reliable no-token alternative we use ghchart.rshah.org.
       const url = `https://github-contributions-api.jogruber.de/v4/${username}?y=last`;
-      const r   = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!r.ok) throw new Error(r.status);
       const json = await r.json();
       // Response: { contributions: [{date:'YYYY-MM-DD', count:N}, ...] }
@@ -825,7 +825,7 @@ function initScrollEffects() {
 
       // Get submissions
       const url = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`;
-      const r   = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
       if (!r.ok) throw new Error(r.status);
       const json = await r.json();
       if (json.status !== 'OK') throw new Error(json.comment);
@@ -888,7 +888,7 @@ function initScrollEffects() {
     const map = {};
     try {
       const url = `https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${username}&from_second=0`;
-      const r   = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
       if (!r.ok) throw new Error(r.status);
       const json = await r.json();
       for (const sub of json) {
@@ -911,8 +911,8 @@ function initScrollEffects() {
     const add = (src, key) => {
       for (const [d, n] of Object.entries(src)) {
         if (!all[d]) all[d] = { total: 0, gh: 0, cf: 0, lc: 0, ac: 0 };
-        all[d][key]   += n;
-        all[d].total  += n;
+        all[d][key] += n;
+        all[d].total += n;
       }
     };
     add(gh, 'gh');
@@ -928,29 +928,29 @@ function initScrollEffects() {
 
     // Only look at the past 365 days
     const cutoff = addDays(today, -364);
-    let total        = 0;
-    let longest      = 0;
-    let current      = 0;
-    let lastDate     = null;
-    let activeDays   = 0;
-    let githubTotal  = 0;
-    let cfTotal      = 0;
-    let lcTotal      = 0;
-    let acTotal      = 0;
+    let total = 0;
+    let longest = 0;
+    let current = 0;
+    let lastDate = null;
+    let activeDays = 0;
+    let githubTotal = 0;
+    let cfTotal = 0;
+    let lcTotal = 0;
+    let acTotal = 0;
 
     // Walk every day in range in order
     const start = new Date(cutoff);
     for (let i = 0; i <= 364; i++) {
-      const d   = addDays(start, i);
+      const d = addDays(start, i);
       const iso = toISO(d);
       const day = data[iso];
 
       if (day && day.total > 0) {
-        total       += day.total;
+        total += day.total;
         githubTotal += day.gh;
-        cfTotal     += day.cf;
-        lcTotal     += day.lc;
-        acTotal     += day.ac;
+        cfTotal += day.cf;
+        lcTotal += day.lc;
+        acTotal += day.ac;
         activeDays++;
 
         if (lastDate && daysBetween(lastDate, d) === 1) {
@@ -961,7 +961,7 @@ function initScrollEffects() {
         if (current > longest) longest = current;
         lastDate = d;
       } else {
-        current  = 0;
+        current = 0;
         lastDate = null;
       }
     }
@@ -1003,7 +1003,7 @@ function initScrollEffects() {
       for (let d = 0; d < 7; d++) {
         const date = addDays(gridStart, w * 7 + d);
         if (date > today) { week.push(null); continue; }
-        const iso  = toISO(date);
+        const iso = toISO(date);
         week.push({ date, iso, day: data[iso] || null });
       }
       weeks.push(week);
@@ -1030,7 +1030,17 @@ function initScrollEffects() {
     });
 
     // Day labels (S M T W T F S)
-    const dayNames = ['S','M','T','W','T','F','S'];
+    const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+    // ═══ NEW: Generate last updated timestamp ═══
+    const now = new Date();
+    const utcString = now.toUTCString(); // "Wed, 03 Jul 2026 15:30:00 GMT"
+    // For a cleaner format:
+    const formattedDate = now.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
 
     root.innerHTML = `
       <div class="ahm-wrap">
@@ -1054,11 +1064,17 @@ function initScrollEffects() {
             <span class="ahm-stat-label">longest streak</span>
           </div>
           <div class="ahm-platform-badges">
-            ${usernames.github     ? `<span class="ahm-badge" data-platform="gh">⬡ GitHub <em>${stats.githubTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.github ? `<span class="ahm-badge" data-platform="gh">⬡ GitHub <em>${stats.githubTotal.toLocaleString()}</em></span>` : ''}
             ${usernames.codeforces ? `<span class="ahm-badge" data-platform="cf">● CF <em>${stats.cfTotal.toLocaleString()}</em></span>` : ''}
-            ${usernames.leetcode   ? `<span class="ahm-badge" data-platform="lc">◆ LC <em>${stats.lcTotal.toLocaleString()}</em></span>` : ''}
-            ${usernames.atcoder    ? `<span class="ahm-badge" data-platform="ac">▲ AC <em>${stats.acTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.leetcode ? `<span class="ahm-badge" data-platform="lc">◆ LC <em>${stats.lcTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.atcoder ? `<span class="ahm-badge" data-platform="ac">▲ AC <em>${stats.acTotal.toLocaleString()}</em></span>` : ''}
           </div>
+        </div>
+
+        <!-- Last Updated Timestamp -->
+        <div class="ahm-last-updated">
+          <span class="ahm-updated-icon">🔄</span>
+          Last updated: <time datetime="${now.toISOString()}">${formattedDate}</time>
         </div>
 
         <!-- Heatmap grid -->
@@ -1068,40 +1084,40 @@ function initScrollEffects() {
 
             <!-- Month labels -->
             ${monthLabels.map(({ x, label }) =>
-              `<text x="${x}" y="10" class="ahm-month">${label}</text>`
-            ).join('')}
+      `<text x="${x}" y="10" class="ahm-month">${label}</text>`
+    ).join('')}
 
             <!-- Day labels -->
             ${dayNames.map((name, i) =>
-              (i % 2 === 1)   // only M W F for density
-                ? `<text x="14" y="${18 + i * CELL_STEP + CELL_SIZE * 0.75}" class="ahm-day">${name}</text>`
-                : ''
-            ).join('')}
+      (i % 2 === 1)   // only M W F for density
+        ? `<text x="14" y="${18 + i * CELL_STEP + CELL_SIZE * 0.75}" class="ahm-day">${name}</text>`
+        : ''
+    ).join('')}
 
             <!-- Cells -->
             ${weeks.map((week, wi) =>
-              week.map((cell, di) => {
-                if (!cell) return '';
-                const x     = 32 + wi * CELL_STEP;
-                const y     = 18 + di * CELL_STEP;
-                const count = cell.day?.total || 0;
-                const level = countToLevel(count, maxCount);
-                const fill  = getLevels()[level];
+      week.map((cell, di) => {
+        if (!cell) return '';
+        const x = 32 + wi * CELL_STEP;
+        const y = 18 + di * CELL_STEP;
+        const count = cell.day?.total || 0;
+        const level = countToLevel(count, maxCount);
+        const fill = getLevels()[level];
 
-                // Tooltip data
-                const iso  = cell.iso;
-                const d    = cell.day;
-                const tip  = count === 0
-                  ? `No activity · ${iso}`
-                  : [
-                      `${count} submission${count > 1 ? 's' : ''} · ${iso}`,
-                      d?.gh ? `GitHub: ${d.gh}` : '',
-                      d?.cf ? `Codeforces: ${d.cf}` : '',
-                      d?.lc ? `LeetCode: ${d.lc}` : '',
-                      d?.ac ? `AtCoder: ${d.ac}` : '',
-                    ].filter(Boolean).join('|');
+        // Tooltip data
+        const iso = cell.iso;
+        const d = cell.day;
+        const tip = count === 0
+          ? `No activity · ${iso}`
+          : [
+            `${count} submission${count > 1 ? 's' : ''} · ${iso}`,
+            d?.gh ? `GitHub: ${d.gh}` : '',
+            d?.cf ? `Codeforces: ${d.cf}` : '',
+            d?.lc ? `LeetCode: ${d.lc}` : '',
+            d?.ac ? `AtCoder: ${d.ac}` : '',
+          ].filter(Boolean).join('|');
 
-                return `<rect
+        return `<rect
                   x="${x}" y="${y}"
                   width="${CELL_SIZE}" height="${CELL_SIZE}"
                   rx="2" ry="2"
@@ -1115,8 +1131,8 @@ function initScrollEffects() {
                   data-ac="${d?.ac || 0}"
                   data-tip="${tip}"
                 />`;
-              }).join('')
-            ).join('')}
+      }).join('')
+    ).join('')}
 
           </svg>
 
@@ -1157,7 +1173,7 @@ function initScrollEffects() {
 
   /* ── TOOLTIP ─────────────────────────────────────────────────── */
   function attachTooltip(root) {
-    const tip   = root.querySelector('#ahmTooltip');
+    const tip = root.querySelector('#ahmTooltip');
     const cells = root.querySelectorAll('.ahm-cell');
 
     cells.forEach(cell => {
@@ -1183,17 +1199,17 @@ function initScrollEffects() {
   }
 
   function moveTip(e, tip, root) {
-    const rect   = root.getBoundingClientRect();
-    const tipW   = tip.offsetWidth  || 180;
-    const tipH   = tip.offsetHeight || 60;
-    let   left   = e.clientX - rect.left + 12;
-    let   top    = e.clientY - rect.top  - tipH - 8;
+    const rect = root.getBoundingClientRect();
+    const tipW = tip.offsetWidth || 180;
+    const tipH = tip.offsetHeight || 60;
+    let left = e.clientX - rect.left + 12;
+    let top = e.clientY - rect.top - tipH - 8;
 
-    if (left + tipW > rect.width - 8)  left = e.clientX - rect.left - tipW - 12;
-    if (top < 4)                        top  = e.clientY - rect.top  + 20;
+    if (left + tipW > rect.width - 8) left = e.clientX - rect.left - tipW - 12;
+    if (top < 4) top = e.clientY - rect.top + 20;
 
     tip.style.left = left + 'px';
-    tip.style.top  = top  + 'px';
+    tip.style.top = top + 'px';
   }
 
   /* ── BADGE FILTER ───────────────────────────────────────────── */
@@ -1207,19 +1223,19 @@ function initScrollEffects() {
    */
   function attachBadgeFilter(root, maxCount) {
     const badges = root.querySelectorAll('.ahm-badge[data-platform]');
-    const cells  = root.querySelectorAll('.ahm-cell');
-    let   active = null;   // currently filtered platform key, or null = all
+    const cells = root.querySelectorAll('.ahm-cell');
+    let active = null;   // currently filtered platform key, or null = all
 
     function applyFilter(platform) {
       const levels = getLevels();
       cells.forEach(cell => {
         const count = platform
           ? parseInt(cell.dataset[platform] || '0', 10)
-          : parseInt(cell.dataset.count     || '0', 10);
+          : parseInt(cell.dataset.count || '0', 10);
 
         // recolour
-        const pct  = maxCount > 0 ? count / maxCount : 0;
-        const lvl  = count === 0 ? 0 : pct < .15 ? 1 : pct < .35 ? 2 : pct < .65 ? 3 : 4;
+        const pct = maxCount > 0 ? count / maxCount : 0;
+        const lvl = count === 0 ? 0 : pct < .15 ? 1 : pct < .35 ? 2 : pct < .65 ? 3 : 4;
         cell.setAttribute('fill', levels[lvl]);
 
         // fade cells that have zero count for this platform
@@ -1273,7 +1289,7 @@ function initScrollEffects() {
         flex-wrap: wrap;
         align-items: center;
         gap: 1.5rem 2.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
       }
 
       .ahm-stat {
@@ -1295,6 +1311,39 @@ function initScrollEffects() {
         color: var(--text-muted, #666);
         text-transform: uppercase;
         letter-spacing: 0.1em;
+      }
+
+      /* ── Last Updated Timestamp ── */
+      .ahm-last-updated {
+        font-size: 0.7rem;
+        color: var(--text-muted, #666);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid var(--border, #222);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+      }
+
+      .ahm-last-updated:hover {
+        opacity: 1;
+      }
+
+      .ahm-updated-icon {
+        font-size: 0.6rem;
+        animation: ahm-spin 3s linear infinite;
+      }
+
+      @keyframes ahm-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+
+      .ahm-last-updated time {
+        color: var(--text-dim, #a0a0a0);
+        font-weight: 500;
       }
 
       /* ── Platform badges ── */
@@ -1499,6 +1548,7 @@ function initScrollEffects() {
         .ahm-skeleton { animation: none; }
         .ahm-tooltip  { transition: none; }
         .ahm-cell      { transition: none; }
+        .ahm-updated-icon { animation: none !important; }
       }
 
       /* ── Responsive ── */
@@ -1506,6 +1556,7 @@ function initScrollEffects() {
         .ahm-stats { gap: 1rem 1.5rem; }
         .ahm-stat-value { font-size: 1.2rem; }
         .ahm-platform-badges { margin-left: 0; }
+        .ahm-last-updated { font-size: 0.6rem; }
       }
     `;
     document.head.appendChild(style);
@@ -1514,8 +1565,8 @@ function initScrollEffects() {
   /* ── BOOT ────────────────────────────────────────────────────── */
 
   // Cached data so theme-toggle re-renders don't refetch
-  let _cachedMerged   = null;
-  let _cachedStats    = null;
+  let _cachedMerged = null;
+  let _cachedStats = null;
   let _cachedUsernames = null;
   let _cachedCfRating = 0;
 
@@ -1524,10 +1575,10 @@ function initScrollEffects() {
     if (!root) return;
 
     const usernames = {
-      github:      OVERRIDE.github      ?? root.dataset.github     ?? '',
-      codeforces:  OVERRIDE.codeforces  ?? root.dataset.codeforces ?? '',
-      leetcode:    OVERRIDE.leetcode    ?? root.dataset.leetcode   ?? '',
-      atcoder:     OVERRIDE.atcoder     ?? root.dataset.atcoder    ?? '',
+      github: OVERRIDE.github ?? root.dataset.github ?? '',
+      codeforces: OVERRIDE.codeforces ?? root.dataset.codeforces ?? '',
+      leetcode: OVERRIDE.leetcode ?? root.dataset.leetcode ?? '',
+      atcoder: OVERRIDE.atcoder ?? root.dataset.atcoder ?? '',
     };
     _cachedUsernames = usernames;
 
@@ -1547,13 +1598,13 @@ function initScrollEffects() {
       _cachedCfRating = cf.rating || 0;
 
       _cachedMerged = merge(gh, cfSubmissions, lc, ac);
-      _cachedStats  = computeStats(_cachedMerged);
-      
+      _cachedStats = computeStats(_cachedMerged);
+
       // Add CF rating to stats
       _cachedStats.cfRating = _cachedCfRating;
 
       render(root, _cachedMerged, _cachedStats, _cachedUsernames);
-      
+
       // Update hero stats with real data
       updateHeroStatsFromHeatmap(_cachedStats);
 

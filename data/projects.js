@@ -1,5 +1,15 @@
 window.DATA_PROJECTS = [
   {
+    id: "line-following-robot",
+    title: "PID Line Following Robot",
+    date: "2026 · Academic",
+    shortDesc: "High‑performance line‑following robot with adaptive speed control, PID controller, and real‑time background region detection. Simulated in CoppeliaSim with ZMQ remote API.",
+    tech: ["Python", "PID Control", "CoppeliaSim", "Sensor Fusion", "ZMQ", "Real-Time Systems"],
+    images: [
+      "content/projects/line-following-robot/images/01.png"
+    ]
+  },
+  {
     id: "stock-market-simulator",
     title: "Stock Market Edge Simulator",
     date: "2026 · Active",

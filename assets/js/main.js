@@ -104,6 +104,41 @@ function renderMarkdown(md) {
   return h;
 }
 
+/* ===== Inline markdown renderer =====
+   For single-line / short data-driven text (titles, labels, pills, tags,
+   contact rows, notifications, hero copy, etc). Supports the same
+   **bold**, *italic*, `code`, [text](url) links and =(#hex)...= color-code
+   syntax as renderMarkdown() above, but never emits block-level tags
+   (no <p>, <h#>, <ul>, code fences) so it's safe to drop into any inline
+   container (a span, a pill, a title) without breaking its layout. */
+function renderInlineMarkdown(md) {
+  if (md == null || md === '') return '';
+
+  let h = escapeHtml(String(md));
+  h = applyColorCodes(h);
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+?)`/g, '<code>$1</code>');
+  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+    '<a href="$2" class="md-link" target="_blank" rel="noopener noreferrer">$1</a>');
+
+  return `<span class="md-inline">${h}</span>`;
+}
+
+/* Strip markdown syntax down to plain text — for places that can't hold
+   HTML (e.g. an alt attribute) so formatting characters don't show up
+   literally when the underlying field uses markdown. */
+function stripMarkdown(md) {
+  if (md == null) return '';
+  return String(md)
+    .replace(/=\(#[A-Fa-f0-9]{6}\)(.*?)=/gs, '$1')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`([^`]+?)`/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .trim();
+}
+
 /* ===== Theme ===== */
 function initTheme() {
   const saved = localStorage.getItem('theme') || 'dark';
@@ -160,8 +195,8 @@ function initNotification() {
   const closeBtn = $('#notifyClose');
 
   if (emojiEl) emojiEl.textContent = data.emoji || '🔔';
-  if (headerEl) headerEl.textContent = data.header || 'Update';
-  if (contextEl) contextEl.textContent = data.context || '';
+  if (headerEl) headerEl.innerHTML = renderInlineMarkdown(data.header || 'Update');
+  if (contextEl) contextEl.innerHTML = renderInlineMarkdown(data.context || '');
 
   if (data.link) {
     box.classList.add('notify-link');
@@ -238,7 +273,7 @@ const modal = {
     if (!this.root) return;
     this._lastFocused = document.activeElement;
 
-    this.title.textContent = title || 'Untitled';
+    this.title.innerHTML = renderInlineMarkdown(title || 'Untitled');
     this.images = (images || []).filter(Boolean);
     this.index = 0;
     this.isOpen = true;
@@ -363,12 +398,15 @@ function renderSite(site) {
   document.title = `${site.name || 'Portfolio'} | ${site.title || 'Developer'}`;
 
   const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
-  set('#heroEyebrow', site.eyebrow || '');
-  set('#heroTagline', site.tagline || '');
-  set('#avatarLabel', site.name || '');
-  set('#avatarStatus', site.availability || '');
-  set('#footerName', site.name || '');
-  set('#footerLocation', site.footerLocation || '');
+  // Rich fields — support **bold**, *italic*, `code`, [text](url) links,
+  // and =(#hex)text= coloring, same as everywhere else on the site.
+  const setRich = (id, val) => { const el = $(id); if (el) el.innerHTML = renderInlineMarkdown(val || ''); };
+  setRich('#heroEyebrow', site.eyebrow || '');
+  setRich('#heroTagline', site.tagline || '');
+  setRich('#avatarLabel', site.name || '');
+  setRich('#avatarStatus', site.availability || '');
+  setRich('#footerName', site.name || '');
+  setRich('#footerLocation', site.footerLocation || '');
   set('#footerYear', new Date().getFullYear());
 
   // Profile image with theme support
@@ -376,7 +414,7 @@ function renderSite(site) {
   if (profileImg) {
     // Set initial image based on current theme
     updateProfileImage();
-    profileImg.alt = escapeHtml(site.name || 'Profile');
+    profileImg.alt = escapeHtml(stripMarkdown(site.name || 'Profile'));
   }
 
   // Only rewrite heroName markup if the data-driven name differs from static HTML
@@ -385,8 +423,8 @@ function renderSite(site) {
     const parts = site.name.split(' ');
     const built = parts.map((w, i) =>
       i === parts.length - 1
-        ? `<span class="accent">${escapeHtml(w)}</span>`
-        : escapeHtml(w)
+        ? `<span class="accent">${renderInlineMarkdown(w)}</span>`
+        : renderInlineMarkdown(w)
     ).join('<br>');
     if (heroName.innerHTML.trim() !== built) heroName.innerHTML = built;
   }
@@ -394,9 +432,9 @@ function renderSite(site) {
   const statsEl = $('#heroStats');
   if (statsEl && site.stats?.length) {
     statsEl.innerHTML = site.stats.map(s => `
-      <div class="stat reveal" ${s.id ? `data-stat-id="${s.id}"` : ''}>
-        <div class="stat-value">${escapeHtml(s.value)}</div>
-        <div class="stat-label">${escapeHtml(s.label)}</div>
+      <div class="stat reveal" ${s.id ? `data-stat-id="${escapeHtml(s.id)}"` : ''}>
+        <div class="stat-value">${renderInlineMarkdown(s.value)}</div>
+        <div class="stat-label">${renderInlineMarkdown(s.label)}</div>
       </div>
     `).join('');
   }
@@ -407,7 +445,7 @@ function renderSite(site) {
       const isExt = String(c.url).startsWith('http');
       const extAttr = isExt ? ' target="_blank" rel="noopener noreferrer"' : '';
       const cls = c.type === 'primary' ? 'btn-primary' : 'btn-ghost';
-      return `<a href="${escapeHtml(c.url)}" class="btn ${cls} reveal"${extAttr}>${escapeHtml(c.label)}</a>`;
+      return `<a href="${escapeHtml(c.url)}" class="btn ${cls} reveal"${extAttr}>${renderInlineMarkdown(c.label)}</a>`;
     }).join('');
   }
 
@@ -416,23 +454,23 @@ function renderSite(site) {
   if (contactWrap && c) {
     contactWrap.innerHTML = `
       <div class="reveal">
-        <p class="contact-intro">${escapeHtml(c.intro || 'Get in touch')}</p>
+        <p class="contact-intro">${renderInlineMarkdown(c.intro || 'Get in touch')}</p>
       </div>
       <div class="contact-list">
         ${(c.emails || []).map(e => `
           <a class="contact-row reveal" href="mailto:${escapeHtml(e.address)}">
-            <span class="contact-label">${escapeHtml(e.label || 'Email')}</span>
-            <span class="contact-value">${escapeHtml(e.address)}</span>
+            <span class="contact-label">${renderInlineMarkdown(e.label || 'Email')}</span>
+            <span class="contact-value">${renderInlineMarkdown(e.address)}</span>
           </a>`).join('')}
         ${(c.phones || []).map(p => `
           <a class="contact-row reveal" href="tel:${escapeHtml(p.number.replace(/\s/g, ''))}">
-            <span class="contact-label">${escapeHtml(p.label || 'Phone')}</span>
-            <span class="contact-value">${escapeHtml(p.number)}</span>
+            <span class="contact-label">${renderInlineMarkdown(p.label || 'Phone')}</span>
+            <span class="contact-value">${renderInlineMarkdown(p.number)}</span>
           </a>`).join('')}
         ${(c.links || []).map(l => `
           <a class="contact-row reveal" href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">
-            <span class="contact-label">${escapeHtml(l.platform)}</span>
-            <span class="contact-value">${escapeHtml(l.handle)} ↗</span>
+            <span class="contact-label">${renderInlineMarkdown(l.platform)}</span>
+            <span class="contact-value">${renderInlineMarkdown(l.handle)} ↗</span>
           </a>`).join('')}
       </div>
     `;
@@ -446,9 +484,9 @@ function renderSkills(skills) {
 
   container.innerHTML = skills.map(s => `
     <div class="skill-card reveal">
-      <div class="skill-cat">${escapeHtml(s.category)}</div>
+      <div class="skill-cat">${renderInlineMarkdown(s.category)}</div>
       <div class="skill-items">
-        ${(s.items || []).map(i => `<span class="skill-pill">${escapeHtml(i)}</span>`).join('')}
+        ${(s.items || []).map(i => `<span class="skill-pill">${renderInlineMarkdown(i)}</span>`).join('')}
       </div>
     </div>
   `).join('');
@@ -461,10 +499,10 @@ function renderAchievements(items) {
 
   container.innerHTML = items.map((a, i) => `
     <div class="ach-item reveal" style="transition-delay:${Math.min(i * 30, 300)}ms">
-      <div class="ach-rank">${escapeHtml(a.rank)}</div>
+      <div class="ach-rank">${renderInlineMarkdown(a.rank)}</div>
       <div>
-        <div class="ach-title">${escapeHtml(a.title)}</div>
-        <div class="ach-desc">${escapeHtml(a.desc)}</div>
+        <div class="ach-title">${renderInlineMarkdown(a.title)}</div>
+        <div class="ach-desc">${renderInlineMarkdown(a.desc)}</div>
       </div>
     </div>
   `).join('');
@@ -481,15 +519,15 @@ function renderProjects(projects) {
       <div class="project-card reveal" data-id="${escapeHtml(p.id)}"
            style="transition-delay:${Math.min(i * 50, 400)}ms" role="button" tabindex="0">
         <div class="project-thumb">
-          <img src="${escapeHtml(thumb)}" alt="${escapeHtml(p.title)}" loading="lazy"
+          <img src="${escapeHtml(thumb)}" alt="${escapeHtml(stripMarkdown(p.title))}" loading="lazy"
                onerror="this.parentElement.innerHTML='&lt;div class=&quot;project-thumb-empty&quot;&gt;// no preview&lt;/div&gt;'" />
         </div>
         <div class="project-body">
-          <div class="project-date">${escapeHtml(p.date || '')}</div>
-          <div class="project-title">${escapeHtml(p.title)}</div>
-          <div class="project-desc">${escapeHtml(p.shortDesc || '')}</div>
+          <div class="project-date">${renderInlineMarkdown(p.date || '')}</div>
+          <div class="project-title">${renderInlineMarkdown(p.title)}</div>
+          <div class="project-desc">${renderInlineMarkdown(p.shortDesc || '')}</div>
           <div class="tech-tags">
-            ${(p.tech || []).map(t => `<span class="tech-tag">${escapeHtml(t)}</span>`).join('')}
+            ${(p.tech || []).map(t => `<span class="tech-tag">${renderInlineMarkdown(t)}</span>`).join('')}
           </div>
         </div>
       </div>`;
@@ -605,9 +643,9 @@ function renderCertificates(certs) {
   root.innerHTML = certs.map((c, i) => `
     <div class="cert-card reveal" data-id="${escapeHtml(c.id)}"
          style="transition-delay:${Math.min(i * 40, 350)}ms" role="button" tabindex="0">
-      <div class="cert-issuer">${escapeHtml(c.issuer || 'Certificate')}</div>
-      <div class="cert-title">${escapeHtml(c.title)}</div>
-      <div class="cert-date">${escapeHtml(c.date || '')}</div>
+      <div class="cert-issuer">${renderInlineMarkdown(c.issuer || 'Certificate')}</div>
+      <div class="cert-title">${renderInlineMarkdown(c.title)}</div>
+      <div class="cert-date">${renderInlineMarkdown(c.date || '')}</div>
     </div>
   `).join('');
 

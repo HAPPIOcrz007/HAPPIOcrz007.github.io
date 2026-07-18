@@ -21,6 +21,18 @@
        no matter how many projects/data/projects.js grows to. See
        .projects-scroll-wrap / .projects-grid in styles.css and
        initProjectsScroller() in main.js.
+  #20  Every data-driven text box on this page — hero copy, stats,
+       skill pills, tech tags, project/cert/achievement titles &
+       descriptions, contact rows, the notification toast, and the
+       footer — is rendered through renderInlineMarkdown() in main.js.
+       That means every text field in data/*.js and content/*/index.md
+       now accepts:
+         **bold**, *italic*, `code`, [label](https://url) links, and
+         =(#RRGGBB)text= for custom text color (e.g. =(#2da44e)cool=).
+       No HTML edits needed here — just write markdown in the data
+       files. Styling for the rendered output lives in styles.css
+       under ".md-inline" (short fields) and ".md-content" (the long
+       project/certificate descriptions shown in the modal).
 -->
 <html lang="en" data-theme="dark">
 

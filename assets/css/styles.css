@@ -1762,6 +1762,51 @@ footer {
 }
 
 /* ================================================================
+   INLINE MARKDOWN — shared by every data-driven text box on the site
+   (hero copy, stats, pills, tags, titles, contact rows, notification,
+   footer). Renders via renderInlineMarkdown() in main.js: supports
+   **bold**, *italic*, `code`, [text](url) links and =(#hex)text=
+   coloring, but never introduces block spacing/margins of its own —
+   it always inherits the font size/color/weight of its container.
+   ================================================================ */
+.md-inline {
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+}
+
+.md-inline strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+.md-inline em {
+  font-style: italic;
+}
+
+.md-inline code {
+  font-family: var(--font-mono);
+  background: var(--bg3);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.md-inline a.md-link,
+a.md-link {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease;
+}
+
+.md-inline a.md-link:hover,
+a.md-link:hover {
+  color: var(--green-hover);
+}
+
+/* ================================================================
    MARKDOWN CONTENT
    ================================================================ */
 .md-content {

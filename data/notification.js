@@ -16,6 +16,6 @@ window.DATA_NOTIFICATION = {
   id: "2026-07-latest-achievement",
   emoji: "🎉",
   header: "Latest Achievement",
-  context: "=(#4B82C2)Became== =(#FCBB31)Campus== =(#B02B1C)Ambassador==",
+  context: "=(#4B82C2)Became== =(#FCBB31)ICPC== =(#B02B1C)Campus Ambassador==",
   link: "#achievements"
 };

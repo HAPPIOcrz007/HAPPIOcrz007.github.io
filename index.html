@@ -10,6 +10,17 @@
   #17  Schema.org JSON-LD block at the end of <body> uses this site's
        real GitHub URL; update "sameAs" if more verified profiles
        (LinkedIn, CF, etc.) are added later.
+  #18  Floating "notify-box" (~L108 below) is a Spotify-mini-player
+       style toast populated purely from data/notification.js —
+       edit that file to change/rotate the message, no other code
+       changes needed. Dismissal is remembered per-"id" in
+       localStorage, so bumping the "id" field automatically
+       un-dismisses it.
+  #19  Projects section (~L200 below) now scrolls horizontally
+       instead of stacking, so the section's height stays constant
+       no matter how many projects/data/projects.js grows to. See
+       .projects-scroll-wrap / .projects-grid in styles.css and
+       initProjectsScroller() in main.js.
 -->
 <html lang="en" data-theme="dark">
 
@@ -84,6 +95,18 @@
 
   <!-- ===== SKIP LINK (Accessibility) ===== -->
   <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
+
+  <!-- ===== FLOATING NOTIFICATION (Spotify mini-player style) =====
+       Content comes entirely from data/notification.js — edit
+       that file to update/rotate this, no HTML/JS changes needed. -->
+  <div class="notify-box" id="notifyBox" role="status" aria-live="polite" aria-hidden="true" hidden>
+    <span class="notify-emoji" id="notifyEmoji" aria-hidden="true"></span>
+    <div class="notify-text">
+      <div class="notify-header" id="notifyHeader"></div>
+      <div class="notify-context" id="notifyContext"></div>
+    </div>
+    <button class="notify-close" id="notifyClose" aria-label="Dismiss notification" tabindex="1">×</button>
+  </div>
 
   <!-- ===== HEATMAP WATERFALL ===== -->
   <div class="heatmap-container" id="heatmap" role="complementary" aria-label="Scroll progress indicator">
@@ -177,8 +200,13 @@
       <div class="container">
         <p class="sec-label">Work</p>
         <h2 class="sec-title" id="projects-title">Projects</h2>
-        <div id="projectsGrid" class="projects-grid">
-          <div class="loading" aria-live="polite">loading projects…</div>
+        <div class="projects-scroll-wrap">
+          <button class="scroll-nav scroll-nav--prev" id="projectsPrev" aria-label="Scroll projects left" disabled>‹</button>
+          <div id="projectsGrid" class="projects-grid" tabindex="0"
+            aria-label="Projects — scroll horizontally, or use the arrow buttons, for more">
+            <div class="loading" aria-live="polite">loading projects…</div>
+          </div>
+          <button class="scroll-nav scroll-nav--next" id="projectsNext" aria-label="Scroll projects right">›</button>
         </div>
       </div>
     </section>
@@ -255,6 +283,7 @@
   <script src="data/achievements.js" defer></script>
   <script src="data/projects.js" defer></script>
   <script src="data/certificates.js" defer></script>
+  <script src="data/notification.js" defer></script>
 
   <!-- ===== APP ===== -->
   <script src="assets/js/main.js" defer></script>

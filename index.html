@@ -33,6 +33,17 @@
        files. Styling for the rendered output lives in styles.css
        under ".md-inline" (short fields) and ".md-content" (the long
        project/certificate descriptions shown in the modal).
+  #21  CSES Problem Set (~L200 below, #csesHeatmap) sits right below
+       the activity heatmap. Collapsed by default — just a stats bar
+       (solved count, %, Expand/Collapse all, profile badge) — and
+       expands into one flat 400-cell matrix (categories aren't
+       shown, just like the heatmap above). Fully manual/static:
+       CSES has no public per-user "solved tasks" API, so nothing
+       here is fetched. Which cells render green/solved comes
+       entirely from window.DATA_CSES_SOLVED in data/cses.js — see
+       that file's header comment for how to populate it from your
+       own CSES account. data-cses-id on the div only builds the
+       header badge's link to cses.fi/problemset/user/<id>.
 -->
 <html lang="en" data-theme="dark">
 
@@ -204,6 +215,18 @@
         <div id="activityHeatmap" data-github="HAPPIOcrz007" data-codeforces="Harshvardhan_Rathod"
           data-leetcode="HarshvardhanRathod" data-atcoder="HarshRathod">
         </div>
+
+        <!-- CSES progress, below the main heatmap. Collapsed by
+             default (stats bar only); "Expand all" reveals a flat
+             400-cell matrix, no category grouping. Fully manual:
+             which cells are highlighted comes from
+             window.DATA_CSES_SOLVED in data/cses.js (a flat list of
+             solved task IDs you maintain by hand — CSES has no
+             public per-task solved-status API to fetch this from).
+             data-cses-id just builds the header badge's link to
+             cses.fi/problemset/user/<id> — it triggers no fetch. -->
+        <div id="csesHeatmap" data-cses-id="416823">
+        </div>
       </div>
     </section>
 
@@ -296,6 +319,7 @@
   <script src="data/projects.js" defer></script>
   <script src="data/certificates.js" defer></script>
   <script src="data/notification.js" defer></script>
+  <script src="data/cses.js" defer></script>
 
   <!-- ===== APP ===== -->
   <script src="assets/js/main.js" defer></script>

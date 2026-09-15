@@ -832,17 +832,17 @@ function initScrollEffects() {
 
       const glow = 0.05 + (progress / 100) * 0.3;
       heatmapBar.style.boxShadow =
-        `0 0 ${(20 + progress * 1.5).toFixed(1)}px rgba(232,81,15,${glow.toFixed(3)})`;
+        `0 0 ${(20 + progress * 1.5).toFixed(1)}px rgba(45,164,78,${glow.toFixed(3)})`;
 
       const p = progress / 100;
       heatmapBar.style.background = `linear-gradient(to top,
-        rgba(232,81,15,${(0.05 + p * 0.1).toFixed(3)}) 0%,
-        rgba(232,81,15,${(0.15 + p * 0.2).toFixed(3)}) 15%,
-        rgba(232,81,15,${(0.30 + p * 0.3).toFixed(3)}) 30%,
-        rgba(232,81,15,${(0.50 + p * 0.4).toFixed(3)}) 50%,
-        rgba(232,81,15,${(0.70 + p * 0.3).toFixed(3)}) 70%,
-        rgba(232,81,15,${(0.85 + p * 0.15).toFixed(3)}) 85%,
-        rgba(232,81,15,1) 100%)`;
+        rgba(45,164,78,${(0.05 + p * 0.1).toFixed(3)}) 0%,
+        rgba(45,164,78,${(0.15 + p * 0.2).toFixed(3)}) 15%,
+        rgba(45,164,78,${(0.30 + p * 0.3).toFixed(3)}) 30%,
+        rgba(45,164,78,${(0.50 + p * 0.4).toFixed(3)}) 50%,
+        rgba(45,164,78,${(0.70 + p * 0.3).toFixed(3)}) 70%,
+        rgba(45,164,78,${(0.85 + p * 0.15).toFixed(3)}) 85%,
+        rgba(45,164,78,1) 100%)`;
     }
   }
 
@@ -1027,7 +1027,7 @@ window.GlobalTip = (function () {
         border-bottom: 5px solid var(--bg2, #111);
       }
       .global-tip strong {
-        color: var(--green, #e8510f);
+        color: var(--green, #2da44e);
         font-weight: 700;
       }
       .global-tip span {
@@ -1104,23 +1104,23 @@ window.GlobalTip = (function () {
    * Opacity-based greens wash out on light and disappear on very dark backgrounds
    * — so we use solid hex stops tuned per theme instead.
    *
-   * Dark  : empty cell is a visible orange-tinted slate; oranges step muted → vivid.
-   * Light : empty cell is soft peach; oranges are deep enough to read on white.
+   * Dark  : empty cell is a visible green-tinted slate; greens step muted → vivid.
+   * Light : empty cell is soft sage; greens are deep enough to read on white.
    */
   const PALETTES = {
     dark: [
       'transparent', // 0 — empty : invisible, blends into dark bg
-      '#7a2a0a',   // 1 — low   : deep rust
-      '#a83a0d',   // 2 — mid
-      '#e8510f',   // 3 — high  : theme accent
-      '#ff6b35',   // 4 — peak  : bright vivid orange
+      '#1a6130',   // 1 — low   : deep forest
+      '#216e39',   // 2 — mid
+      '#2da44e',   // 3 — high
+      '#3fb950',   // 4 — peak  : bright GitHub green
     ],
     light: [
       'transparent', // 0 — empty : invisible, blends into light bg
-      '#e8834f',   // 1 — low   : soft orange
-      '#d1611f',   // 2 — mid
-      '#b0430a',   // 3 — high
-      '#7a2a05',   // 4 — peak  : deep burnt orange, max contrast on light bg
+      '#6abf6a',   // 1 — low   : mid green
+      '#3a9e46',   // 2 — mid
+      '#1e7a33',   // 3 — high
+      '#0f5323',   // 4 — peak  : deep forest, max contrast on light bg
     ],
   };
 
@@ -1656,7 +1656,7 @@ window.GlobalTip = (function () {
       .ahm-stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--green, #e8510f);
+        color: var(--green, #2da44e);
         line-height: 1;
         letter-spacing: -0.02em;
       }
@@ -1724,7 +1724,7 @@ window.GlobalTip = (function () {
 
       .ahm-badge em {
         font-style: normal;
-        color: var(--green, #e8510f);
+        color: var(--green, #2da44e);
         font-weight: 600;
       }
 
@@ -1971,25 +1971,25 @@ window.GlobalTip = (function () {
   'use strict';
 
   /* ── Official CSES problem set, 18 categories / 400 tasks ── */
-const CSES_PROBLEMSET = [
-    { name: "Introductory Problems", problems: [[1068,"Weird Algorithm"],[1083,"Missing Number"],[1069,"Repetitions"],[1094,"Increasing Array"],[1070,"Permutations"],[1071,"Number Spiral"],[1072,"Two Knights"],[1092,"Two Sets"],[1617,"Bit Strings"],[1618,"Trailing Zeros"],[1754,"Coin Piles"],[1755,"Palindrome Reorder"],[2205,"Gray Code"],[2165,"Tower of Hanoi"],[1622,"Creating Strings"],[1623,"Apple Division"],[1624,"Chessboard and Queens"],[3399,"Raab Game I"],[3419,"Mex Grid Construction"],[3217,"Knight Moves Grid"],[3311,"Grid Coloring I"],[2431,"Digit Queries"],[1743,"String Reorder"],[1625,"Grid Path Description"]] },
-    { name: "Sorting and Searching", problems: [[1621,"Distinct Numbers"],[1084,"Apartments"],[1090,"Ferris Wheel"],[1091,"Concert Tickets"],[1619,"Restaurant Customers"],[1629,"Movie Festival"],[1640,"Sum of Two Values"],[1643,"Maximum Subarray Sum"],[1074,"Stick Lengths"],[2183,"Missing Coin Sum"],[2216,"Collecting Numbers"],[2217,"Collecting Numbers II"],[1141,"Playlist"],[1073,"Towers"],[1163,"Traffic Lights"],[3420,"Distinct Values Subarrays"],[3421,"Distinct Values Subsequences"],[2162,"Josephus Problem I"],[2163,"Josephus Problem II"],[2168,"Nested Ranges Check"],[2169,"Nested Ranges Count"],[1164,"Room Allocation"],[1620,"Factory Machines"],[1630,"Tasks and Deadlines"],[1631,"Reading Books"],[1641,"Sum of Three Values"],[1642,"Sum of Four Values"],[1645,"Nearest Smaller Values"],[1660,"Subarray Sums I"],[1661,"Subarray Sums II"],[1662,"Subarray Divisibility"],[2428,"Distinct Values Subarrays II"],[1085,"Array Division"],[1632,"Movie Festival II"],[1644,"Maximum Subarray Sum II"]] },
-    { name: "Dynamic Programming", problems: [[1633,"Dice Combinations"],[1634,"Minimizing Coins"],[1635,"Coin Combinations I"],[1636,"Coin Combinations II"],[1637,"Removing Digits"],[1638,"Grid Paths I"],[1158,"Book Shop"],[1746,"Array Description"],[2413,"Counting Towers"],[1639,"Edit Distance"],[3403,"Longest Common Subsequence"],[1744,"Rectangle Cutting"],[3359,"Minimal Grid Path"],[1745,"Money Sums"],[1097,"Removal Game"],[1093,"Two Sets II"],[3314,"Mountain Range"],[1145,"Increasing Subsequence"],[1140,"Projects"],[1653,"Elevator Rides"],[2181,"Counting Tilings"],[2220,"Counting Numbers"],[1748,"Increasing Subsequence II"]] },
-    { name: "Graph Algorithms", problems: [[1192,"Counting Rooms"],[1193,"Labyrinth"],[1666,"Building Roads"],[1667,"Message Route"],[1668,"Building Teams"],[1669,"Round Trip"],[1194,"Monsters"],[1671,"Shortest Routes I"],[1672,"Shortest Routes II"],[1673,"High Score"],[1195,"Flight Discount"],[1197,"Cycle Finding"],[1196,"Flight Routes"],[1678,"Round Trip II"],[1679,"Course Schedule"],[1680,"Longest Flight Route"],[1681,"Game Routes"],[1202,"Investigation"],[1750,"Planets Queries I"],[1160,"Planets Queries II"],[1751,"Planets Cycles"],[1675,"Road Reparation"],[1676,"Road Construction"],[1682,"Flight Routes Check"],[1683,"Planets and Kingdoms"],[1684,"Giant Pizza"],[1686,"Coin Collector"],[1691,"Mail Delivery"],[1692,"De Bruijn Sequence"],[1693,"Teleporters Path"],[1690,"Hamiltonian Flights"],[1689,"Knight's Tour"],[1694,"Download Speed"],[1695,"Police Chase"],[1696,"School Dance"],[1711,"Distinct Routes"]] },
-    { name: "Range Queries", problems: [[1646,"Static Range Sum Queries"],[1647,"Static Range Minimum Queries"],[1648,"Dynamic Range Sum Queries"],[1649,"Dynamic Range Minimum Queries"],[1650,"Range Xor Queries"],[1651,"Range Update Queries"],[1652,"Forest Queries"],[1143,"Hotel Queries"],[1749,"List Removals"],[1144,"Salary Queries"],[2166,"Prefix Sum Queries"],[2206,"Pizzeria Queries"],[3304,"Visible Buildings Queries"],[3163,"Range Interval Queries"],[1190,"Subarray Sum Queries"],[3226,"Subarray Sum Queries II"],[1734,"Distinct Values Queries"],[3356,"Distinct Values Queries II"],[2416,"Increasing Array Queries"],[1664,"Movie Festival Queries"],[1739,"Forest Queries II"],[1735,"Range Updates and Sums"],[1736,"Polynomial Queries"],[1737,"Range Queries and Copies"],[2184,"Missing Coin Sum Queries"]] },
-    { name: "Tree Algorithms", problems: [[1674,"Subordinates"],[1130,"Tree Matching"],[1131,"Tree Diameter"],[1132,"Tree Distances I"],[1133,"Tree Distances II"],[1687,"Company Queries I"],[1688,"Company Queries II"],[1135,"Distance Queries"],[1136,"Counting Paths"],[1137,"Subtree Queries"],[1138,"Path Queries"],[2134,"Path Queries II"],[1139,"Distinct Colors"],[2079,"Finding a Centroid"],[2080,"Fixed-Length Paths I"],[2081,"Fixed-Length Paths II"]] },
-    { name: "Mathematics", problems: [[2164,"Josephus Queries"],[1095,"Exponentiation"],[1712,"Exponentiation II"],[1713,"Counting Divisors"],[1081,"Common Divisors"],[1082,"Sum of Divisors"],[2182,"Divisor Analysis"],[2185,"Prime Multiples"],[2417,"Counting Coprime Pairs"],[3396,"Next Prime"],[1079,"Binomial Coefficients"],[1715,"Creating Strings II"],[1716,"Distributing Apples"],[1717,"Christmas Party"],[3397,"Permutation Order"],[3398,"Permutation Rounds"],[2064,"Bracket Sequences I"],[2187,"Bracket Sequences II"],[2209,"Counting Necklaces"],[2210,"Counting Grids"],[1722,"Fibonacci Numbers"],[1096,"Throwing Dice"],[1723,"Graph Paths I"],[1724,"Graph Paths II"],[3154,"System of Linear Equations"],[3355,"Sum of Four Squares"],[3406,"Triangle Number Sums"],[1725,"Dice Probability"],[1726,"Moving Robots"],[1727,"Candy Lottery"],[1728,"Inversion Probability"],[1729,"Stick Game"],[1730,"Nim Game I"],[1098,"Nim Game II"],[1099,"Stair Game"],[2207,"Grundy's Game"],[2208,"Another Game"]] },
-    { name: "String Algorithms", problems: [[1731,"Word Combinations"],[1753,"String Matching"],[1732,"Finding Borders"],[1733,"Finding Periods"],[1110,"Minimal Rotation"],[1111,"Longest Palindrome"],[3138,"All Palindromes"],[1112,"Required Substring"],[2420,"Palindrome Queries"],[2102,"Finding Patterns"],[2103,"Counting Patterns"],[2104,"Pattern Positions"],[2105,"Distinct Substrings"],[1149,"Distinct Subsequences"],[2106,"Repeating Substring"],[2107,"String Functions"],[3225,"Inverse Suffix Array"],[1113,"String Transform"],[2108,"Substring Order I"],[2109,"Substring Order II"],[2110,"Substring Distribution"]] },
-    { name: "Geometry", problems: [[2189,"Point Location Test"],[2190,"Line Segment Intersection"],[2191,"Polygon Area"],[2192,"Point in Polygon"],[2193,"Polygon Lattice Points"],[2194,"Minimum Euclidean Distance"],[2195,"Convex Hull"],[3410,"Maximum Manhattan Distances"],[3411,"All Manhattan Distances"],[1740,"Intersection Points"],[3427,"Line Segments Trace I"],[3428,"Line Segments Trace II"],[3429,"Lines and Queries I"],[3430,"Lines and Queries II"],[1741,"Area of Rectangles"],[1742,"Robot Path"]] },
-    { name: "Advanced Techniques", problems: [[1628,"Meet in the Middle"],[2136,"Hamming Distance"],[3360,"Corner Subgrid Check"],[2137,"Corner Subgrid Count"],[2138,"Reachable Nodes"],[2143,"Reachability Queries"],[2072,"Cut and Paste"],[2073,"Substring Reversals"],[2074,"Reversals and Sums"],[2076,"Necessary Roads"],[2077,"Necessary Cities"],[2078,"Eulerian Subgraphs"],[2084,"Monster Game I"],[2085,"Monster Game II"],[2086,"Subarray Squares"],[2087,"Houses and Schools"],[2088,"Knuth Division"],[2111,"Apples and Bananas"],[2112,"One Bit Positions"],[2113,"Signal Processing"],[2101,"New Roads Queries"],[2133,"Dynamic Connectivity"],[2121,"Parcel Delivery"],[2129,"Task Assignment"],[2130,"Distinct Routes II"]] },
-    { name: "Sliding Window Problems", problems: [[3220,"Sliding Window Sum"],[3221,"Sliding Window Minimum"],[3426,"Sliding Window Xor"],[3405,"Sliding Window Or"],[3222,"Sliding Window Distinct Values"],[3224,"Sliding Window Mode"],[3219,"Sliding Window Mex"],[1076,"Sliding Window Median"],[1077,"Sliding Window Cost"],[3223,"Sliding Window Inversions"],[3227,"Sliding Window Advertisement"]] },
-    { name: "Interactive Problems", problems: [[3112,"Hidden Integer"],[3139,"Hidden Permutation"],[3305,"K-th Highest Score"],[3228,"Permuted Binary Strings"],[3273,"Colored Chairs"],[3140,"Inversion Sorting"]] },
-    { name: "Bitwise Operations", problems: [[1146,"Counting Bits"],[1655,"Maximum Xor Subarray"],[3191,"Maximum Xor Subset"],[3211,"Number of Subset Xors"],[3192,"K Subset Xors"],[3233,"All Subarray Xors"],[2419,"Xor Pyramid Peak"],[3194,"Xor Pyramid Diagonal"],[3195,"Xor Pyramid Row"],[1654,"SOS Bit Problem"],[3141,"And Subset Count"]] },
-    { name: "Construction Problems", problems: [[2214,"Inverse Inversions"],[2215,"Monotone Subsequences"],[3422,"Third Permutation"],[3423,"Permutation Prime Sums"],[1697,"Chess Tournament"],[3424,"Distinct Sums Grid"],[2423,"Filling Trominos"],[2418,"Grid Path Construction"]] },
-    { name: "Advanced Graph Problems", problems: [[3303,"Nearest Shops"],[1134,"Pr\u00fcfer Code"],[1702,"Tree Traversals"],[1757,"Course Schedule II"],[1756,"Acyclic Graph Edges"],[2177,"Strongly Connected Edges"],[2179,"Even Outdegree Edges"],[1707,"Graph Girth"],[3357,"Fixed Length Walk Queries"],[3111,"Transfer Speeds Sum"],[3407,"MST Edge Check"],[3408,"MST Edge Set Check"],[3409,"MST Edge Cost"],[1677,"Network Breakdown"],[3114,"Tree Coin Collecting I"],[3149,"Tree Coin Collecting II"],[1700,"Tree Isomorphism I"],[1701,"Tree Isomorphism II"],[1699,"Flight Route Requests"],[1703,"Critical Cities"],[1203,"Visiting Cities"],[3308,"Graph Coloring"],[3158,"Bus Companies"],[3358,"Split into Two Paths"],[1704,"Network Renovation"],[1705,"Forbidden Cities"],[1752,"Creating Offices"],[1685,"New Flight Routes"]] },
-    { name: "Counting Problems", problems: [[3413,"Filled Subgrid Count I"],[3414,"Filled Subgrid Count II"],[3415,"All Letter Subgrid Count I"],[3416,"All Letter Subgrid Count II"],[3417,"Border Subgrid Count I"],[3418,"Border Subgrid Count II"],[3400,"Raab Game II"],[1080,"Empty String"],[2229,"Permutation Inversions"],[2176,"Counting Bishops"],[2228,"Counting Sequences"],[1078,"Grid Paths II"],[1075,"Counting Permutations"],[2429,"Grid Completion"],[2421,"Counting Reorders"],[3232,"Tournament Graph Distribution"],[3157,"Collecting Numbers Distribution"],[2415,"Functional Graph Distribution"]] },
-    { name: "Additional Problems I", problems: [[1087,"Shortest Subsequence"],[3150,"Distinct Values Sum"],[3190,"Distinct Values Splits"],[1670,"Swap Game"],[3175,"Beautiful Permutation II"],[2422,"Multiplication Table"],[3151,"Bubble Sort Rounds I"],[3152,"Bubble Sort Rounds II"],[3306,"Nearest Campsites I"],[3307,"Nearest Campsites II"],[1142,"Advertisement"],[2186,"Special Substrings"],[3169,"Counting LCM Arrays"],[3193,"Square Subsets"],[3294,"Subarray Sum Constraints"],[3213,"Water Containers Moves"],[3214,"Water Containers Queries"],[2425,"Stack Weights"],[3301,"Maximum Average Subarrays"],[3302,"Subsets with Fixed Average"],[3361,"Two Array Average"],[1747,"Pyramid Array"],[3404,"Permutation Subsequence"],[1188,"Bit Inversions"],[1086,"Writing Numbers"],[2427,"Letter Pair Move Game"],[1147,"Maximum Building I"],[1162,"Sorting Methods"],[1191,"Cyclic Array"],[2414,"List of Sums"]] },
-    { name: "Additional Problems II", problems: [[3215,"Bouncing Ball Steps"],[3216,"Bouncing Ball Cycle"],[3218,"Knight Moves Queries"],[3108,"K Subset Sums I"],[3109,"K Subset Sums II"],[2132,"Increasing Array II"],[1189,"Food Division"],[1698,"Swap Round Sorting"],[2430,"Binary Subsequences"],[1706,"School Excursion"],[1709,"Coin Grid"],[3312,"Grid Coloring II"],[2426,"Programmers and Artists"],[2174,"Removing Digits II"],[2180,"Coin Arrangement"],[3159,"Replace with Difference"],[2432,"Grid Puzzle I"],[2131,"Grid Puzzle II"],[2115,"Bit Substrings"],[2075,"Reversal Sorting"],[1159,"Book Shop II"],[3161,"GCD Subsets"],[3402,"Minimum Cost Pairs"],[3425,"Same Sum Subsets"],[1157,"Mex Grid Queries"],[1148,"Maximum Building II"],[1161,"Stick Divisions"],[3401,"Stick Difference"],[1665,"Coding Company"],[2402,"Two Stacks Sorting"]] },
+  const CSES_PROBLEMSET = [
+    { name: "Introductory Problems", problems: [[1068, "Weird Algorithm"], [1083, "Missing Number"], [1069, "Repetitions"], [1094, "Increasing Array"], [1070, "Permutations"], [1071, "Number Spiral"], [1072, "Two Knights"], [1092, "Two Sets"], [1617, "Bit Strings"], [1618, "Trailing Zeros"], [1754, "Coin Piles"], [1755, "Palindrome Reorder"], [2205, "Gray Code"], [2165, "Tower of Hanoi"], [1622, "Creating Strings"], [1623, "Apple Division"], [1624, "Chessboard and Queens"], [3399, "Raab Game I"], [3419, "Mex Grid Construction"], [3217, "Knight Moves Grid"], [3311, "Grid Coloring I"], [2431, "Digit Queries"], [1743, "String Reorder"], [1625, "Grid Path Description"]] },
+    { name: "Sorting and Searching", problems: [[1621, "Distinct Numbers"], [1084, "Apartments"], [1090, "Ferris Wheel"], [1091, "Concert Tickets"], [1619, "Restaurant Customers"], [1629, "Movie Festival"], [1640, "Sum of Two Values"], [1643, "Maximum Subarray Sum"], [1074, "Stick Lengths"], [2183, "Missing Coin Sum"], [2216, "Collecting Numbers"], [2217, "Collecting Numbers II"], [1141, "Playlist"], [1073, "Towers"], [1163, "Traffic Lights"], [3420, "Distinct Values Subarrays"], [3421, "Distinct Values Subsequences"], [2162, "Josephus Problem I"], [2163, "Josephus Problem II"], [2168, "Nested Ranges Check"], [2169, "Nested Ranges Count"], [1164, "Room Allocation"], [1620, "Factory Machines"], [1630, "Tasks and Deadlines"], [1631, "Reading Books"], [1641, "Sum of Three Values"], [1642, "Sum of Four Values"], [1645, "Nearest Smaller Values"], [1660, "Subarray Sums I"], [1661, "Subarray Sums II"], [1662, "Subarray Divisibility"], [2428, "Distinct Values Subarrays II"], [1085, "Array Division"], [1632, "Movie Festival II"], [1644, "Maximum Subarray Sum II"]] },
+    { name: "Dynamic Programming", problems: [[1633, "Dice Combinations"], [1634, "Minimizing Coins"], [1635, "Coin Combinations I"], [1636, "Coin Combinations II"], [1637, "Removing Digits"], [1638, "Grid Paths I"], [1158, "Book Shop"], [1746, "Array Description"], [2413, "Counting Towers"], [1639, "Edit Distance"], [3403, "Longest Common Subsequence"], [1744, "Rectangle Cutting"], [3359, "Minimal Grid Path"], [1745, "Money Sums"], [1097, "Removal Game"], [1093, "Two Sets II"], [3314, "Mountain Range"], [1145, "Increasing Subsequence"], [1140, "Projects"], [1653, "Elevator Rides"], [2181, "Counting Tilings"], [2220, "Counting Numbers"], [1748, "Increasing Subsequence II"]] },
+    { name: "Graph Algorithms", problems: [[1192, "Counting Rooms"], [1193, "Labyrinth"], [1666, "Building Roads"], [1667, "Message Route"], [1668, "Building Teams"], [1669, "Round Trip"], [1194, "Monsters"], [1671, "Shortest Routes I"], [1672, "Shortest Routes II"], [1673, "High Score"], [1195, "Flight Discount"], [1197, "Cycle Finding"], [1196, "Flight Routes"], [1678, "Round Trip II"], [1679, "Course Schedule"], [1680, "Longest Flight Route"], [1681, "Game Routes"], [1202, "Investigation"], [1750, "Planets Queries I"], [1160, "Planets Queries II"], [1751, "Planets Cycles"], [1675, "Road Reparation"], [1676, "Road Construction"], [1682, "Flight Routes Check"], [1683, "Planets and Kingdoms"], [1684, "Giant Pizza"], [1686, "Coin Collector"], [1691, "Mail Delivery"], [1692, "De Bruijn Sequence"], [1693, "Teleporters Path"], [1690, "Hamiltonian Flights"], [1689, "Knight's Tour"], [1694, "Download Speed"], [1695, "Police Chase"], [1696, "School Dance"], [1711, "Distinct Routes"]] },
+    { name: "Range Queries", problems: [[1646, "Static Range Sum Queries"], [1647, "Static Range Minimum Queries"], [1648, "Dynamic Range Sum Queries"], [1649, "Dynamic Range Minimum Queries"], [1650, "Range Xor Queries"], [1651, "Range Update Queries"], [1652, "Forest Queries"], [1143, "Hotel Queries"], [1749, "List Removals"], [1144, "Salary Queries"], [2166, "Prefix Sum Queries"], [2206, "Pizzeria Queries"], [3304, "Visible Buildings Queries"], [3163, "Range Interval Queries"], [1190, "Subarray Sum Queries"], [3226, "Subarray Sum Queries II"], [1734, "Distinct Values Queries"], [3356, "Distinct Values Queries II"], [2416, "Increasing Array Queries"], [1664, "Movie Festival Queries"], [1739, "Forest Queries II"], [1735, "Range Updates and Sums"], [1736, "Polynomial Queries"], [1737, "Range Queries and Copies"], [2184, "Missing Coin Sum Queries"]] },
+    { name: "Tree Algorithms", problems: [[1674, "Subordinates"], [1130, "Tree Matching"], [1131, "Tree Diameter"], [1132, "Tree Distances I"], [1133, "Tree Distances II"], [1687, "Company Queries I"], [1688, "Company Queries II"], [1135, "Distance Queries"], [1136, "Counting Paths"], [1137, "Subtree Queries"], [1138, "Path Queries"], [2134, "Path Queries II"], [1139, "Distinct Colors"], [2079, "Finding a Centroid"], [2080, "Fixed-Length Paths I"], [2081, "Fixed-Length Paths II"]] },
+    { name: "Mathematics", problems: [[2164, "Josephus Queries"], [1095, "Exponentiation"], [1712, "Exponentiation II"], [1713, "Counting Divisors"], [1081, "Common Divisors"], [1082, "Sum of Divisors"], [2182, "Divisor Analysis"], [2185, "Prime Multiples"], [2417, "Counting Coprime Pairs"], [3396, "Next Prime"], [1079, "Binomial Coefficients"], [1715, "Creating Strings II"], [1716, "Distributing Apples"], [1717, "Christmas Party"], [3397, "Permutation Order"], [3398, "Permutation Rounds"], [2064, "Bracket Sequences I"], [2187, "Bracket Sequences II"], [2209, "Counting Necklaces"], [2210, "Counting Grids"], [1722, "Fibonacci Numbers"], [1096, "Throwing Dice"], [1723, "Graph Paths I"], [1724, "Graph Paths II"], [3154, "System of Linear Equations"], [3355, "Sum of Four Squares"], [3406, "Triangle Number Sums"], [1725, "Dice Probability"], [1726, "Moving Robots"], [1727, "Candy Lottery"], [1728, "Inversion Probability"], [1729, "Stick Game"], [1730, "Nim Game I"], [1098, "Nim Game II"], [1099, "Stair Game"], [2207, "Grundy's Game"], [2208, "Another Game"]] },
+    { name: "String Algorithms", problems: [[1731, "Word Combinations"], [1753, "String Matching"], [1732, "Finding Borders"], [1733, "Finding Periods"], [1110, "Minimal Rotation"], [1111, "Longest Palindrome"], [3138, "All Palindromes"], [1112, "Required Substring"], [2420, "Palindrome Queries"], [2102, "Finding Patterns"], [2103, "Counting Patterns"], [2104, "Pattern Positions"], [2105, "Distinct Substrings"], [1149, "Distinct Subsequences"], [2106, "Repeating Substring"], [2107, "String Functions"], [3225, "Inverse Suffix Array"], [1113, "String Transform"], [2108, "Substring Order I"], [2109, "Substring Order II"], [2110, "Substring Distribution"]] },
+    { name: "Geometry", problems: [[2189, "Point Location Test"], [2190, "Line Segment Intersection"], [2191, "Polygon Area"], [2192, "Point in Polygon"], [2193, "Polygon Lattice Points"], [2194, "Minimum Euclidean Distance"], [2195, "Convex Hull"], [3410, "Maximum Manhattan Distances"], [3411, "All Manhattan Distances"], [1740, "Intersection Points"], [3427, "Line Segments Trace I"], [3428, "Line Segments Trace II"], [3429, "Lines and Queries I"], [3430, "Lines and Queries II"], [1741, "Area of Rectangles"], [1742, "Robot Path"]] },
+    { name: "Advanced Techniques", problems: [[1628, "Meet in the Middle"], [2136, "Hamming Distance"], [3360, "Corner Subgrid Check"], [2137, "Corner Subgrid Count"], [2138, "Reachable Nodes"], [2143, "Reachability Queries"], [2072, "Cut and Paste"], [2073, "Substring Reversals"], [2074, "Reversals and Sums"], [2076, "Necessary Roads"], [2077, "Necessary Cities"], [2078, "Eulerian Subgraphs"], [2084, "Monster Game I"], [2085, "Monster Game II"], [2086, "Subarray Squares"], [2087, "Houses and Schools"], [2088, "Knuth Division"], [2111, "Apples and Bananas"], [2112, "One Bit Positions"], [2113, "Signal Processing"], [2101, "New Roads Queries"], [2133, "Dynamic Connectivity"], [2121, "Parcel Delivery"], [2129, "Task Assignment"], [2130, "Distinct Routes II"]] },
+    { name: "Sliding Window Problems", problems: [[3220, "Sliding Window Sum"], [3221, "Sliding Window Minimum"], [3426, "Sliding Window Xor"], [3405, "Sliding Window Or"], [3222, "Sliding Window Distinct Values"], [3224, "Sliding Window Mode"], [3219, "Sliding Window Mex"], [1076, "Sliding Window Median"], [1077, "Sliding Window Cost"], [3223, "Sliding Window Inversions"], [3227, "Sliding Window Advertisement"]] },
+    { name: "Interactive Problems", problems: [[3112, "Hidden Integer"], [3139, "Hidden Permutation"], [3305, "K-th Highest Score"], [3228, "Permuted Binary Strings"], [3273, "Colored Chairs"], [3140, "Inversion Sorting"]] },
+    { name: "Bitwise Operations", problems: [[1146, "Counting Bits"], [1655, "Maximum Xor Subarray"], [3191, "Maximum Xor Subset"], [3211, "Number of Subset Xors"], [3192, "K Subset Xors"], [3233, "All Subarray Xors"], [2419, "Xor Pyramid Peak"], [3194, "Xor Pyramid Diagonal"], [3195, "Xor Pyramid Row"], [1654, "SOS Bit Problem"], [3141, "And Subset Count"]] },
+    { name: "Construction Problems", problems: [[2214, "Inverse Inversions"], [2215, "Monotone Subsequences"], [3422, "Third Permutation"], [3423, "Permutation Prime Sums"], [1697, "Chess Tournament"], [3424, "Distinct Sums Grid"], [2423, "Filling Trominos"], [2418, "Grid Path Construction"]] },
+    { name: "Advanced Graph Problems", problems: [[3303, "Nearest Shops"], [1134, "Pr\u00fcfer Code"], [1702, "Tree Traversals"], [1757, "Course Schedule II"], [1756, "Acyclic Graph Edges"], [2177, "Strongly Connected Edges"], [2179, "Even Outdegree Edges"], [1707, "Graph Girth"], [3357, "Fixed Length Walk Queries"], [3111, "Transfer Speeds Sum"], [3407, "MST Edge Check"], [3408, "MST Edge Set Check"], [3409, "MST Edge Cost"], [1677, "Network Breakdown"], [3114, "Tree Coin Collecting I"], [3149, "Tree Coin Collecting II"], [1700, "Tree Isomorphism I"], [1701, "Tree Isomorphism II"], [1699, "Flight Route Requests"], [1703, "Critical Cities"], [1203, "Visiting Cities"], [3308, "Graph Coloring"], [3158, "Bus Companies"], [3358, "Split into Two Paths"], [1704, "Network Renovation"], [1705, "Forbidden Cities"], [1752, "Creating Offices"], [1685, "New Flight Routes"]] },
+    { name: "Counting Problems", problems: [[3413, "Filled Subgrid Count I"], [3414, "Filled Subgrid Count II"], [3415, "All Letter Subgrid Count I"], [3416, "All Letter Subgrid Count II"], [3417, "Border Subgrid Count I"], [3418, "Border Subgrid Count II"], [3400, "Raab Game II"], [1080, "Empty String"], [2229, "Permutation Inversions"], [2176, "Counting Bishops"], [2228, "Counting Sequences"], [1078, "Grid Paths II"], [1075, "Counting Permutations"], [2429, "Grid Completion"], [2421, "Counting Reorders"], [3232, "Tournament Graph Distribution"], [3157, "Collecting Numbers Distribution"], [2415, "Functional Graph Distribution"]] },
+    { name: "Additional Problems I", problems: [[1087, "Shortest Subsequence"], [3150, "Distinct Values Sum"], [3190, "Distinct Values Splits"], [1670, "Swap Game"], [3175, "Beautiful Permutation II"], [2422, "Multiplication Table"], [3151, "Bubble Sort Rounds I"], [3152, "Bubble Sort Rounds II"], [3306, "Nearest Campsites I"], [3307, "Nearest Campsites II"], [1142, "Advertisement"], [2186, "Special Substrings"], [3169, "Counting LCM Arrays"], [3193, "Square Subsets"], [3294, "Subarray Sum Constraints"], [3213, "Water Containers Moves"], [3214, "Water Containers Queries"], [2425, "Stack Weights"], [3301, "Maximum Average Subarrays"], [3302, "Subsets with Fixed Average"], [3361, "Two Array Average"], [1747, "Pyramid Array"], [3404, "Permutation Subsequence"], [1188, "Bit Inversions"], [1086, "Writing Numbers"], [2427, "Letter Pair Move Game"], [1147, "Maximum Building I"], [1162, "Sorting Methods"], [1191, "Cyclic Array"], [2414, "List of Sums"]] },
+    { name: "Additional Problems II", problems: [[3215, "Bouncing Ball Steps"], [3216, "Bouncing Ball Cycle"], [3218, "Knight Moves Queries"], [3108, "K Subset Sums I"], [3109, "K Subset Sums II"], [2132, "Increasing Array II"], [1189, "Food Division"], [1698, "Swap Round Sorting"], [2430, "Binary Subsequences"], [1706, "School Excursion"], [1709, "Coin Grid"], [3312, "Grid Coloring II"], [2426, "Programmers and Artists"], [2174, "Removing Digits II"], [2180, "Coin Arrangement"], [3159, "Replace with Difference"], [2432, "Grid Puzzle I"], [2131, "Grid Puzzle II"], [2115, "Bit Substrings"], [2075, "Reversal Sorting"], [1159, "Book Shop II"], [3161, "GCD Subsets"], [3402, "Minimum Cost Pairs"], [3425, "Same Sum Subsets"], [1157, "Mex Grid Queries"], [1148, "Maximum Building II"], [1161, "Stick Divisions"], [3401, "Stick Difference"], [1665, "Coding Company"], [2402, "Two Stacks Sorting"]] },
   ];
 
   /* ── HELPERS ─────────────────────────────────────────────────── */
@@ -2050,14 +2050,14 @@ const CSES_PROBLEMSET = [
           <div class="cses-grid-inner">
             <div class="cses-grid">
               ${allProblems.map(([id, name]) => {
-                const isSolved = solvedSet.has(id);
-                return `<a
+      const isSolved = solvedSet.has(id);
+      return `<a
                   class="cses-box${isSolved ? ' cses-box--solved' : ''}"
                   href="https://cses.fi/problemset/task/${id}"
                   target="_blank" rel="noopener noreferrer"
                   data-tip="${name.replace(/"/g, '&quot;')}"
                 >${isSolved ? '✓' : ''}</a>`;
-              }).join('')}
+    }).join('')}
             </div>
           </div>
         </div>
@@ -2093,7 +2093,7 @@ const CSES_PROBLEMSET = [
       window.GlobalTip.bind(box, (el) => {
         const solved = el.classList.contains('cses-box--solved');
         return `<strong>${el.dataset.tip || ''}</strong>` +
-               `<span>${solved ? 'solved' : 'not solved'}</span>`;
+          `<span>${solved ? 'solved' : 'not solved'}</span>`;
       });
     });
   }
@@ -2124,7 +2124,7 @@ const CSES_PROBLEMSET = [
       .cses-stat-value {
         font-size: 1.35rem;
         font-weight: 700;
-        color: var(--green, #e8510f);
+        color: var(--green, #2da44e);
         line-height: 1;
         letter-spacing: -0.02em;
       }
@@ -2146,7 +2146,7 @@ const CSES_PROBLEMSET = [
         margin-left: auto;
       }
       .cses-badge[data-platform="cses"]:hover {
-        border-color: #e8510f;
+        border-color: #2da44e;
         border-width: 3px;
         color: var(--text);
         font-weight: 800;
@@ -2164,7 +2164,7 @@ const CSES_PROBLEMSET = [
         transition: border-color 0.2s, color 0.2s;
       }
       .cses-toggle-all-btn:hover {
-        border-color: var(--green, #e8510f);
+        border-color: var(--green, #2da44e);
         color: var(--text, #ededed);
       }
 
@@ -2208,11 +2208,11 @@ const CSES_PROBLEMSET = [
       }
 
       .cses-box--solved {
-        background: #e8510f;
-        border-color: #e8510f;
-        color: #210a02;
+        background: #2da44e;
+        border-color: #2da44e;
+        color: #05170a;
       }
-      [data-theme="light"] .cses-box--solved { color: #fff2ea; }
+      [data-theme="light"] .cses-box--solved { color: #eafff0; }
 
       .cses-box:hover {
         transform: scale(1.15);

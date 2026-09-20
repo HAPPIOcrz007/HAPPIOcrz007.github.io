@@ -157,6 +157,7 @@
     <ul class="nav-links" role="menubar">
       <li role="none"><a href="#activity" role="menuitem">activity</a></li>
       <li role="none"><a href="#projects" role="menuitem">projects</a></li>
+      <li role="none"><a href="#blogs" role="menuitem">blogs</a></li>
       <li role="none"><a href="#skills" role="menuitem">skills</a></li>
       <li role="none"><a href="#achievements" role="menuitem">achievements</a></li>
       <li role="none"><a href="#certificates" role="menuitem">certs</a></li>
@@ -246,6 +247,21 @@
       </div>
     </section>
 
+    <!-- ===== BLOGS =====
+         Cards come from data/blogs.js; each post's body is
+         content/blogs/<id>.md, cover is content/blogs/<id>.png and
+         in-post images are content/blogs/<id>_<n>.png. Clicking a
+         card opens the full-page reader (#blogReader below). -->
+    <section id="blogs" aria-labelledby="blogs-title">
+      <div class="container">
+        <p class="sec-label">Writing</p>
+        <h2 class="sec-title" id="blogs-title">Blogs</h2>
+        <div id="blogsGrid" class="blog-grid">
+          <div class="loading" aria-live="polite">loading blogs…</div>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== SKILLS ===== -->
     <section id="skills" aria-labelledby="skills-title">
       <div class="container">
@@ -312,11 +328,33 @@
     </div>
   </div>
 
+  <!-- ===== BLOG READER (full-page overlay, opened via #post-<id>) ===== -->
+  <div id="blogReader" class="blog-reader" role="dialog" aria-modal="true" aria-labelledby="blogTitle" hidden>
+    <div class="blog-reader-bar">
+      <div class="blog-reader-progress" id="blogProgress" aria-hidden="true"></div>
+      <button class="blog-back" id="blogBack" type="button" aria-label="Back to site">← Back</button>
+      <button class="blog-reader-close" id="blogClose" type="button" aria-label="Close blog">×</button>
+    </div>
+    <article class="blog-article">
+      <div class="blog-cover" id="blogCover"></div>
+      <header class="blog-head">
+        <div class="blog-meta" id="blogMeta"></div>
+        <h1 class="blog-title" id="blogTitle"></h1>
+        <div class="tech-tags" id="blogTags"></div>
+      </header>
+      <div id="blogBody" class="md-content blog-body"></div>
+    </article>
+  </div>
+
+  <!-- Click-to-zoom for images inside a post -->
+  <div id="blogLightbox" class="blog-lightbox" hidden><img alt="" /></div>
+
   <!-- ===== DATA ===== -->
   <script src="data/site.js" defer></script>
   <script src="data/skills.js" defer></script>
   <script src="data/achievements.js" defer></script>
   <script src="data/projects.js" defer></script>
+  <script src="data/blogs.js" defer></script>
   <script src="data/certificates.js" defer></script>
   <script src="data/notification.js" defer></script>
   <script src="data/cses.js" defer></script>

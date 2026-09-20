@@ -35,6 +35,9 @@
    #12 Progress bar skips JS updates entirely when the browser
        supports native CSS scroll-driven animation
        (animation-timeline: scroll()). ~L535
+   #22 Blogs: renderBlogMarkdown() / renderBlogs() / blogReader (search
+       "BLOGS" below). Posts live in content/blogs/<id>.md with cover
+       <id>.png and images <id>_<n>.png; metadata in data/blogs.js.
    #15 Hero name markup is only rewritten if the data-driven name
        differs from the static HTML already in the page, avoiding
        an unnecessary reflow on load. ~L297
@@ -657,6 +660,541 @@ function renderCertificates(certs) {
     const img = `content/certificates/${c.id}/01.png`;
     modal.open(c.title, [img], renderMarkdown(md || c.description || ''));
   });
+}
+
+/* ================================================================
+   BLOGS
+   ----------------------------------------------------------------
+   File layout (all under content/blogs/):
+     <id>.md          the post body (markdown)
+     <id>.png         cover image (card thumbnail + reader header)
+     <id>_<n>.png     images used inside the post
+   Post metadata (title, date, blurb, tags) lives in data/blogs.js.
+
+   renderBlogMarkdown() is a fuller renderer than renderMarkdown()
+   (which stays untouched for projects/certificates). Adds images,
+   ordered lists, nested lists, blockquotes, tables, hr, ~~strike~~
+   and h4-h6 on top of the usual **bold**, *italic*, `code`,
+   [links](url) and =(#RRGGBB)colored text=.
+================================================================ */
+const BLOG_DIR = 'content/blogs/';
+
+/* ---------- Code blocks: syntax highlighting + language label + copy ---------- */
+const HL_STR_DQ = String.raw`"(?:\\.|[^"\\\n])*"`;
+const HL_STR_SQ = String.raw`'(?:\\.|[^'\\\n])*'`;
+const HL_NUM = String.raw`\b0[xX][0-9a-fA-F]+\b|\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?[a-zA-Z]{0,3}\b`;
+const HL_CLIKE_COMMENT = String.raw`//[^\n]*|/\*[\s\S]*?\*/`;
+const HL_FN = String.raw`\b[A-Za-z_]\w*(?=\s*\()`;
+const reEsc = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const words = (s) => s.trim().split(/\s+/);
+
+const HL_LANGS = {
+  cpp: {
+    comment: HL_CLIKE_COMMENT, string: `${HL_STR_DQ}|${HL_STR_SQ}`,
+    pre: true,
+    kw: words('alignas alignof auto break case catch class const constexpr continue default delete do else enum explicit extern false final for friend goto if inline namespace new noexcept nullptr operator override private protected public register return sizeof static static_assert struct switch template this throw true try typedef typename union using virtual volatile while'),
+    types: words('int long short char bool float double void unsigned signed size_t string vector map set multiset unordered_map unordered_set pair array deque queue stack priority_queue bitset int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t ll ull std cin cout cerr endl FILE NULL'),
+  },
+  js: {
+    comment: HL_CLIKE_COMMENT, string: String.raw`${HL_STR_DQ}|${HL_STR_SQ}|` + '`(?:\\\\.|[^`\\\\])*`',
+    kw: words('async await break case catch class const continue debugger default delete do else export extends finally for from function if import in instanceof let new of return static super switch this throw try typeof var void while with yield true false null undefined'),
+    types: words('Promise Array Object String Number Boolean Map Set Symbol console document window JSON Math Date Error RegExp'),
+  },
+  ts: {
+    comment: HL_CLIKE_COMMENT, string: String.raw`${HL_STR_DQ}|${HL_STR_SQ}|` + '`(?:\\\\.|[^`\\\\])*`',
+    kw: words('async await break case catch class const continue default delete do else enum export extends finally for from function if implements import in instanceof interface keyof let namespace new of private protected public readonly return static super switch this throw try type typeof var void while yield as abstract declare true false null undefined'),
+    types: words('string number boolean any unknown never void object Promise Array Record Partial Map Set console JSON Math Date Error'),
+  },
+  python: {
+    comment: String.raw`#[^\n]*`,
+    string: String.raw`"""[\s\S]*?"""|'''[\s\S]*?'''|${HL_STR_DQ}|${HL_STR_SQ}`,
+    extra: [['p', String.raw`^[ \t]*@[\w.]+`]],
+    kw: words('and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield True False None'),
+    types: words('print len range int str float list dict set tuple bool bytes input open sum min max abs enumerate zip map filter sorted reversed isinstance self cls'),
+  },
+  bash: {
+    comment: String.raw`(?:^|[ \t])#[^\n]*`, string: `${HL_STR_DQ}|${HL_STR_SQ}`,
+    extra: [['t', String.raw`\$\{?[A-Za-z_@#?$*0-9][\w]*\}?`]],
+    kw: words('if then else elif fi for while until do done case esac in function select return exit break continue local export readonly declare unset source alias'),
+    types: words('echo cd ls cat grep sed awk chmod chown mkdir rm cp mv sudo apt git make gcc g++ python python3 pip npm node curl wget tar ssh touch head tail find sort uniq wc xargs kill ps'),
+  },
+  json: {
+    string: HL_STR_DQ, extra: [['t', String.raw`"(?:\\.|[^"\\\n])*"(?=\s*:)`, true]],
+    kw: words('true false null'), noFn: true,
+  },
+  html: {
+    comment: String.raw`<!--[\s\S]*?-->`, string: `${HL_STR_DQ}|${HL_STR_SQ}`,
+    extra: [['k', String.raw`</?[A-Za-z][\w:-]*|/?>`], ['t', String.raw`\b[a-zA-Z-]+(?==)`]],
+    noNum: true, noFn: true,
+  },
+  css: {
+    comment: String.raw`/\*[\s\S]*?\*/`, string: `${HL_STR_DQ}|${HL_STR_SQ}`,
+    extra: [['k', String.raw`@[\w-]+`], ['t', String.raw`[a-zA-Z-]+(?=\s*:)`]],
+    number: String.raw`#[0-9a-fA-F]{3,8}\b|-?\d*\.?\d+(?:px|r?em|%|vh|vw|ms|s|deg|fr)?`, noFn: false,
+  },
+  sql: {
+    comment: String.raw`--[^\n]*|/\*[\s\S]*?\*/`, string: HL_STR_SQ, i: true,
+    kw: words('select from where and or not in is null like between join inner left right outer full on group by order having limit offset insert into values update set delete create table alter drop index primary key foreign references distinct as union all case when then else end asc desc'),
+    types: words('int integer bigint varchar char text date datetime timestamp boolean float double decimal count sum avg min max'),
+  },
+  java: {
+    comment: HL_CLIKE_COMMENT, string: `${HL_STR_DQ}|${HL_STR_SQ}`, extra: [['p', String.raw`@\w+`]],
+    kw: words('abstract assert break case catch class const continue default do else enum extends final finally for goto if implements import instanceof interface native new package private protected public return static strictfp super switch synchronized this throw throws transient try volatile while true false null var'),
+    types: words('int long short byte char boolean float double void String Integer Long List Map Set ArrayList HashMap Object System Math Optional'),
+  },
+  rust: {
+    comment: HL_CLIKE_COMMENT, string: String.raw`${HL_STR_DQ}|'(?:\\.[^']*|[^'\\\n])'`, extra: [['p', String.raw`#!?\[[^\]]*\]`]],
+    kw: words('as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type unsafe use where while'),
+    types: words('i8 i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize f32 f64 bool char str String Vec Option Result Box Some None Ok Err println'),
+  },
+  go: {
+    comment: HL_CLIKE_COMMENT, string: String.raw`${HL_STR_DQ}|${HL_STR_SQ}|` + '`[^`]*`',
+    kw: words('break case chan const continue default defer else fallthrough for func go goto if import interface map package range return select struct switch type var true false nil'),
+    types: words('int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float32 float64 string bool byte rune error any fmt'),
+  },
+};
+const HL_ALIASES = {
+  'c': 'cpp', 'c++': 'cpp', 'cc': 'cpp', 'cxx': 'cpp', 'h': 'cpp', 'hpp': 'cpp',
+  'javascript': 'js', 'jsx': 'js', 'mjs': 'js', 'typescript': 'ts', 'tsx': 'ts',
+  'py': 'python', 'python3': 'python', 'sh': 'bash', 'shell': 'bash', 'zsh': 'bash', 'console': 'bash',
+  'rs': 'rust', 'golang': 'go', 'htm': 'html', 'xml': 'html', 'svg': 'html', 'jsonc': 'json',
+};
+const HL_LABELS = {
+  c: 'C', cpp: 'C++', 'c++': 'C++', cc: 'C++', cxx: 'C++', h: 'C', hpp: 'C++', js: 'JavaScript', javascript: 'JavaScript',
+  jsx: 'JSX', ts: 'TypeScript', typescript: 'TypeScript', tsx: 'TSX', py: 'Python', python: 'Python', python3: 'Python',
+  bash: 'Bash', sh: 'Shell', shell: 'Shell', zsh: 'Zsh', console: 'Console', json: 'JSON', html: 'HTML', xml: 'XML',
+  css: 'CSS', sql: 'SQL', java: 'Java', rs: 'Rust', rust: 'Rust', go: 'Go', golang: 'Go', svg: 'SVG',
+};
+
+const _hlCache = {};
+function hlRegex(key) {
+  if (_hlCache[key]) return _hlCache[key];
+  const d = HL_LANGS[key];
+  const parts = [];
+  if (d.comment) parts.push(['c', d.comment]);
+  (d.extra || []).filter(e => e[2]).forEach(e => parts.push(e));     // extras flagged "first" beat strings (JSON keys)
+  if (d.string) parts.push(['s', d.string]);
+  if (d.pre) parts.push(['p', String.raw`^[ \t]*#[ \t]*\w+`]);
+  (d.extra || []).filter(e => !e[2]).forEach(e => parts.push(e));
+  if (!d.noNum) parts.push(['n', d.number || HL_NUM]);
+  if (d.kw) parts.push(['k', String.raw`\b(?:${d.kw.map(reEsc).join('|')})\b`]);
+  if (d.types) parts.push(['t', String.raw`\b(?:${d.types.map(reEsc).join('|')})\b`]);
+  if (!d.noFn) parts.push(['f', HL_FN]);
+  const re = new RegExp(parts.map(([, s]) => `(${s})`).join('|'), 'gm' + (d.i ? 'i' : ''));
+  return (_hlCache[key] = { re, classes: parts.map(([c]) => c) });
+}
+
+function highlightCode(code, lang) {
+  const key = HL_LANGS[lang] ? lang : HL_ALIASES[lang];
+  if (!key || !HL_LANGS[key]) return escapeHtml(code);
+  const { re, classes } = hlRegex(key);
+  let out = '', last = 0, m;
+  re.lastIndex = 0;
+  while ((m = re.exec(code)) !== null) {
+    if (m[0] === '') { re.lastIndex++; continue; }
+    const gi = m.findIndex((g, i) => i > 0 && g !== undefined) - 1;
+    out += escapeHtml(code.slice(last, m.index)) + `<span class="hl-${classes[gi]}">${escapeHtml(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + escapeHtml(code.slice(last));
+}
+
+function codeBlockHtml(info, code) {
+  const lang = (info || '').trim().split(/\s+/)[0].toLowerCase();
+  const label = lang ? (HL_LABELS[lang] || lang.toUpperCase()) : '';
+  return `<div class="blog-code"><div class="blog-code-head">` +
+    `<span class="blog-code-lang">${escapeHtml(label || 'code')}</span>` +
+    `<button class="blog-code-copy" type="button" aria-label="Copy code to clipboard">Copy</button></div>` +
+    `<pre><code${lang ? ` class="lang-${escapeHtml(lang)}"` : ''}>${highlightCode(code, lang)}</code></pre></div>`;
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch { /* ignore */ }
+    ta.remove();
+    return ok;
+  }
+}
+
+/* ---------- PDFs: first-page preview via pdf.js (loaded on demand) ---------- */
+const PDFJS_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+let _pdfjsPromise = null;
+
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (_pdfjsPromise) return _pdfjsPromise;
+  _pdfjsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = PDFJS_BASE + 'pdf.min.js';
+    s.onload = () => {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.js';
+      resolve(window.pdfjsLib);
+    };
+    s.onerror = () => { _pdfjsPromise = null; reject(new Error('pdf.js failed to load')); };
+    document.head.appendChild(s);
+  });
+  return _pdfjsPromise;
+}
+
+async function renderPdfPreviews(root) {
+  const figs = [...root.querySelectorAll('.blog-pdf[data-pdf]')];
+  if (!figs.length) return;
+  const fail = (fig) => fig.classList.add('blog-pdf--fallback');
+
+  let lib;
+  try { lib = await loadPdfJs(); } catch (e) { console.warn('[blog]', e.message); figs.forEach(fail); return; }
+
+  for (const fig of figs) {
+    try {
+      const doc = await lib.getDocument(fig.dataset.pdf).promise;
+      if (!fig.isConnected) continue;             // post was closed / swapped meanwhile
+      const page = await doc.getPage(1);
+      const canvas = fig.querySelector('canvas');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cssW = fig.querySelector('.blog-pdf-link').clientWidth || 700;
+      const base = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({ scale: (cssW * dpr) / base.width });
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      fig.classList.add('blog-pdf--ready');
+      const pages = fig.querySelector('.blog-pdf-pages');
+      if (pages) pages.textContent = `${doc.numPages} page${doc.numPages === 1 ? '' : 's'} · `;
+    } catch (e) {
+      console.warn('[blog] PDF preview failed:', fig.dataset.pdf, e && e.message);
+      fail(fig);
+    }
+  }
+}
+
+function renderBlogMarkdown(md, blogId) {
+  if (!md) return '';
+
+  const stash = [];
+  const keep = (html) => `\u0000${stash.push(html) - 1}\u0000`;
+  const restore = (s) => {
+    let prev;
+    do { prev = s; s = s.replace(/\u0000(\d+)\u0000/g, (_, i) => stash[i]); } while (s !== prev);
+    return s;
+  };
+
+  // Image sources: "img:2" -> <id>_2.png, "pdf:2" -> <id>_2.pdf, bare filename -> content/blogs/<name>,
+  // full URLs and site paths (content/…, assets/…, /…) pass through untouched.
+  const resolveSrc = (u) => {
+    u = u.trim();
+    const short = /^img:(\d+)$/i.exec(u);
+    if (short) return `${BLOG_DIR}${blogId}_${short[1]}.png`;
+    const pdfShort = /^pdf:(\d+)$/i.exec(u);
+    if (pdfShort) return `${BLOG_DIR}${blogId}_${pdfShort[1]}.pdf`;
+    if (/^(https?:)?\/\//i.test(u) || /^(content|assets)\//.test(u) || u.startsWith('/')) return u;
+    return BLOG_DIR + u.replace(/^\.\//, '');
+  };
+  const unsafeUrl = (u) => /^\s*(javascript|data|vbscript):/i.test(u.replace(/&#?\w+;/g, ''));
+
+  // alt/src arrive already HTML-escaped (block path escapes them explicitly)
+  const imgTag = (alt, src, cls) =>
+    `<img class="${cls}" src="${resolveSrc(src)}" alt="${alt}" loading="lazy" />`;
+  const isPdf = (src) => /\.pdf(?:[?#].*)?$/i.test(resolveSrc(src));
+  const pdfFigure = (altHtml, altPlain, src) => {
+    const url = resolveSrc(src);
+    return `<figure class="blog-pdf blog-figure" data-pdf="${url}">` +
+      `<a class="blog-pdf-link" href="${url}" target="_blank" rel="noopener noreferrer" ` +
+      `aria-label="Open PDF in a new tab${altPlain ? ': ' + altPlain : ''}">` +
+      `<canvas></canvas>` +
+      `<span class="blog-pdf-badge">📄 <span class="blog-pdf-pages"></span>click to open the full PDF ↗</span></a>` +
+      `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
+  };
+
+  function inline(text) {
+    let h = escapeHtml(text);                     // everything below sees escaped text
+    h = h.replace(/`([^`]+?)`/g, (_, c) => keep(`<code>${c}</code>`));
+    h = h.replace(/=\(#([A-Fa-f0-9]{6})\)(.*?)=/gs,
+      (_, hex, c) => `${keep(`<span style="color:#${hex}">`)}${c}${keep('</span>')}`);
+    h = h.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,
+      (_, alt, src) => unsafeUrl(src) ? '' :
+        isPdf(src) ? keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">📄 ${alt || 'PDF'}</a>`)
+                   : keep(imgTag(alt, src, 'blog-inline-img')));
+    h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, url) => {
+      if (unsafeUrl(url)) return label;
+      const ext = /^(https?:)?\/\//i.test(url) || url.startsWith('mailto:');
+      const attrs = ext ? ' target="_blank" rel="noopener noreferrer"' : '';
+      return `${keep(`<a href="${url}"${attrs}>`)}${label}${keep('</a>')}`;
+    });
+    h = h.replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
+         .replace(/~~(.+?)~~/gs, '<del>$1</del>')
+         .replace(/(^|[^*])\*(?!\s)([^*]+?)\*(?!\*)/g, '$1<em>$2</em>');
+    return h;
+  }
+
+  const isRule = (l) => /^\s*([-*_])(\s*\1){2,}\s*$/.test(l);
+  const isHeading = (l) => /^#{1,6}\s+/.test(l);
+  const isQuote = (l) => /^\s*>/.test(l);
+  const listRe = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
+  const isFence = (l) => /^\u0000\d+\u0000$/.test(l.trim());
+  const imgLineRe = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)\s*$/;
+  const isTableSep = (l) => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l) && l.includes('-');
+  const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+
+  function parseBlocks(lines) {
+    const out = [];
+    let i = 0;
+
+    const startsBlock = (l, next) =>
+      isHeading(l) || isRule(l) || isQuote(l) || listRe.test(l) || isFence(l) ||
+      imgLineRe.test(l) || (l.includes('|') && next !== undefined && isTableSep(next));
+
+    while (i < lines.length) {
+      const line = lines[i];
+      if (!line.trim()) { i++; continue; }
+
+      if (isFence(line)) { out.push(line.trim()); i++; continue; }
+
+      if (isRule(line)) { out.push('<hr>'); i++; continue; }
+
+      let m = /^(#{1,6})\s+(.*?)\s*#*\s*$/.exec(line);
+      if (m) {                                    // # and ## -> <h2> (the post title is the page's <h1>)
+        const lvl = Math.max(2, m[1].length);
+        out.push(`<h${lvl}>${inline(m[2])}</h${lvl}>`);
+        i++; continue;
+      }
+
+      m = imgLineRe.exec(line);
+      if (m) {
+        const alt = m[1];
+        const srcEsc = escapeHtml(m[2]);
+        if (unsafeUrl(m[2])) out.push('');
+        else if (isPdf(srcEsc)) out.push(pdfFigure(alt ? inline(alt) : '', escapeHtml(stripMarkdown(alt)), srcEsc));
+        else out.push(`<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img')}` +
+          `${alt ? `<figcaption>${inline(alt)}</figcaption>` : ''}</figure>`);
+        i++; continue;
+      }
+
+      if (isQuote(line)) {
+        const q = [];
+        while (i < lines.length && isQuote(lines[i])) { q.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+        out.push(`<blockquote>${parseBlocks(q).join('\n')}</blockquote>`);
+        continue;
+      }
+
+      if (line.includes('|') && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        const head = cells(line);
+        const aligns = cells(lines[i + 1]).map(c =>
+          /^:-+:$/.test(c) ? 'center' : /^-+:$/.test(c) ? 'right' : '');
+        i += 2;
+        const rows = [];
+        while (i < lines.length && lines[i].trim() && lines[i].includes('|')) { rows.push(cells(lines[i])); i++; }
+        const td = (tag, c, k) => `<${tag}${aligns[k] ? ` style="text-align:${aligns[k]}"` : ''}>${inline(c)}</${tag}>`;
+        out.push(`<div class="blog-table-wrap"><table><thead><tr>${head.map((c, k) => td('th', c, k)).join('')}</tr></thead>` +
+          `<tbody>${rows.map(r => `<tr>${head.map((_, k) => td('td', r[k] || '', k)).join('')}</tr>`).join('')}</tbody></table></div>`);
+        continue;
+      }
+
+      m = listRe.exec(line);
+      if (m) {
+        const baseIndent = m[1].length;
+        const ordered = /\d/.test(m[2]);
+        const items = [];
+        while (i < lines.length) {
+          const l = lines[i];
+          const lm = listRe.exec(l);
+          if (lm && lm[1].length <= baseIndent) {
+            if (lm[1].length < baseIndent) break;
+            items.push({ text: lm[3], sub: [] });
+          } else if (l.trim() && items.length && /^\s+/.test(l)) {
+            items[items.length - 1].sub.push(l.slice(Math.min(l.match(/^\s*/)[0].length, baseIndent + 2)));
+          } else break;
+          i++;
+        }
+        const tag = ordered ? 'ol' : 'ul';
+        out.push(`<${tag}>${items.map(it =>
+          `<li>${inline(it.text)}${it.sub.length ? parseBlocks(it.sub).join('') : ''}</li>`).join('')}</${tag}>`);
+        continue;
+      }
+
+      // paragraph — runs until a blank line or the start of another block
+      const para = [line];
+      i++;
+      while (i < lines.length && lines[i].trim() && !startsBlock(lines[i], lines[i + 1])) { para.push(lines[i]); i++; }
+      out.push(`<p>${inline(para.join('\n')).replace(/\n/g, '<br>')}</p>`);
+    }
+    return out;
+  }
+
+  let src = String(md).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').replace(/\u0000/g, '');
+  src = src.replace(/^```([^\n]*)\n([\s\S]*?)^```[ \t]*$/gm,
+    (_, info, code) => `\n${keep(codeBlockHtml(info, code.replace(/\n$/, '')))}\n`);
+
+  return restore(parseBlocks(src.split('\n')).join('\n'));
+}
+
+function renderBlogs(blogs) {
+  const root = $('#blogsGrid');
+  if (!root) return;
+  if (!blogs?.length) { root.innerHTML = '<div class="loading">No blogs yet</div>'; return; }
+
+  root.innerHTML = blogs.map((b, i) => `
+    <a class="project-card blog-card reveal" href="#post-${escapeHtml(b.id)}" data-id="${escapeHtml(b.id)}"
+       style="transition-delay:${Math.min(i * 50, 400)}ms">
+      <div class="project-thumb">
+        <img src="${BLOG_DIR}${escapeHtml(b.id)}.png" alt="${escapeHtml(stripMarkdown(b.title))}" loading="lazy"
+             onerror="this.parentElement.innerHTML='&lt;div class=&quot;project-thumb-empty&quot;&gt;// no cover&lt;/div&gt;'" />
+      </div>
+      <div class="project-body">
+        <div class="project-date">${renderInlineMarkdown(b.date || '')}</div>
+        <div class="project-title">${renderInlineMarkdown(b.title)}</div>
+        <div class="project-desc">${renderInlineMarkdown(b.shortDesc || '')}</div>
+        <div class="tech-tags">
+          ${(b.tags || []).map(t => `<span class="tech-tag">${renderInlineMarkdown(t)}</span>`).join('')}
+        </div>
+      </div>
+    </a>`).join('');
+  // Cards are plain #post-<id> links (middle-click / copy-link work). A normal
+  // click is intercepted so we push a history entry we own — that lets the
+  // reader's Back button and the browser Back button behave identically.
+  if (!root._blogBound) {
+    root._blogBound = true;
+    root.addEventListener('click', (e) => {
+      const card = e.target.closest('.blog-card');
+      if (!card || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+      history.pushState({ blogNav: true }, '', `#post-${card.dataset.id}`);
+      blogReader.show(card.dataset.id);
+    });
+  }
+}
+
+const blogReader = {
+  root: null, body: null, cover: null, meta: null, title: null, tags: null,
+  progress: null, currentId: null, _lastFocused: null, _token: 0,
+
+  init() {
+    this.root = $('#blogReader');
+    if (!this.root) return;
+    this.body = $('#blogBody');
+    this.cover = $('#blogCover');
+    this.meta = $('#blogMeta');
+    this.title = $('#blogTitle');
+    this.tags = $('#blogTags');
+    this.progress = $('#blogProgress');
+
+    $('#blogBack')?.addEventListener('click', () => this.close());
+    $('#blogClose')?.addEventListener('click', () => this.close());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || this.root.hidden) return;
+      const lb = $('#blogLightbox');
+      if (lb && !lb.hidden) { lb.hidden = true; return; }
+      this.close();
+    });
+
+    this.root.addEventListener('scroll', () => {
+      const max = this.root.scrollHeight - this.root.clientHeight;
+      this.progress.style.transform = `scaleX(${max > 0 ? Math.min(this.root.scrollTop / max, 1) : 0})`;
+    }, { passive: true });
+
+    // Copy button on code blocks (delegated — blocks are re-rendered per post)
+    this.body.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.blog-code-copy');
+      if (!btn) return;
+      const code = btn.closest('.blog-code')?.querySelector('code');
+      if (!code) return;
+      const ok = await copyText(code.textContent);
+      btn.textContent = ok ? 'Copied!' : 'Failed';
+      btn.classList.toggle('is-copied', ok);
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1600);
+    });
+
+    // Click any image in a post to view it full size
+    const lb = $('#blogLightbox');
+    this.body.addEventListener('click', (e) => {
+      const img = e.target.closest('img');
+      if (!img || !lb) return;
+      lb.querySelector('img').src = img.src;
+      lb.querySelector('img').alt = img.alt;
+      lb.hidden = false;
+    });
+    lb?.addEventListener('click', () => { lb.hidden = true; });
+
+    window.addEventListener('popstate', () => this.sync());
+    window.addEventListener('hashchange', () => this.sync());
+    this.sync();   // deep link: site/#post-3 opens straight into the post
+  },
+
+  sync() {
+    const m = /^#post-([\w-]+)$/.exec(location.hash);
+    if (m) this.show(m[1]); else this.hide();
+  },
+
+  async show(id) {
+    if (this.currentId === id && !this.root.hidden) return;
+    const blog = (window.DATA_BLOGS || []).find(b => String(b.id) === String(id));
+    const token = ++this._token;
+    const md = await fetchText(`${BLOG_DIR}${encodeURIComponent(id)}.md`);
+    if (token !== this._token) return;            // user navigated away while loading
+
+    if (!blog && md == null) { this.close(); return; }
+
+    const post = blog || { id, title: `Post ${id}` };
+    this.currentId = String(id);
+
+    this.title.innerHTML = renderInlineMarkdown(post.title);
+    document.title = `${stripMarkdown(post.title)} | ${window.DATA_SITE?.name || 'Blog'}`;
+
+    const words = (md || '').trim().split(/\s+/).filter(Boolean).length;
+    const mins = Math.max(1, Math.round(words / 220));
+    this.meta.innerHTML = [post.date ? renderInlineMarkdown(post.date) : '', `${mins} min read`]
+      .filter(Boolean).map(x => `<span>${x}</span>`).join('<span class="blog-meta-dot">·</span>');
+    this.tags.innerHTML = (post.tags || []).map(t => `<span class="tech-tag">${renderInlineMarkdown(t)}</span>`).join('');
+
+    this.cover.innerHTML = `<img src="${BLOG_DIR}${escapeHtml(id)}.png" alt="${escapeHtml(stripMarkdown(post.title))}" />`;
+    this.cover.querySelector('img').addEventListener('error', () => { this.cover.innerHTML = ''; });
+
+    this.body.innerHTML = md == null
+      ? '<p>This post could not be loaded.</p>'
+      : renderBlogMarkdown(md, id);
+    this.body.querySelectorAll('img').forEach(img =>
+      img.addEventListener('error', () => { img.style.opacity = '0.35'; img.alt = img.alt || 'Image not available'; }));
+
+    if (this.root.hidden) {
+      this._lastFocused = document.activeElement;
+      this.root.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    this.root.scrollTop = 0;
+    this.progress.style.transform = 'scaleX(0)';
+    renderPdfPreviews(this.body);       // after unhide so widths can be measured
+    setTimeout(() => $('#blogBack')?.focus(), 50);
+  },
+
+  hide() {
+    this._token++;
+    if (!this.root || this.root.hidden) return;
+    this.root.hidden = true;
+    this.currentId = null;
+    document.body.style.overflow = '';
+    if (window.DATA_SITE) renderSiteTitle();
+    this._lastFocused?.focus?.();
+    this._lastFocused = null;
+  },
+
+  close() {
+    if (history.state && history.state.blogNav) history.back();   // we pushed this entry
+    else {
+      history.replaceState(null, '', location.pathname + location.search);
+      this.hide();
+    }
+  },
+};
+
+function renderSiteTitle() {
+  const s = window.DATA_SITE;
+  if (s) document.title = `${s.name || 'Portfolio'} | ${s.title || 'Developer'}`;
 }
 
 /* ================================================================
@@ -2313,6 +2851,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAchievements(window.DATA_ACHIEVEMENTS);
     renderProjects(window.DATA_PROJECTS);
     renderCertificates(window.DATA_CERTIFICATES);
+    renderBlogs(window.DATA_BLOGS);
+    blogReader.init();
 
     initScrollReveal();
     initLinkEffects();

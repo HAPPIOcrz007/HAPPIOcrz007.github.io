@@ -2432,7 +2432,14 @@ a.md-link:hover {
 @media (prefers-reduced-motion: reduce) {
   .blog-reader { animation: none; }
 }
-
+/* Blog cards: no zoom / lift on hover */
+.blog-card:hover,
+.blog-card:focus-visible {
+  transform: none;
+}
+.blog-card:hover .project-thumb img {
+  transform: none;
+}
 
 /* ================================================================
    BLOG — code blocks (language label, copy button, highlighting)

@@ -1040,7 +1040,7 @@ section {
 .project-card:hover,
 .project-card:focus-visible {
   border-color: var(--green);
-  transform: translateY(-5px);
+  /* transform: translateY(-5px); */
   box-shadow: var(--shadow);
 }
 
@@ -1060,9 +1060,9 @@ section {
   will-change: transform;
 }
 
-.project-card:hover .project-thumb img {
+/* .project-card:hover .project-thumb img {
   transform: scale(1.06);
-}
+} */
 
 .project-thumb-empty {
   width: 100%;

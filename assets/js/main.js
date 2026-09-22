@@ -853,7 +853,9 @@ async function renderPdfPreviews(root) {
     try {
       const doc = await lib.getDocument(fig.dataset.pdf).promise;
       if (!fig.isConnected) continue;             // post was closed / swapped meanwhile
-      const page = await doc.getPage(1);
+      const wanted = parseInt(fig.dataset.pdfPage, 10) || 1;
+      const pageNum = Math.min(Math.max(wanted, 1), doc.numPages);   // clamp to a page that exists
+      const page = await doc.getPage(pageNum);
       const canvas = fig.querySelector('canvas');
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const cssW = fig.querySelector('.blog-pdf-link').clientWidth || 700;
@@ -864,7 +866,9 @@ async function renderPdfPreviews(root) {
       await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
       fig.classList.add('blog-pdf--ready');
       const pages = fig.querySelector('.blog-pdf-pages');
-      if (pages) pages.textContent = `${doc.numPages} page${doc.numPages === 1 ? '' : 's'} · `;
+      if (pages) pages.textContent = pageNum > 1
+        ? `page ${pageNum} of ${doc.numPages} · `
+        : `${doc.numPages} page${doc.numPages === 1 ? '' : 's'} · `;
     } catch (e) {
       console.warn('[blog] PDF preview failed:', fig.dataset.pdf, e && e.message);
       fail(fig);
@@ -896,17 +900,56 @@ function renderBlogMarkdown(md, blogId) {
   };
   const unsafeUrl = (u) => /^\s*(javascript|data|vbscript):/i.test(u.replace(/&#?\w+;/g, ''));
 
+  // Trailing "{key=val, key2=val2, flag}" after an image/embed target, e.g.
+  // {width=200} {height=40,width=auto} {embed=true} {page=3}. A bare word
+  // ("embed") is shorthand for embed=true.
+  const parseAttrs = (str) => {
+    const o = {};
+    if (!str) return o;
+    str.split(',').forEach((part) => {
+      const m = /^\s*([a-zA-Z]+)\s*(?:=\s*(.+?))?\s*$/.exec(part);
+      if (m) o[m[1].toLowerCase()] = m[2] !== undefined ? m[2].trim() : 'true';
+    });
+    return o;
+  };
+  // width/height: a bare number is read as px; "50%", "10rem" etc pass through as-is.
+  // Given only one of the two, the other is "auto" so the image keeps its aspect ratio.
+  const cssLen = (v) => (/^\d+$/.test(v) ? `${v}px` : v);
+  const sizeStyle = (attrs) => {
+    const w = attrs.width, h = attrs.height;
+    if (!w && !h) return '';
+    return ` style="width:${w ? cssLen(w) : 'auto'};height:${h ? cssLen(h) : 'auto'};max-width:100%;"`;
+  };
+
   // alt/src arrive already HTML-escaped (block path escapes them explicitly)
-  const imgTag = (alt, src, cls) =>
-    `<img class="${cls}" src="${resolveSrc(src)}" alt="${alt}" loading="lazy" />`;
+  const imgTag = (alt, src, cls, styleAttr = '') =>
+    `<img class="${cls}" src="${resolveSrc(src)}" alt="${alt}" loading="lazy"${styleAttr} />`;
   const isPdf = (src) => /\.pdf(?:[?#].*)?$/i.test(resolveSrc(src));
-  const pdfFigure = (altHtml, altPlain, src) => {
+  const pdfFigure = (altHtml, altPlain, src, attrs = {}) => {
     const url = resolveSrc(src);
-    return `<figure class="blog-pdf blog-figure" data-pdf="${url}">` +
-      `<a class="blog-pdf-link" href="${url}" target="_blank" rel="noopener noreferrer" ` +
-      `aria-label="Open PDF in a new tab${altPlain ? ': ' + altPlain : ''}">` +
+    const page = /^\d+$/.test(attrs.page || '') ? parseInt(attrs.page, 10) : 1;
+    const href = page > 1 ? `${url}#page=${page}` : url;
+    const openLabel = page > 1 ? ` at page ${page}` : '';
+    return `<figure class="blog-pdf blog-figure" data-pdf="${url}" data-pdf-page="${page}">` +
+      `<a class="blog-pdf-link" href="${href}" target="_blank" rel="noopener noreferrer" ` +
+      `aria-label="Open PDF${openLabel} in a new tab${altPlain ? ': ' + altPlain : ''}">` +
       `<canvas></canvas>` +
-      `<span class="blog-pdf-badge">📄 <span class="blog-pdf-pages"></span>click to open the full PDF ↗</span></a>` +
+      `<span class="blog-pdf-badge">📄 <span class="blog-pdf-pages"></span>click to open` +
+      `${page > 1 ? ` page ${page} of` : ''} the full PDF ↗</span></a>` +
+      `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
+  };
+  // Embeds: ![Caption](https://example.com){embed=true} — an iframe of any page/app/video.
+  // With no explicit size it's a responsive 16:9 box; width/height fix it to an exact size instead.
+  const embedFigure = (altHtml, altPlain, url, attrs = {}) => {
+    const sized = attrs.width || attrs.height;
+    const style = sized
+      ? ` style="width:${attrs.width ? cssLen(attrs.width) : '100%'};height:${attrs.height ? cssLen(attrs.height) : '400px'};aspect-ratio:auto;"`
+      : '';
+    return `<figure class="blog-embed-figure blog-figure">` +
+      `<div class="blog-embed"${style}>` +
+      `<iframe src="${resolveSrc(url)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ` +
+      `sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ` +
+      `title="${altPlain || 'Embedded content'}"></iframe></div>` +
       `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
   };
 
@@ -915,10 +958,20 @@ function renderBlogMarkdown(md, blogId) {
     h = h.replace(/`([^`]+?)`/g, (_, c) => keep(`<code>${c}</code>`));
     h = h.replace(/=\(#([A-Fa-f0-9]{6})\)(.*?)=/gs,
       (_, hex, c) => `${keep(`<span style="color:#${hex}">`)}${c}${keep('</span>')}`);
-    h = h.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,
-      (_, alt, src) => unsafeUrl(src) ? '' :
-        isPdf(src) ? keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">📄 ${alt || 'PDF'}</a>`)
-                   : keep(imgTag(alt, src, 'blog-inline-img')));
+    h = h.replace(/!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?/g,
+      (_, alt, src, attrStr) => {
+        if (unsafeUrl(src)) return '';
+        const attrs = parseAttrs(attrStr);
+        if (attrs.embed === 'true') {
+          const w = attrs.width ? cssLen(attrs.width) : '100%', h = attrs.height ? cssLen(attrs.height) : '360px';
+          return keep(`<span class="blog-embed blog-embed--inline" style="width:${w};height:${h};aspect-ratio:auto;">` +
+            `<iframe src="${resolveSrc(src)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ` +
+            `sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ` +
+            `title="${stripMarkdown(alt) || 'Embedded content'}"></iframe></span>`);
+        }
+        if (isPdf(src)) return keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">📄 ${alt || 'PDF'}</a>`);
+        return keep(imgTag(alt, src, 'blog-inline-img', sizeStyle(attrs)));
+      });
     h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, url) => {
       if (unsafeUrl(url)) return label;
       const ext = /^(https?:)?\/\//i.test(url) || url.startsWith('mailto:');
@@ -936,7 +989,7 @@ function renderBlogMarkdown(md, blogId) {
   const isQuote = (l) => /^\s*>/.test(l);
   const listRe = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
   const isFence = (l) => /^\u0000\d+\u0000$/.test(l.trim());
-  const imgLineRe = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)\s*$/;
+  const imgLineRe = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?\s*$/;
   const isTableSep = (l) => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l) && l.includes('-');
   const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
 
@@ -967,10 +1020,14 @@ function renderBlogMarkdown(md, blogId) {
       if (m) {
         const alt = m[1];
         const srcEsc = escapeHtml(m[2]);
+        const attrs = parseAttrs(m[3]);
+        const captionHtml = alt ? inline(alt) : '';
+        const captionPlain = escapeHtml(stripMarkdown(alt));
         if (unsafeUrl(m[2])) out.push('');
-        else if (isPdf(srcEsc)) out.push(pdfFigure(alt ? inline(alt) : '', escapeHtml(stripMarkdown(alt)), srcEsc));
-        else out.push(`<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img')}` +
-          `${alt ? `<figcaption>${inline(alt)}</figcaption>` : ''}</figure>`);
+        else if (attrs.embed === 'true') out.push(embedFigure(captionHtml, captionPlain, srcEsc, attrs));
+        else if (isPdf(srcEsc)) out.push(pdfFigure(captionHtml, captionPlain, srcEsc, attrs));
+        else out.push(`<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img', sizeStyle(attrs))}` +
+          `${captionHtml ? `<figcaption>${captionHtml}</figcaption>` : ''}</figure>`);
         i++; continue;
       }
 

@@ -1040,7 +1040,7 @@ section {
 .project-card:hover,
 .project-card:focus-visible {
   border-color: var(--green);
-  /* transform: translateY(-5px); */
+  transform: translateY(-5px);
   box-shadow: var(--shadow);
 }
 
@@ -1060,9 +1060,9 @@ section {
   will-change: transform;
 }
 
-/* .project-card:hover .project-thumb img {
+.project-card:hover .project-thumb img {
   transform: scale(1.06);
-} */
+}
 
 .project-thumb-empty {
   width: 100%;
@@ -2432,14 +2432,7 @@ a.md-link:hover {
 @media (prefers-reduced-motion: reduce) {
   .blog-reader { animation: none; }
 }
-/* Blog cards: no zoom / lift on hover */
-.blog-card:hover,
-.blog-card:focus-visible {
-  transform: none;
-}
-.blog-card:hover .project-thumb img {
-  transform: none;
-}
+
 
 /* ================================================================
    BLOG — code blocks (language label, copy button, highlighting)
@@ -2572,3 +2565,30 @@ a.md-link:hover {
 /* If pdf.js can't load, it's just a clean "open PDF" tile */
 .blog-pdf--fallback .blog-pdf-link { min-height: 96px; }
 .blog-pdf--fallback canvas { display: none; }
+
+
+/* ================================================================
+   BLOG — embeds (![caption](url){embed=true})
+   ================================================================ */
+.blog-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg3);
+}
+.blog-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.blog-embed--inline {
+  display: inline-block;
+  vertical-align: middle;
+  aspect-ratio: auto;
+  border-radius: var(--radius-sm, 4px);
+}

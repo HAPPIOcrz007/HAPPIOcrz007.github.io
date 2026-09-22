@@ -1092,7 +1092,10 @@ function renderBlogMarkdown(md, blogId) {
 function renderBlogs(blogs) {
   const root = $('#blogsGrid');
   if (!root) return;
-  if (!blogs?.length) { root.innerHTML = '<div class="loading">No blogs yet</div>'; return; }
+  blogs = (blogs || []).filter((b) => !b.hidden);   // hidden posts skip the grid, but their
+                                                      // #post-<id> link still opens directly —
+                                                      // so you can preview a draft before flipping hidden to false
+  if (!blogs.length) { root.innerHTML = '<div class="loading">No blogs yet</div>'; return; }
 
   root.innerHTML = blogs.map((b, i) => `
     <a class="project-card blog-card reveal" href="#post-${escapeHtml(b.id)}" data-id="${escapeHtml(b.id)}"

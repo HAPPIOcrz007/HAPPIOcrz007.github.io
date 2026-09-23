@@ -33,6 +33,18 @@
        of hardcoding new hex/rgba values per use site. (Variable
        names kept as --green* for minimal diff even though the
        palette itself is now orange — see TOKENS block below.)
+
+   BLOG UPDATE (see "BLOGS" section further down):
+   #23 · headings in posts/modals use --text (heavy), NOT --green,
+         so they don't get confused with links
+       · links inside headings stay green + underlined
+       · .blog-article--wide opt-in wide layout (data/blogs.js:
+         { wide: true })
+       · .blog-float / --left / --right for wiki-style side-by-side
+         image+text
+       · .blog-embed is now a clickable link card, not an iframe
+         wrapper
+       · typed ordered lists (a/A/i/I) and tighter nested-list spacing
    ================================================================ */
 *, *::before, *::after {
   margin: 0;
@@ -1813,6 +1825,9 @@ a.md-link:hover {
 
 /* ================================================================
    MARKDOWN CONTENT
+   Shared block-content typography for project/certificate modals
+   AND blog posts. (Blog posts add their own overrides further
+   down, in the BLOG section.)
    ================================================================ */
 .md-content {
   font-size: 0.95rem;
@@ -1820,16 +1835,30 @@ a.md-link:hover {
   line-height: 1.75;
 }
 
+/* Headings are heavy + --text colored (NOT --green) so they never
+   read as links. The green accent is carried by a small left rule
+   instead. */
 .md-content h1,
 .md-content h2,
 .md-content h3 {
   margin: 1.2rem 0 0.6rem;
-  color: var(--green);
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .md-content h1 { font-size: var(--text-2xl); }
 .md-content h2 { font-size: var(--text-xl); }
 .md-content h3 { font-size: var(--text-lg); }
+
+/* A link inside a heading stays visually distinct from the heading:
+   green + underlined + not bold-heavy. */
+.md-content :is(h1, h2, h3, h4, h5, h6) a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
 
 .md-content p {
   margin-bottom: 0.8rem;
@@ -1978,6 +2007,13 @@ a.md-link:hover {
   a {
     color: #000 !important;
     text-decoration: underline !important;
+  }
+
+  /* In blog reader, floats become plain blocks in print */
+  .blog-float {
+    float: none !important;
+    width: auto !important;
+    margin: 1rem 0 !important;
   }
 }
 
@@ -2343,6 +2379,17 @@ a.md-link:hover {
   padding: 2rem clamp(1.1rem, 4vw, 2rem) 5rem;
 }
 
+/* Opt-in wide layout — data/blogs.js: { wide: true } adds
+   .blog-article--wide on the article and .md-content--wide on the
+   body. Use it for chart-heavy posts that need more horizontal room
+   than the default reading column. */
+.blog-article--wide {
+  max-width: 1080px;
+}
+@media (min-width: 1200px) {
+  .blog-article--wide { max-width: 1160px; }
+}
+
 .blog-cover img {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -2374,20 +2421,106 @@ a.md-link:hover {
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
+  color: var(--text);
 }
 
 /* ── Post typography (on top of .md-content) ── */
 .blog-body { font-size: 1.05rem; line-height: 1.85; }
+
 .blog-body p { color: var(--text); margin-bottom: 1.15rem; }
+
 .blog-body ul, .blog-body ol { color: var(--text); margin-bottom: 1.15rem; }
-.blog-body li > ul, .blog-body li > ol { margin: 0.35rem 0 0.35rem 1.2rem; }
-.blog-body h2 { margin: 2.4rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
-.blog-body h3 { margin: 1.8rem 0 0.6rem; }
-.blog-body h4, .blog-body h5, .blog-body h6 { margin: 1.4rem 0 0.5rem; color: var(--text); }
+
+/* Nested lists tighten up so deep nesting doesn't blow out line-height */
+.blog-body li > ul,
+.blog-body li > ol {
+  margin: 0.35rem 0 0.35rem 1.2rem;
+}
+
+/* Typed ordered lists — markers get a slightly dimmer color so they
+   don't compete with the body text; type attribute does the letter/
+   roman conversion, so no CSS changes needed for the marker glyph. */
+.blog-body ol { list-style-position: outside; }
+.blog-body ol[type="a"] { list-style-type: lower-alpha; }
+.blog-body ol[type="A"] { list-style-type: upper-alpha; }
+.blog-body ol[type="i"] { list-style-type: lower-roman; }
+.blog-body ol[type="I"] { list-style-type: upper-roman; }
+
+.blog-body ol > li::marker,
+.blog-body ul > li::marker {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* Headings in posts: heavy --text, NOT green, so they never read as
+   links. Green accent is carried by a small rule, not the text. */
+.blog-body h2,
+.blog-body h3,
+.blog-body h4,
+.blog-body h5,
+.blog-body h6 {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.blog-body h2 {
+  margin: 2.4rem 0 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.blog-body h2::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--green);
+  border-radius: 2px;
+  margin-right: 0.55rem;
+  vertical-align: -0.1em;
+}
+
+.blog-body h3 {
+  margin: 1.8rem 0 0.65rem;
+}
+.blog-body h4,
+.blog-body h5,
+.blog-body h6 {
+  margin: 1.4rem 0 0.5rem;
+  color: var(--text);
+}
+
+/* Links inside a heading must stay visually distinct from the
+   heading text: green + underlined + thinner weight than the heading
+   itself. */
+.blog-body :is(h1, h2, h3, h4, h5, h6) a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+.blog-body :is(h1, h2, h3, h4, h5, h6) a:hover {
+  color: var(--green-hover);
+}
+
 .blog-body strong { color: var(--text); font-weight: 700; }
 .blog-body del { color: var(--text-muted); }
 .blog-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
 .blog-body blockquote p { color: var(--text-dim); margin-bottom: 0.5rem; }
+
+/* ── Blog in-body links use .md-link so they always read as links,
+   even when they sit inside a heading or a table cell. ── */
+.blog-body a.md-link,
+.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy) {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.blog-body a.md-link:hover,
+.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy):hover {
+  color: var(--green-hover);
+}
 
 .blog-figure { margin: 1.75rem 0; text-align: center; }
 .blog-figure img,
@@ -2408,6 +2541,131 @@ a.md-link:hover {
 
 .blog-table-wrap { overflow-x: auto; margin: 1.25rem 0; }
 .blog-table-wrap table { margin: 0; min-width: 100%; }
+
+/* ── Wiki-style side-by-side (float) blocks ──
+   Written two ways in markdown:
+     · ![alt](img:1){float=left}   — single image, following paragraphs wrap
+     · :::float left … :::         — explicit container for a bigger block
+   On narrow screens the float drops to full-width above the text so
+   nothing gets squeezed. */
+.blog-float {
+  margin: 0.5rem 0 1.25rem;
+}
+.blog-float--right {
+  float: right;
+  margin: 0.25rem 0 1.25rem 1.75rem;
+  max-width: min(45%, 380px);
+}
+.blog-float--left {
+  float: left;
+  margin: 0.25rem 1.75rem 1.25rem 0;
+  max-width: min(45%, 380px);
+}
+/* Inside a float, the figure loses its own outer margin (the float
+   box owns the spacing) and captions tighten up. */
+.blog-float > .blog-figure { margin: 0; }
+.blog-float > .blog-figure figcaption { margin-top: 0.4rem; font-size: 0.72rem; }
+.blog-float img { display: block; width: 100%; height: auto; }
+
+/* Force the next block-level element to start below the float,
+   instead of wrapping into it, when it's a heading or a rule. */
+.blog-body h2, .blog-body h3, .blog-body hr,
+.blog-body .blog-table-wrap, .blog-body .blog-code,
+.blog-body .blog-pdf, .blog-body blockquote {
+  clear: both;
+}
+
+@media (max-width: 720px) {
+  .blog-float--left,
+  .blog-float--right {
+    float: none;
+    max-width: 100%;
+    margin: 1.25rem 0;
+  }
+}
+
+/* ── Embeds: clickable link card, NOT an iframe ──
+   {embed=true} renders a preview card that opens the target in a new
+   tab. Two variants:
+     · .blog-embed--card    — full-width block card (standalone line)
+     · .blog-embed--inline  — small pill that sits inline in a sentence */
+.blog-embed {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s var(--ease);
+}
+.blog-embed:hover,
+.blog-embed:focus-visible {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--bg3) 80%, var(--green) 4%);
+  transform: translateY(-1px);
+}
+.blog-embed--card {
+  width: 100%;
+}
+.blog-embed-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--green-dim);
+  border: 1px solid var(--border);
+  color: var(--green);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.blog-embed-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.blog-embed-title {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.blog-embed-host {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* Inline pill variant — sits in the flow of a sentence */
+.blog-embed--inline {
+  display: inline-flex;
+  padding: 0.15rem 0.55rem;
+  gap: 0.35rem;
+  border-radius: var(--radius-full);
+  vertical-align: middle;
+  font-size: 0.85em;
+}
+.blog-embed--inline .blog-embed-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  background: transparent;
+  border: none;
+}
+.blog-embed--inline .blog-embed-title {
+  font-size: 1em;
+  font-weight: 500;
+}
 
 /* ── Click-to-zoom ── */
 .blog-lightbox {
@@ -2431,6 +2689,7 @@ a.md-link:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .blog-reader { animation: none; }
+  .blog-embed  { transition: none; }
 }
 
 
@@ -2565,30 +2824,3 @@ a.md-link:hover {
 /* If pdf.js can't load, it's just a clean "open PDF" tile */
 .blog-pdf--fallback .blog-pdf-link { min-height: 96px; }
 .blog-pdf--fallback canvas { display: none; }
-
-
-/* ================================================================
-   BLOG — embeds (![caption](url){embed=true})
-   ================================================================ */
-.blog-embed {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--bg3);
-}
-.blog-embed iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-.blog-embed--inline {
-  display: inline-block;
-  vertical-align: middle;
-  aspect-ratio: auto;
-  border-radius: var(--radius-sm, 4px);
-}

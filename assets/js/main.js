@@ -3,18 +3,18 @@
 
    Contains two modules:
      1. Site runtime (theme, modal, renderers, scroll/reveal fx)
-     2. Multi-platform activity heatmap (IIFE, line ~675+)
+     2. Multi-platform activity heatmap (IIFE, line ~700+)
 
    ---------------------------------------------------------------
    AUDIT NOTES — optimization pass, referenced by line number below
    ---------------------------------------------------------------
    #1  One shared scroll listener (rAF-throttled) drives the progress
        bar, parallax, and heatmap fill, instead of three separate
-       listeners. See initScrollEffects() ~L529, onScroll() ~L586,
+       listeners. See initScrollEffects() ~L560, onScroll() ~L620,
        and its call site in the boot block near the end of the file.
    #2  Heatmap particle speed is set via a single CSS variable
        (--particle-speed) instead of writing inline styles to all
-       30 particle nodes on every scroll frame. ~L620
+       30 particle nodes on every scroll frame. ~L650
        (matching rule lives in styles.css).
    #3  Modal's close button is queried once in init() and cached on
        modal.closeBtn, instead of re-querying on every open(). ~L108
@@ -41,6 +41,16 @@
    #15 Hero name markup is only rewritten if the data-driven name
        differs from the static HTML already in the page, avoiding
        an unnecessary reflow on load. ~L297
+   #23 Blogs — richer markdown:
+         · ordered lists typed a/A/i/I via the first marker
+         · arbitrarily deep nested lists (recursive by indent)
+         · wiki-style side-by-side blocks (:::float left|right … :::)
+           and single-image {float=left|right}
+         · {embed=true} now renders a clickable link card that opens
+           the target in a new tab, NOT an iframe
+         · wide posts via data/blogs.js: { wide: true }
+         · headings render in --text (heavy) so they don't collide
+           with link-green; see .blog-body styles in styles.css
    ============================================================ */
 
 /* ================================================================
@@ -669,13 +679,30 @@ function renderCertificates(certs) {
      <id>.md          the post body (markdown)
      <id>.png         cover image (card thumbnail + reader header)
      <id>_<n>.png     images used inside the post
-   Post metadata (title, date, blurb, tags) lives in data/blogs.js.
+     <id>_<n>.pdf     PDF attachments used inside the post
+   Post metadata (title, date, blurb, tags, wide) lives in
+   data/blogs.js.
 
    renderBlogMarkdown() is a fuller renderer than renderMarkdown()
    (which stays untouched for projects/certificates). Adds images,
-   ordered lists, nested lists, blockquotes, tables, hr, ~~strike~~
-   and h4-h6 on top of the usual **bold**, *italic*, `code`,
-   [links](url) and =(#RRGGBB)colored text=.
+   typed + arbitrarily-nested lists, blockquotes, tables, hr,
+   ~~strike~~, h4-h6, wiki-style floating blocks and more on top of
+   the usual **bold**, *italic*, `code`, [links](url) and
+   =(#RRGGBB)colored text=.
+
+   List types (a/A/i/I/1) and nesting depth are both inferred from
+   the markdown itself; no extra syntax needed.
+
+   Side-by-side text/image (Wikipedia-style) can be written two ways:
+     · Single floated image: ![alt](img:1){float=left}
+       — the paragraph right after it wraps around the image.
+     · Explicit container (recommended when you want a caption block
+       or several paragraphs wrapped at once):
+         :::float left
+         ![alt](img:1)
+         :::
+         Paragraph(s) that should wrap …
+       (use `right` instead of `left` to float the other way)
 ================================================================ */
 const BLOG_DIR = 'content/blogs/';
 
@@ -901,8 +928,8 @@ function renderBlogMarkdown(md, blogId) {
   const unsafeUrl = (u) => /^\s*(javascript|data|vbscript):/i.test(u.replace(/&#?\w+;/g, ''));
 
   // Trailing "{key=val, key2=val2, flag}" after an image/embed target, e.g.
-  // {width=200} {height=40,width=auto} {embed=true} {page=3}. A bare word
-  // ("embed") is shorthand for embed=true.
+  // {width=200} {height=40,width=auto} {embed=true} {page=3} {float=left}. A bare
+  // word ("embed", "float") is shorthand for flag=true.
   const parseAttrs = (str) => {
     const o = {};
     if (!str) return o;
@@ -938,19 +965,24 @@ function renderBlogMarkdown(md, blogId) {
       `${page > 1 ? ` page ${page} of` : ''} the full PDF ↗</span></a>` +
       `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
   };
-  // Embeds: ![Caption](https://example.com){embed=true} — an iframe of any page/app/video.
-  // With no explicit size it's a responsive 16:9 box; width/height fix it to an exact size instead.
-  const embedFigure = (altHtml, altPlain, url, attrs = {}) => {
-    const sized = attrs.width || attrs.height;
-    const style = sized
-      ? ` style="width:${attrs.width ? cssLen(attrs.width) : '100%'};height:${attrs.height ? cssLen(attrs.height) : '400px'};aspect-ratio:auto;"`
-      : '';
+
+  /* ── embeds: clickable link card, NOT an iframe ──
+     {embed=true} on an image-style line now renders a preview card the reader
+     clicks to open the target in a new tab. Looks like an embedded tile but
+     never actually loads the third-party page into the post. */
+  const embedCard = (altHtml, altPlain, url) => {
+    let host = '';
+    try { host = new URL(resolveSrc(url)).hostname.replace(/^www\./, ''); } catch { host = resolveSrc(url); }
+    const title = altPlain || host;
     return `<figure class="blog-embed-figure blog-figure">` +
-      `<div class="blog-embed"${style}>` +
-      `<iframe src="${resolveSrc(url)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ` +
-      `sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ` +
-      `title="${altPlain || 'Embedded content'}"></iframe></div>` +
-      `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
+      `<a class="blog-embed blog-embed--card" href="${resolveSrc(url)}" target="_blank" rel="noopener noreferrer" ` +
+      `aria-label="Open ${escapeHtml(title)} in a new tab">` +
+      `<span class="blog-embed-icon" aria-hidden="true">↗</span>` +
+      `<span class="blog-embed-text">` +
+      `<span class="blog-embed-title">${altHtml || escapeHtml(host)}</span>` +
+      `<span class="blog-embed-host">${escapeHtml(host)} · opens in a new tab</span>` +
+      `</span>` +
+      `</a></figure>`;
   };
 
   function inline(text) {
@@ -963,11 +995,10 @@ function renderBlogMarkdown(md, blogId) {
         if (unsafeUrl(src)) return '';
         const attrs = parseAttrs(attrStr);
         if (attrs.embed === 'true') {
-          const w = attrs.width ? cssLen(attrs.width) : '100%', h = attrs.height ? cssLen(attrs.height) : '360px';
-          return keep(`<span class="blog-embed blog-embed--inline" style="width:${w};height:${h};aspect-ratio:auto;">` +
-            `<iframe src="${resolveSrc(src)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ` +
-            `sandbox="allow-scripts allow-same-origin allow-popups allow-forms" ` +
-            `title="${stripMarkdown(alt) || 'Embedded content'}"></iframe></span>`);
+          return keep(`<a class="blog-embed blog-embed--inline" href="${resolveSrc(src)}" ` +
+            `target="_blank" rel="noopener noreferrer">` +
+            `<span class="blog-embed-icon" aria-hidden="true">↗</span>` +
+            `<span class="blog-embed-title">${alt || escapeHtml(resolveSrc(src))}</span></a>`);
         }
         if (isPdf(src)) return keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">📄 ${alt || 'PDF'}</a>`);
         return keep(imgTag(alt, src, 'blog-inline-img', sizeStyle(attrs)));
@@ -976,7 +1007,7 @@ function renderBlogMarkdown(md, blogId) {
       if (unsafeUrl(url)) return label;
       const ext = /^(https?:)?\/\//i.test(url) || url.startsWith('mailto:');
       const attrs = ext ? ' target="_blank" rel="noopener noreferrer"' : '';
-      return `${keep(`<a href="${url}"${attrs}>`)}${label}${keep('</a>')}`;
+      return `${keep(`<a class="md-link" href="${url}"${attrs}>`)}${label}${keep('</a>')}`;
     });
     h = h.replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
          .replace(/~~(.+?)~~/gs, '<del>$1</del>')
@@ -987,25 +1018,116 @@ function renderBlogMarkdown(md, blogId) {
   const isRule = (l) => /^\s*([-*_])(\s*\1){2,}\s*$/.test(l);
   const isHeading = (l) => /^#{1,6}\s+/.test(l);
   const isQuote = (l) => /^\s*>/.test(l);
-  const listRe = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
   const isFence = (l) => /^\u0000\d+\u0000$/.test(l.trim());
   const imgLineRe = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?\s*$/;
   const isTableSep = (l) => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l) && l.includes('-');
   const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
 
+  /* ── typed + recursively-nested lists ──
+     Each list marker is matched with its indent depth; the marker type is
+     detected from the first item at each depth so `1.` → decimal, `a.` →
+     lower-alpha, `A.` → upper-alpha, `i.` → lower-roman, `I.` → upper-roman,
+     `- * +` → bullet. Sub-lists are produced by recursing on the collected
+     children, so any depth is fine. A list block ends when a line is
+     non-indented and no longer matches a marker. */
+  const LIST_MARKER = /^(\s*)([-*+]|\d+[.)]|[a-zA-Z][.)]|[ivxlcdmIVXLCDM]+[.)])\s+(.*)$/;
+  const markerType = (marker) => {
+    if (/^[-*+]$/.test(marker)) return 'ul';
+    if (/^\d/.test(marker)) return 'ol-1';
+    if (/^[a-z]/.test(marker)) return 'ol-a';
+    if (/^[A-Z]/.test(marker)) return 'ol-A';
+    if (/^[ivxlcdm]+[.)]$/.test(marker)) return 'ol-i';
+    if (/^[IVXLCDM]+[.)]$/.test(marker)) return 'ol-I';
+    return 'ul';
+  };
+  const OL_TAG = {
+    'ol-1': '<ol>',
+    'ol-a': '<ol type="a">',
+    'ol-A': '<ol type="A">',
+    'ol-i': '<ol type="i">',
+    'ol-I': '<ol type="I">',
+  };
+
+  function parseList(lines, startIdx) {
+    const first = LIST_MARKER.exec(lines[startIdx]);
+    if (!first) return { html: '', next: startIdx };
+    const baseIndent = first[1].length;
+    const type = markerType(first[2]);
+    const isOrdered = type !== 'ul';
+    const tag = isOrdered ? OL_TAG[type] || '<ol>' : '<ul>';
+
+    const items = [];
+    let i = startIdx;
+
+    while (i < lines.length) {
+      const m = LIST_MARKER.exec(lines[i]);
+      if (!m) {
+        // Blank line inside a list — look ahead for a continuation at the same depth.
+        if (lines[i].trim() === '' && i + 1 < lines.length) {
+          const nm = LIST_MARKER.exec(lines[i + 1]);
+          if (nm && nm[1].length === baseIndent) { i++; continue; }
+        }
+        break;
+      }
+      const indent = m[1].length;
+      if (indent < baseIndent) break;
+      if (indent > baseIndent) {
+        // Deeper marker — collected as a child of the last item.
+        const sub = parseList(lines, i);
+        if (items.length && sub.html) items[items.length - 1].children.push(sub.html);
+        i = sub.next;
+        continue;
+      }
+      items.push({ text: m[3], children: [] });
+      i++;
+    }
+
+    const html = tag + items.map(it =>
+      `<li>${inline(it.text)}${it.children.join('')}</li>`
+    ).join('') + tag.replace('<', '</');
+
+    return { html, next: i };
+  }
+
+  const startsBlock = (l, next) =>
+    isHeading(l) || isRule(l) || isQuote(l) || LIST_MARKER.test(l) || isFence(l) ||
+    imgLineRe.test(l) || /^\s*:::/.test(l) ||
+    (l.includes('|') && next !== undefined && isTableSep(next));
+
+  /* ── Wiki-style side-by-side container ──
+     :::float left
+     ![alt](img:1)
+     :::
+     …paragraph text that wraps around the floated image…
+     The opening fence may be `left` or `right`; anything else defaults to right. */
+  function parseFloatContainer(lines, startIdx) {
+    const open = /^\s*:::float\s+(left|right)\s*$/i.exec(lines[startIdx]);
+    if (!open) return { html: '', next: startIdx + 1 };
+    const side = open[1].toLowerCase();
+    const body = [];
+    let i = startIdx + 1;
+    while (i < lines.length && !/^\s*:::\s*$/.test(lines[i])) { body.push(lines[i]); i++; }
+    if (i < lines.length) i++;  // consume the closing :::
+    const inner = parseBlocks(body).join('\n');
+    return { html: `<div class="blog-float blog-float--${side}">${inner}</div>`, next: i };
+  }
+
   function parseBlocks(lines) {
     const out = [];
     let i = 0;
-
-    const startsBlock = (l, next) =>
-      isHeading(l) || isRule(l) || isQuote(l) || listRe.test(l) || isFence(l) ||
-      imgLineRe.test(l) || (l.includes('|') && next !== undefined && isTableSep(next));
 
     while (i < lines.length) {
       const line = lines[i];
       if (!line.trim()) { i++; continue; }
 
       if (isFence(line)) { out.push(line.trim()); i++; continue; }
+
+      if (/^\s*:::float\s+(left|right)\s*$/i.test(line)) {
+        const { html, next } = parseFloatContainer(lines, i);
+        out.push(html);
+        i = next;
+        continue;
+      }
 
       if (isRule(line)) { out.push('<hr>'); i++; continue; }
 
@@ -1023,11 +1145,20 @@ function renderBlogMarkdown(md, blogId) {
         const attrs = parseAttrs(m[3]);
         const captionHtml = alt ? inline(alt) : '';
         const captionPlain = escapeHtml(stripMarkdown(alt));
+        const floatSide = (attrs.float || '').toLowerCase();
+
         if (unsafeUrl(m[2])) out.push('');
-        else if (attrs.embed === 'true') out.push(embedFigure(captionHtml, captionPlain, srcEsc, attrs));
+        else if (attrs.embed === 'true') out.push(embedCard(captionHtml, captionPlain, srcEsc));
         else if (isPdf(srcEsc)) out.push(pdfFigure(captionHtml, captionPlain, srcEsc, attrs));
-        else out.push(`<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img', sizeStyle(attrs))}` +
-          `${captionHtml ? `<figcaption>${captionHtml}</figcaption>` : ''}</figure>`);
+        else {
+          const figure = `<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img', sizeStyle(attrs))}` +
+            `${captionHtml ? `<figcaption>${captionHtml}</figcaption>` : ''}</figure>`;
+          if (floatSide === 'left' || floatSide === 'right') {
+            out.push(`<div class="blog-float blog-float--${floatSide}">${figure}</div>`);
+          } else {
+            out.push(figure);
+          }
+        }
         i++; continue;
       }
 
@@ -1051,25 +1182,10 @@ function renderBlogMarkdown(md, blogId) {
         continue;
       }
 
-      m = listRe.exec(line);
-      if (m) {
-        const baseIndent = m[1].length;
-        const ordered = /\d/.test(m[2]);
-        const items = [];
-        while (i < lines.length) {
-          const l = lines[i];
-          const lm = listRe.exec(l);
-          if (lm && lm[1].length <= baseIndent) {
-            if (lm[1].length < baseIndent) break;
-            items.push({ text: lm[3], sub: [] });
-          } else if (l.trim() && items.length && /^\s+/.test(l)) {
-            items[items.length - 1].sub.push(l.slice(Math.min(l.match(/^\s*/)[0].length, baseIndent + 2)));
-          } else break;
-          i++;
-        }
-        const tag = ordered ? 'ol' : 'ul';
-        out.push(`<${tag}>${items.map(it =>
-          `<li>${inline(it.text)}${it.sub.length ? parseBlocks(it.sub).join('') : ''}</li>`).join('')}</${tag}>`);
+      if (LIST_MARKER.test(line)) {
+        const { html, next } = parseList(lines, i);
+        out.push(html);
+        i = next;
         continue;
       }
 
@@ -1214,6 +1330,12 @@ const blogReader = {
 
     this.cover.innerHTML = `<img src="${BLOG_DIR}${escapeHtml(id)}.png" alt="${escapeHtml(stripMarkdown(post.title))}" />`;
     this.cover.querySelector('img').addEventListener('error', () => { this.cover.innerHTML = ''; });
+
+    // Opt-in wide layout (data/blogs.js: { wide: true }) — lets the article
+    // break out of the default 760px reading column for chart-heavy posts.
+    this.body.classList.toggle('md-content--wide', !!post.wide);
+    const article = this.body.closest('.blog-article');
+    if (article) article.classList.toggle('blog-article--wide', !!post.wide);
 
     this.body.innerHTML = md == null
       ? '<p>This post could not be loaded.</p>'

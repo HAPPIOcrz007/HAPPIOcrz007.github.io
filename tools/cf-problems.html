@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codeforces problem log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Tokens taken from styles.css (orange accent, dark/light via data-theme) */
+:root{--radius:10px;--radius-lg:16px;--radius-full:9999px;--ease:cubic-bezier(.2,.8,.2,1);
+--green-rgb:232,81,15;--green:#e8510f;--green-dim:rgba(232,81,15,.08);--green-glow:rgba(232,81,15,.04);--green-hover:#d84d11;--green-dark:#bc3b03;--green-light:#e96c35;
+--font-body:'Space Grotesk',system-ui,sans-serif;--font-mono:'JetBrains Mono',ui-monospace,monospace;--ok:#4ade80}
+[data-theme="dark"]{--bg:#0A0A0A;--bg2:#111;--bg3:#181818;--card:#121212;--border:#222;--border2:#2a2a2a;--text:#EDEDED;--text-dim:#a0a0a0;--text-muted:#666;--shadow-sm:0 4px 16px rgba(0,0,0,.4)}
+[data-theme="light"]{--bg:#F5F5F0;--bg2:#EBEBE5;--bg3:#E0E0DA;--card:#fff;--border:#D0D0CA;--border2:#B8B8B2;--text:#1A1A1A;--text-dim:#444;--text-muted:#777;--shadow-sm:0 4px 12px rgba(0,0,0,.04);--ok:#2da44e}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;transition:background .25s ease,color .25s ease;-webkit-font-smoothing:antialiased;min-height:100vh}
+::selection{background:var(--green);color:#000}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:4px}
+main{max-width:1200px;margin:0 auto;padding:28px clamp(1.25rem,4vw,3rem) 70px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.eyebrow,.sec-label{font-family:var(--font-mono);font-size:.75rem;color:var(--green);letter-spacing:.15em;text-transform:uppercase;opacity:.75}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:.3rem 0 .4rem}
+.sub{color:var(--text-dim);margin-bottom:1.4rem}
+.theme-btn{background:transparent;border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;font-size:1rem;transition:border-color .2s,color .2s,transform .2s var(--ease)}
+.theme-btn:hover{border-color:var(--green);color:var(--green);transform:rotate(20deg) scale(1.1)}
+.bar{display:flex;gap:8px;flex-wrap:wrap}
+input,select,button{font:inherit;font-size:.9rem;color:var(--text);background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:.6rem .8rem;transition:border-color .2s,background .3s}
+input:hover,select:hover,input:focus{border-color:var(--green)}
+#h{flex:1 1 220px;max-width:340px}
+.btn{background:var(--green);color:#0A0A0A;border-color:var(--green);cursor:pointer;font-weight:600;min-height:42px;transition:transform .2s var(--ease),background .2s,box-shadow .2s}
+.btn:hover{background:var(--green-hover);transform:translateY(-2px);box-shadow:0 8px 24px var(--green-dim)}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+#msg{margin:12px 0;color:var(--text-muted);font-family:var(--font-mono);font-size:.85rem}#msg.err{color:var(--green)}
+#app{display:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin:1.4rem 0 1rem}
+.stat{padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);transition:border-color .25s,transform .2s var(--ease),box-shadow .2s}
+.stat:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.stat b{font-family:var(--font-mono);font-size:1.4rem;color:var(--green);font-weight:600;display:block}
+.stat span{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem 1.4rem;margin-bottom:1rem;transition:border-color .25s,background .3s}
+.card:hover{border-color:var(--border2)}
+.card-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:.75rem;margin-bottom:1rem}
+.card-head h2{font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+.card-head .ctl{display:flex;gap:6px}
+.card-head select{padding:.35rem .6rem;font-size:.8rem;font-family:var(--font-mono)}
+.mini{display:flex;flex-wrap:wrap;gap:.4rem 1.5rem;font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);margin-top:.9rem}
+.mini b{color:var(--green);font-weight:600}
+.scroll{overflow-x:auto;padding-bottom:4px}
+svg text{font-family:var(--font-mono);font-size:10px;fill:var(--text-muted)}
+.c{stroke:var(--bg);stroke-width:1}
+.l0{fill:var(--bg3)}.l1{fill:rgba(var(--green-rgb),.25)}.l2{fill:rgba(var(--green-rgb),.45)}.l3{fill:rgba(var(--green-rgb),.7)}.l4{fill:var(--green)}
+.c:hover{stroke:var(--text);stroke-width:1.5}
+#rh rect[data-r]{cursor:pointer}
+svg text.v{fill:var(--text);font-size:9px;pointer-events:none}svg text.v.hi{fill:#0A0A0A}
+.legend{display:flex;align-items:center;gap:4px;font-family:var(--font-mono);font-size:.68rem;color:var(--text-muted)}
+.legend i{width:12px;height:12px;border-radius:2px;display:block}
+.legend i.l0{background:var(--bg3)}.legend i.l1{background:rgba(var(--green-rgb),.25)}.legend i.l2{background:rgba(var(--green-rgb),.45)}.legend i.l3{background:rgba(var(--green-rgb),.7)}.legend i.l4{background:var(--green)}
+.pie{display:flex;flex-wrap:wrap;gap:2rem;align-items:center;justify-content:center}
+.pie svg{width:240px;height:240px;flex-shrink:0}
+.pie path,.pie circle{stroke:var(--card);stroke-width:2;cursor:pointer;transition:opacity .2s,transform .2s var(--ease);transform-origin:110px 110px}
+.pie path:hover,.pie circle:hover{opacity:.85;transform:scale(1.04)}
+.pl{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.4rem .9rem;flex:1 1 340px}
+.pl button{display:flex;align-items:center;gap:.5rem;background:none;border:1px solid transparent;border-radius:var(--radius);padding:.3rem .5rem;text-align:left;cursor:pointer;font-size:.85rem;font-weight:400}
+.pl button:hover{border-color:var(--green)}
+.pl i{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.pl em{font-style:normal;font-family:var(--font-mono);font-size:.72rem;color:var(--text-muted);margin-left:auto;white-space:nowrap}
+.hist{display:flex;align-items:flex-end;gap:4px;height:130px;padding:10px 12px 0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow-x:auto;margin-bottom:1rem}
+.col{flex:1 0 34px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer;font-family:var(--font-mono);font-size:.68rem;color:var(--text-muted);border:0;background:none;padding:0 0 4px;border-radius:0}
+.col i{display:block;width:70%;background:rgba(var(--green-rgb),.55);border-radius:3px 3px 0 0;min-height:2px;transition:background .2s}
+.col:hover i,.col.on i{background:var(--green)}.col.on{color:var(--text);font-weight:700}
+.col em{font-style:normal;color:var(--text)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:1.4rem 0 .5rem}
+.filters input[type=number]{width:100px}
+.filters input[type=search]{flex:1 1 200px}
+.filters input[type=date]{width:150px}
+.filters{align-items:center}
+[hidden]{display:none!important}
+.count{color:var(--text-muted);margin:4px 0 8px;font-family:var(--font-mono);font-size:.78rem}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg)}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:.7rem .85rem;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;font-size:.88rem}
+th{position:sticky;top:0;background:var(--card);cursor:pointer;white-space:nowrap;user-select:none;font-family:var(--font-mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+th:hover{color:var(--green)}
+th.s{color:var(--green)}th.s::after{content:" ▲"}th.s.d::after{content:" ▼"}
+tr:last-child td{border-bottom:0}tbody tr:hover td{background:var(--green-glow)}
+a{color:var(--green);text-decoration:none;transition:color .2s}a:hover{color:var(--green-hover);text-decoration:underline;text-underline-offset:3px}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-family:var(--font-mono);font-size:.7rem;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}
+.try{background:var(--green-dim);color:var(--green);border-color:rgba(var(--green-rgb),.3)}
+.gym{background:var(--bg3);color:var(--text);border-color:var(--border2)}.ct{background:var(--bg3);color:var(--text-dim);border-color:var(--border)}
+.tag{display:inline-block;margin:0 4px 3px 0;padding:.1rem .5rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:.68rem;color:var(--text-dim)}
+.cn{color:var(--text-muted);font-size:.8rem}
+.actions{display:flex;justify-content:flex-end;margin:1.2rem 0 -.4rem}
+.streak{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem 1rem;padding:.9rem 1.1rem;margin-bottom:1rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-mono);font-size:.8rem;color:var(--text-dim)}
+.streak b{font-size:1.3rem;color:var(--green);font-weight:600}
+.c.st{stroke:var(--text);stroke-width:2}
+.stkl{display:inline-flex;align-items:center;gap:6px}
+.stkl i{width:12px;height:12px;border:2px solid var(--text);border-radius:2px;display:block}
+.rep,.po{display:none}
+.po{margin:1.2rem 0 .5rem}
+@media(max-width:640px){.card{padding:1rem}.pie svg{width:200px;height:200px}}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;transition:none!important;animation:none!important}
+  body{background:#fff;min-height:0}
+  main{max-width:none;padding:0}
+  .top,#f,#msg,.actions,.filters,.ctl,.theme-btn{display:none!important}
+  .rep,.po{display:block}
+  .rep{margin-bottom:1rem}
+  .scroll,.hist,.wrap{overflow:visible}
+  .scroll svg{max-width:100%;height:auto}
+  .card,.stat,.streak,.hist{break-inside:avoid}
+  .stat:hover,.card:hover{transform:none;box-shadow:none}
+  .col{flex:1 1 0;min-width:0}
+  table{min-width:0}
+  th,td{padding:.3rem .45rem;font-size:.7rem}
+  th{position:static}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<main>
+<div class="rep" id="rep"></div>
+<div class="top">
+  <div>
+    <div class="eyebrow">// codeforces</div>
+    <h1>Codeforces problem log</h1>
+    <p class="sub">Enter a handle to list every problem they have solved or attempted.</p>
+  </div>
+  <button class="theme-btn" id="tb2" type="button" aria-label="Toggle theme">☾</button>
+</div>
+<form class="bar" id="f">
+  <input id="h" placeholder="Handle, e.g. tourist" autocomplete="off" required aria-label="Codeforces handle">
+  <button class="btn" id="go">Load problems</button>
+</form>
+<div id="msg"></div>
+
+<div id="app">
+  <div class="actions"><button class="btn" id="pr" type="button">Print report</button></div>
+  <div class="stats" id="stats"></div>
+  <div class="streak" id="sk"></div>
+
+  <section class="card">
+    <div class="card-head">
+      <div><div class="sec-label">01 · Activity</div><h2>Activity heatmap</h2></div>
+      <div class="ctl">
+        <select id="am" aria-label="Metric"><option value="subs">Submissions</option><option value="solved">Problems solved</option></select>
+        <select id="ay" aria-label="Year"></select>
+      </div>
+    </div>
+    <div class="scroll" id="ah"></div>
+    <div class="mini" id="as"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div><div class="sec-label">02 · Difficulty</div><h2>Rating heatmap</h2></div>
+      <div class="legend">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</div>
+    </div>
+    <div class="scroll" id="rh"></div>
+    <div class="mini">Solved problems by rating and month. Click a cell to filter the table. Unrated problems are excluded.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div><div class="sec-label">03 · Topics</div><h2>Solved problems by tag</h2></div>
+    </div>
+    <div class="pie" id="pie"></div>
+    <div class="mini">A problem with several tags counts once for each tag. Click a slice or a legend entry to filter the table.</div>
+  </section>
+
+  <div class="sec-label po">04 · Solved problems by rating</div>
+  <div class="hist" id="hist" aria-label="Solved problems by rating"></div>
+  <div class="filters">
+    <input type="search" id="q" placeholder="Search name, contest, tag" aria-label="Search">
+    <select id="fs" aria-label="Status"><option value="">All statuses</option><option>Solved</option><option>Attempted</option></select>
+    <select id="ft" aria-label="Type"><option value="">Contest + gym</option><option>Contest</option><option>Gym</option></select>
+    <select id="fd" aria-label="Division or stars"><option value="">Any division / stars</option></select>
+    <select id="fg" aria-label="Tag"><option value="">Any tag</option></select>
+    <input type="number" id="rmin" placeholder="Min rating" step="100" aria-label="Minimum rating">
+    <input type="number" id="rmax" placeholder="Max rating" step="100" aria-label="Maximum rating">
+    <span class="cn">Date</span><input type="date" id="dmin" aria-label="From date"><span class="cn">to</span><input type="date" id="dmax" aria-label="To date">
+  </div>
+  <div class="streak" id="ds" hidden style="margin:.5rem 0 0"></div>
+  <div class="sec-label po">05 · Problem list</div>
+  <div class="count" id="count"></div>
+  <div class="wrap" id="tbl"><table>
+    <thead><tr id="th"></tr></thead><tbody id="tb"></tbody>
+  </table></div>
+</div>
+</main>
+
+<script>
+const API="https://codeforces.com/api/";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let rows=[],subDay=new Map(),solvedDay=new Map(),sortKey="time",sortDir=-1,ratingSel=null,curHandle="";
+const PIE=["#e8510f","#f7931e","#e5c07b","#7ec27e","#61afef","#c678dd","#bc3b03","#4ade80","#a0a0a0"];
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+/* theme: follow the OS, then remember the toggle */
+const root=document.documentElement;
+function setTheme(t){root.dataset.theme=t;$("tb2").textContent=t==="dark"?"☀":"☾"}
+setTheme(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+$("tb2").onclick=()=>setTheme(root.dataset.theme==="dark"?"light":"dark");
+
+const cols=[["status","Status"],["name","Problem"],["rating","Rating"],["tags","Tags"],["contestName","Contest"],["type","Type"],["div","Division / stars"],["tries","Attempts"],["solvedAt","Solved on"],["time","Last activity"]];
+
+async function call(m,p){
+  const r=await fetch(API+m+"?"+new URLSearchParams(p));
+  const j=await r.json();
+  if(j.status!=="OK")throw new Error(j.comment||"API error");
+  return j.result;
+}
+function division(name,type){
+  const n=name||"";
+  if(/div\.?\s*1\s*\+\s*div\.?\s*2/i.test(n))return"Div. 1 + 2";
+  const m=n.match(/div(?:ision|\.)?\s*([1-4])/i);
+  if(m)return"Div. "+m[1];
+  if(/educational/i.test(n))return"Educational";
+  if(/global round/i.test(n))return"Global Round";
+  if(/(codeforces round|round)/i.test(n))return"Round (no div)";
+  return type&&type!=="CF"?type:"Other";
+}
+const dkey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dayOf=t=>dkey(new Date(t*1000));
+const fmt=d=>d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+const rng=b=>fmt(b.s)+" – "+fmt(b.e);
+/* longest run of consecutive active days between s and e (inclusive) */
+function streaks(map,s,e){
+  let best={n:0},cur=null;
+  for(const d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+    if(map.get(dkey(d))){if(!cur)cur={n:0,s:new Date(d)};cur.n++;cur.e=new Date(d);if(cur.n>best.n)best={...cur}}
+    else cur=null;
+  }
+  return best;
+}
+/* report: print in the light theme whatever the screen theme is */
+let prevTheme=null;
+function renderRep(){
+  $("rep").innerHTML=`<div class="eyebrow">// codeforces report</div><h1>${esc(curHandle)}</h1><p class="sub">Generated ${new Date().toLocaleString()} · ${rows.length} problems · ${rows.filter(r=>r.solved).length} solved</p>`;
+}
+window.addEventListener("beforeprint",()=>{prevTheme=root.dataset.theme;setTheme("light");renderRep()});
+window.addEventListener("afterprint",()=>{if(prevTheme)setTheme(prevTheme);prevTheme=null});
+$("pr").onclick=()=>window.print();
+
+$("f").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const h=$("h").value.trim();if(!h)return;
+  const msg=$("msg");msg.className="";msg.textContent="Loading submissions and contest lists…";
+  $("go").disabled=true;$("app").style.display="none";
+  try{
+    const [subs,cs,gs]=await Promise.all([
+      call("user.status",{handle:h}),
+      call("contest.list",{gym:"false"}),
+      call("contest.list",{gym:"true"}).catch(()=>[])
+    ]);
+    curHandle=h;build(subs,cs,gs);
+    msg.textContent="";
+    $("app").style.display="block";
+  }catch(err){
+    msg.className="err";
+    msg.textContent="Could not load: "+err.message+". Check the handle, or wait a moment if you're rate limited.";
+  }finally{$("go").disabled=false}
+});
+
+function build(subs,cs,gs){
+  const cmap=new Map();
+  cs.forEach(c=>cmap.set(c.id,{...c,gym:false}));
+  gs.forEach(c=>cmap.set(c.id,{...c,gym:true}));
+  const m=new Map();
+  subDay=new Map();solvedDay=new Map();
+  for(const s of subs){
+    const p=s.problem,key=p.contestId+"-"+p.index;
+    let r=m.get(key);
+    if(!r){
+      const c=cmap.get(p.contestId);
+      const isGym=c?c.gym:p.contestId>=100000;
+      r={key,id:p.contestId,index:p.index,name:p.name,rating:p.rating??null,tags:p.tags||[],
+        contestName:c?c.name:"(contest "+p.contestId+")",
+        type:isGym?"Gym":"Contest",
+        div:isGym?(c&&c.difficulty?"★".repeat(c.difficulty)+" ("+c.difficulty+")":"Stars unknown"):division(c&&c.name,c&&c.type),
+        stars:isGym&&c&&c.difficulty?c.difficulty:0,
+        solved:false,solvedAt:0,tries:0,time:0};
+      m.set(key,r);
+    }
+    r.tries++;
+    if(s.verdict==="OK"){r.solved=true;r.solvedAt=r.solvedAt?Math.min(r.solvedAt,s.creationTimeSeconds):s.creationTimeSeconds}
+    r.time=Math.max(r.time,s.creationTimeSeconds);
+    const k=dayOf(s.creationTimeSeconds);subDay.set(k,(subDay.get(k)||0)+1);
+  }
+  rows=[...m.values()].map(r=>({...r,status:r.solved?"Solved":"Attempted"}));
+  rows.forEach(r=>{if(r.solved){const k=dayOf(r.solvedAt);solvedDay.set(k,(solvedDay.get(k)||0)+1)}});
+  const divs=[...new Set(rows.map(r=>r.div))].sort();
+  $("fd").innerHTML='<option value="">Any division / stars</option>'+divs.map(d=>`<option>${esc(d)}</option>`).join("");
+  const tags=[...new Set(rows.flatMap(r=>r.tags))].sort();
+  $("fg").innerHTML='<option value="">Any tag</option>'+tags.map(t=>`<option>${esc(t)}</option>`).join("");
+  const yrs=[...new Set(subs.map(s=>new Date(s.creationTimeSeconds*1000).getFullYear()))].sort((a,b)=>b-a);
+  $("ay").innerHTML='<option value="last">Last 12 months</option>'+yrs.map(y=>`<option>${y}</option>`).join("");
+  ratingSel=null;
+  ["q","fs","ft","fd","fg","rmin","rmax","dmin","dmax"].forEach(i=>$(i).value="");
+  renderStats();renderAct();renderRH();renderPie();render();
+}
+
+/* ---------- 1. activity heatmap ---------- */
+function renderAct(){
+  const yv=$("ay").value,unit=$("am").value==="solved"?"solved":"submissions";
+  const map=unit==="solved"?solvedDay:subDay;
+  const today=new Date();today.setHours(0,0,0,0);
+  let s,e;
+  if(yv==="last"){e=new Date(today);s=new Date(today);s.setDate(s.getDate()-364)}
+  else{s=new Date(+yv,0,1);e=new Date(+yv,11,31);if(e>today)e=new Date(today)}
+  const st=new Date(s);st.setDate(st.getDate()-st.getDay());
+  const days=[];for(let d=new Date(st);d<=e;d.setDate(d.getDate()+1))days.push(new Date(d));
+  let max=1,total=0,active=0;
+  for(const d of days){if(d<s)continue;const v=map.get(dkey(d))||0;max=Math.max(max,v);total+=v;if(v)active++}
+  const bs=streaks(map,s,e),sk=new Set();
+  if(bs.n)for(const d=new Date(bs.s);d<=bs.e;d.setDate(d.getDate()+1))sk.add(dkey(d));
+  const ks=[...map.keys()].sort(),at=ks.length?streaks(map,new Date(ks[0]+"T00:00:00"),today):{n:0};
+  $("sk").innerHTML=`<span class="sec-label">Longest streak</span><b>${at.n} day${at.n===1?"":"s"}</b>${at.n?`<span>${rng(at)}</span>`:""}<span class="cn">all time · days with ${unit==="solved"?"a solved problem":"a submission"}</span>`;
+  const P=15,L=30,T=18,weeks=Math.ceil(days.length/7);
+  let cells="",labels="",lastX=-99;
+  days.forEach((d,i)=>{
+    if(d<s)return;
+    const w=Math.floor(i/7),x=L+w*P,y=T+d.getDay()*P,v=map.get(dkey(d))||0;
+    const lv=v?Math.max(1,Math.ceil(v/max*4)):0;
+    cells+=`<rect class="c l${lv}${sk.has(dkey(d))?" st":""}" x="${x}" y="${y}" width="12" height="12" rx="2"><title>${v} ${unit} · ${d.toDateString()}${sk.has(dkey(d))?" · longest streak":""}</title></rect>`;
+    if((d.getDate()===1||d.getTime()===s.getTime())&&x-lastX>=32){labels+=`<text x="${x}" y="10">${MON[d.getMonth()]}</text>`;lastX=x}
+  });
+  const wd=["","Mon","","Wed","","Fri",""].map((n,i)=>n?`<text x="0" y="${T+i*P+10}">${n}</text>`:"").join("");
+  $("ah").innerHTML=`<svg width="${L+weeks*P}" height="${T+7*P}" viewBox="0 0 ${L+weeks*P} ${T+7*P}" role="img" aria-label="Activity heatmap">${labels}${wd}${cells}</svg>`;
+  $("as").innerHTML=`<span><b>${total}</b> ${unit}</span><span><b>${active}</b> active days</span><span>${yv==="last"?"last 12 months":yv}</span><span class="stkl"><i></i>longest streak <b>${bs.n}</b> days${bs.n?" ("+rng(bs)+")":""}</span><span class="legend" style="margin-left:auto">Less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> More</span>`;
+}
+["am","ay"].forEach(i=>$(i).addEventListener("change",renderAct));
+
+/* ---------- 2. rating x month heatmap ---------- */
+function renderRH(){
+  const sv=rows.filter(r=>r.solved&&r.rating&&r.solvedAt);
+  const box=$("rh");
+  if(!sv.length){box.innerHTML='<p class="cn">No rated solves yet.</p>';return}
+  const mk=t=>{const d=new Date(t*1000);return d.getFullYear()*12+d.getMonth()};
+  let lo=1e9,hi=-1,rmin=1e9,rmax=0;const g=new Map();
+  sv.forEach(r=>{const k=mk(r.solvedAt);lo=Math.min(lo,k);hi=Math.max(hi,k);rmin=Math.min(rmin,r.rating);rmax=Math.max(rmax,r.rating);
+    const key=r.rating+"|"+k;g.set(key,(g.get(key)||0)+1)});
+  const max=Math.max(...g.values());
+  const W=42,H=24,L=44,T=20,n=hi-lo+1,rr=[];
+  for(let r=rmax;r>=rmin;r-=100)rr.push(r);
+  let out="";
+  for(let c=0;c<n;c++){const k=lo+c,y=Math.floor(k/12);
+    out+=`<text x="${L+c*(W+3)+W/2}" y="12" text-anchor="middle">${MON[k%12]}${k%12===0||c===0?" ’"+String(y).slice(2):""}</text>`}
+  rr.forEach((r,i)=>{
+    const y=T+i*(H+3);
+    out+=`<text x="${L-8}" y="${y+H/2+3}" text-anchor="end">${r}</text>`;
+    for(let c=0;c<n;c++){
+      const v=g.get(r+"|"+(lo+c))||0,lv=v?Math.max(1,Math.ceil(v/max*4)):0,x=L+c*(W+3);
+      const mo=MON[(lo+c)%12]+" "+Math.floor((lo+c)/12);
+      out+=`<rect class="c l${lv}" x="${x}" y="${y}" width="${W}" height="${H}" rx="3" ${v?`data-r="${r}"`:""}><title>${v} solved · rating ${r} · ${mo}</title></rect>`;
+      if(v)out+=`<text class="v${lv>=3?" hi":""}" x="${x+W/2}" y="${y+H/2+3}" text-anchor="middle">${v}</text>`;
+    }
+  });
+  box.innerHTML=`<svg width="${L+n*(W+3)}" height="${T+rr.length*(H+3)}" viewBox="0 0 ${L+n*(W+3)} ${T+rr.length*(H+3)}" role="img" aria-label="Rating heatmap">${out}</svg>`;
+  box.scrollLeft=box.scrollWidth;
+}
+$("rh").addEventListener("click",e=>{
+  const c=e.target.closest("rect[data-r]");if(!c)return;
+  ratingSel=null;$("fs").value="Solved";$("rmin").value=$("rmax").value=c.dataset.r;
+  renderStats();render();$("tbl").scrollIntoView({behavior:"smooth"});
+});
+
+/* ---------- 3. tag pie chart ---------- */
+function renderPie(){
+  const cnt={};
+  rows.filter(r=>r.solved).forEach(r=>r.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+  const all=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const box=$("pie");
+  if(!all.length){box.innerHTML='<p class="cn">No solved problems with tags yet.</p>';return}
+  const top=all.slice(0,8),rest=all.slice(8).reduce((s,x)=>s+x[1],0);
+  const parts=top.map((x,i)=>({tag:x[0],n:x[1],col:PIE[i]}));
+  if(rest)parts.push({tag:"other ("+(all.length-8)+" tags)",n:rest,col:PIE[8],other:true});
+  const tot=parts.reduce((s,p)=>s+p.n,0),R=100,C=110;
+  let a=-Math.PI/2,shapes="";
+  parts.forEach(p=>{
+    const f=p.n/tot,b=a+f*2*Math.PI;
+    const tip=`<title>${esc(p.tag)}: ${p.n} (${(f*100).toFixed(1)}%)</title>`,at=p.other?"":` data-t="${esc(p.tag)}"`;
+    if(f>.9999)shapes+=`<circle cx="${C}" cy="${C}" r="${R}" fill="${p.col}"${at}>${tip}</circle>`;
+    else{const x1=C+R*Math.cos(a),y1=C+R*Math.sin(a),x2=C+R*Math.cos(b),y2=C+R*Math.sin(b);
+      shapes+=`<path d="M${C} ${C}L${x1.toFixed(2)} ${y1.toFixed(2)}A${R} ${R} 0 ${f>.5?1:0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}Z" fill="${p.col}"${at}>${tip}</path>`}
+    a=b;
+  });
+  box.innerHTML=`<svg viewBox="0 0 220 220" role="img" aria-label="Solved problems by tag">${shapes}</svg>
+  <div class="pl">${parts.map(p=>`<button type="button" ${p.other?"disabled":`data-t="${esc(p.tag)}"`}><i style="background:${p.col}"></i>${esc(p.tag)}<em>${p.n} · ${(p.n/tot*100).toFixed(1)}%</em></button>`).join("")}</div>`;
+}
+$("pie").addEventListener("click",e=>{
+  const el=e.target.closest("[data-t]");if(!el)return;
+  $("fg").value=el.dataset.t;$("fs").value="Solved";
+  render();$("tbl").scrollIntoView({behavior:"smooth"});
+});
+
+/* ---------- existing stats, histogram and table ---------- */
+function renderStats(){
+  const sv=rows.filter(r=>r.solved);
+  const cnt=k=>sv.filter(k).length;
+  $("stats").innerHTML=[
+    [sv.length,"solved"],[rows.length-sv.length,"attempted only"],
+    [cnt(r=>r.type==="Contest"),"solved in contests"],[cnt(r=>r.type==="Gym"),"solved in gyms"]
+  ].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+  const by={};
+  sv.forEach(r=>{const k=r.rating??"?";by[k]=(by[k]||0)+1});
+  const keys=Object.keys(by).sort((a,b)=>(a==="?")-(b==="?")||a-b);
+  const max=Math.max(...Object.values(by),1);
+  $("hist").innerHTML=keys.map(k=>`<button class="col${ratingSel===k?" on":""}" data-r="${k}" title="${by[k]} solved at ${k==="?"?"no rating":k}"><em>${by[k]}</em><i style="height:${by[k]/max*70}px"></i>${k==="?"?"n/a":k}</button>`).join("");
+  $("hist").querySelectorAll(".col").forEach(b=>b.onclick=()=>{
+    ratingSel=ratingSel===b.dataset.r?null:b.dataset.r;
+    $("fs").value=ratingSel?"Solved":$("fs").value;
+    renderStats();render();
+  });
+}
+
+function render(){
+  const q=$("q").value.toLowerCase(),fs=$("fs").value,ft=$("ft").value,fd=$("fd").value,fg=$("fg").value;
+  const mn=$("rmin").value===""?null:+$("rmin").value,mx=$("rmax").value===""?null:+$("rmax").value;
+  let dn=$("dmin").value,dx=$("dmax").value;if(dn&&dx&&dn>dx)[dn,dx]=[dx,dn];
+  let out=rows.filter(r=>{
+    if(fs&&r.status!==fs)return false;
+    if(ft&&r.type!==ft)return false;
+    if(fd&&r.div!==fd)return false;
+    if(fg&&!r.tags.includes(fg))return false;
+    if(mn!==null&&(r.rating===null||r.rating<mn))return false;
+    if(mx!==null&&(r.rating===null||r.rating>mx))return false;
+    if(dn||dx){const k=dayOf(r.solved?r.solvedAt:r.time);if(dn&&k<dn)return false;if(dx&&k>dx)return false}
+    if(ratingSel&&String(r.rating??"?")!==ratingSel)return false;
+    if(q&&!(r.name+" "+r.contestName+" "+r.tags.join(" ")+" "+r.id+r.index).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const val=r=>sortKey==="tags"?r.tags.join(","):sortKey==="div"&&r.type==="Gym"?"~"+r.stars:r[sortKey];
+  out.sort((a,b)=>{
+    let x=val(a),y=val(b);
+    if(x===null||x===undefined)return 1;
+    if(y===null||y===undefined)return-1;
+    return(x>y?1:x<y?-1:0)*sortDir;
+  });
+  const ds=$("ds"),D=v=>fmt(new Date(v+"T00:00:00"));
+  if(dn||dx){
+    ds.hidden=false;
+    ds.innerHTML=`<span class="sec-label">Solved in range</span><b>${out.filter(r=>r.solved).length}</b><span>${dn&&dx?"from "+D(dn)+" to "+D(dx):dn?"from "+D(dn):"up to "+D(dx)}</span><span class="cn">both dates inclusive · respects the other filters</span>`;
+  }else ds.hidden=true;
+  $("count").textContent=`Showing ${out.length} of ${rows.length} problems`;
+  $("th").innerHTML=cols.map(([k,l])=>`<th data-k="${k}" class="${k===sortKey?"s"+(sortDir<0?" d":""):""}">${l}</th>`).join("");
+  $("th").querySelectorAll("th").forEach(t=>t.onclick=()=>{
+    const k=t.dataset.k;
+    if(k===sortKey)sortDir*=-1;else{sortKey=k;sortDir=1}
+    render();
+  });
+  $("tb").innerHTML=out.map(r=>{
+    const base=r.type==="Gym"?"gym":"contest";
+    const link=`https://codeforces.com/${base}/${r.id}/problem/${r.index}`;
+    return`<tr>
+<td><span class="pill ${r.solved?"ok":"try"}">${r.status}</span></td>
+<td><a href="${link}" target="_blank" rel="noopener">${r.id}${esc(r.index)} · ${esc(r.name)}</a></td>
+<td>${r.rating??'<span class="cn">not given</span>'}</td>
+<td>${r.tags.length?r.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join(""):'<span class="cn">none</span>'}</td>
+<td><a href="https://codeforces.com/${base}/${r.id}" target="_blank" rel="noopener">${esc(r.contestName)}</a><div class="cn">ID ${r.id}</div></td>
+<td><span class="pill ${r.type==="Gym"?"gym":"ct"}">${r.type}</span></td>
+<td>${esc(r.div)}</td>
+<td>${r.tries}</td>
+<td>${r.solvedAt?new Date(r.solvedAt*1000).toLocaleDateString():'<span class="cn">—</span>'}</td>
+<td>${new Date(r.time*1000).toLocaleDateString()}</td></tr>`;
+  }).join("");
+}
+["q","fs","ft","fd","fg","rmin","rmax","dmin","dmax"].forEach(i=>$(i).addEventListener("input",render));
+</script>
+</body>
+</html>

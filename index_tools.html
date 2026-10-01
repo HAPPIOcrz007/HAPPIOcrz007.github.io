@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+  Tools page. Styling comes entirely from assets/css/styles.css (cards reuse
+  .project-card / .project-thumb / .blog-grid). Cards are built by
+  assets/js/main_tools.js, which reads tools/tools_1.md, tools_2.md, ... and
+  shows assets/images/tools_<n>.png on each card. See tools_1.md for the format.
+-->
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="description" content="Small web tools built by Harshvardhan Rathod." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://happiocrz007.github.io/index_tools.html" />
+  <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#F5F5F0" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+  <title>Tools | Harshvardhan Rathod</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="assets/css/styles.css?v=2309202602" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link" tabindex="1">Skip to main content</a>
+  <div class="animated-bg" aria-hidden="true"></div>
+
+  <nav role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-logo" aria-label="Home">Hi again</a>
+    <ul class="nav-links" role="menubar">
+      <li role="none"><a href="index.html#activity" role="menuitem">activity</a></li>
+      <li role="none"><a href="index.html#projects" role="menuitem">projects</a></li>
+      <li role="none"><a href="index.html#blogs" role="menuitem">blogs</a></li>
+      <li role="none"><a href="index.html#skills" role="menuitem">skills</a></li>
+      <li role="none"><a href="index.html#achievements" role="menuitem">achievements</a></li>
+      <li role="none"><a href="index.html#certificates" role="menuitem">certs</a></li>
+      <li role="none"><a href="index.html#contact" role="menuitem">contact</a></li>
+      <li role="none"><a href="index_tools.html" role="menuitem" aria-current="page">tools</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme (dark/light)">☾</button>
+      <a href="./assets/docs/Harshvardhan_Rathod_Resume.pdf" id="resumeBtn" class="btn btn-ghost" target="_blank" rel="noopener noreferrer" aria-label="Download resume (PDF)">📄 Resume</a>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <section id="tools" aria-labelledby="tools-title" style="padding-top:calc(60px + 70px);border-top:0">
+      <div class="container">
+        <p class="sec-label">Utilities</p>
+        <h2 class="sec-title" id="tools-title">Tools</h2>
+        <div id="toolsGrid" class="blog-grid">
+          <div class="loading" aria-live="polite">loading tools…</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <p>© <span id="footerYear"></span> <span class="footer-sig">Harshvardhan Rathod</span></p>
+    <p>Building systems, one line at a time</p>
+  </footer>
+
+  <script src="assets/js/main_tools.js?v=2309202602" defer></script>
+</body>
+</html>

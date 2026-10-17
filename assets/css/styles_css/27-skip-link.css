@@ -1,0 +1,22 @@
+/* ================================================================
+   SKIP LINK — Accessibility
+   ================================================================ */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  background: var(--green);
+  color: #000;
+  font-weight: 600;
+  border-radius: var(--radius);
+  z-index: 9999;
+  font-family: var(--font-body);
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+

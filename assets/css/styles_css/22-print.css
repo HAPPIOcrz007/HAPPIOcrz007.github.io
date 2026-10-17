@@ -1,0 +1,63 @@
+/* ================================================================
+   PRINT STYLES
+   ================================================================ */
+@media print {
+  .animated-bg,
+  .heatmap-container,
+  .nav-links,
+  .theme-btn,
+  .scroll-progress,
+  .grid-bg,
+  .hero-avatar-wrap .avatar-status,
+  #hero .hero-ctas,
+  .notify-box,
+  .scroll-nav {
+    display: none !important;
+  }
+
+  .projects-grid {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .project-card { margin-bottom: 1rem; }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .project-card,
+  .skill-card,
+  .ach-item,
+  .cert-card,
+  .contact-row {
+    border-color: #ccc !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  .stat          { border-color: #ccc !important; }
+  .hero-name     { font-size: 2.5rem !important; }
+  .container     { max-width: 100% !important; padding: 0 1rem !important; }
+  .hero-inner    { display: block !important; }
+  .modal         { display: none !important; }
+
+  section {
+    break-inside: avoid;
+    padding: 40px 0 !important;
+  }
+
+  a {
+    color: #000 !important;
+    text-decoration: underline !important;
+  }
+
+  /* In blog reader, floats become plain blocks in print */
+  .blog-float {
+    float: none !important;
+    width: auto !important;
+    margin: 1rem 0 !important;
+  }
+}
+

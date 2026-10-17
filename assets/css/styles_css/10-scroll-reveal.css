@@ -1,0 +1,54 @@
+/* ================================================================
+   SCROLL REVEAL
+   ================================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition:
+    opacity  700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+  visibility: hidden;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+/* Cards need extra transitions for hover theme-reversal effects */
+.project-card.reveal,
+.cert-card.reveal,
+.skill-card.reveal {
+  transition:
+    opacity      700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform    700ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow   0.25s ease,
+    background   0.3s ease,
+    color        0.3s ease;
+}
+
+.stat.reveal {
+  transition:
+    opacity      700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform    700ms cubic-bezier(0.22, 1, 0.36, 1),
+    background   0.3s ease,
+    color        0.3s ease,
+    border-color 0.25s ease;
+}
+
+.sec-label.reveal,
+.sec-title.reveal {
+  transition:
+    opacity   500ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-delay-1 { transition-delay: 0.05s; }
+.reveal-delay-2 { transition-delay: 0.1s; }
+.reveal-delay-3 { transition-delay: 0.15s; }
+.reveal-delay-4 { transition-delay: 0.2s; }
+.reveal-delay-5 { transition-delay: 0.25s; }
+

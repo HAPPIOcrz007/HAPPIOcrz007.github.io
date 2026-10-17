@@ -1,0 +1,64 @@
+/* ================================================================
+   ACTIVITY HEATMAP SECTION
+   (detailed component styles live in heatmap.js via injectStyles;
+    these handle only the section-level layout + theme integration)
+   ================================================================ */
+#activity {
+  /* matches the rhythm of every other section */
+  padding: 90px 0;
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+  contain: layout style;
+}
+
+/* Heatmap wrapper sits inside .container, no extra padding needed */
+#activityHeatmap {
+  position: relative;
+  min-height: 160px;        /* reserve space while loading */
+}
+
+/* ── Light-theme overrides for the injected component styles ── */
+/* Note: the hover tooltip (.global-tip) is injected by main.js and
+   carries its own [data-theme="light"] overrides alongside it —
+   nothing needed here for that. */
+[data-theme="light"] .ahm-badge {
+  background: var(--bg3);
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+[data-theme="light"] .ahm-cell {
+  stroke: var(--bg);
+}
+
+[data-theme="light"] .ahm-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg3)  25%,
+    var(--bg2)  50%,
+    var(--bg3)  75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 860px) {
+  #activity { padding: 70px 0; }
+
+  .ahm-stats {
+    gap: 1rem 2rem;
+  }
+
+  .ahm-platform-badges {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .ahm-stat-value { font-size: 1.15rem; }
+  .ahm-stat-label { font-size: 0.6rem; }
+  .ahm-badge      { font-size: 0.65rem; padding: 0.25rem 0.55rem; }
+}
+

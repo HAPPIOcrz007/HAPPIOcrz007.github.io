@@ -1,0 +1,51 @@
+/* ================================================================
+   BACKGROUND
+   ================================================================ */
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--green);
+  z-index: 1000;
+  width: 0%;
+  opacity: 0.3;
+  transform-origin: left center;
+  transition: opacity 0.2s ease;
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    width: 100%;
+    transform: scaleX(0);
+    animation: scroll-progress-anim auto linear;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes scroll-progress-anim {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+

@@ -1,0 +1,77 @@
+/* ================================================================
+   BLOG — code blocks (language label, copy button, highlighting)
+   ================================================================ */
+.blog-code {
+  margin: 1.4rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg3);
+  overflow: hidden;
+}
+
+.blog-code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem 0.35rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg3) 70%, var(--bg));
+}
+
+.blog-code-lang {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.blog-code-copy {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 0.2rem 0.7rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.blog-code-copy:hover,
+.blog-code-copy:focus-visible { border-color: var(--green); color: var(--green); }
+.blog-code-copy.is-copied     { border-color: #2da44e; color: #2da44e; }
+
+.blog-body .blog-code pre {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 1rem 1.1rem;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  tab-size: 4;
+}
+.blog-body .blog-code pre code {
+  font-size: inherit;
+  white-space: pre;
+}
+
+/* Syntax colours — tuned per theme */
+.blog-code {
+  --hl-comment: #6b7280; --hl-string: #7ec27e; --hl-number: #d19a66;
+  --hl-keyword: var(--green-light); --hl-type: #e5c07b;
+  --hl-func: #61afef; --hl-pre: #c678dd;
+}
+[data-theme="light"] .blog-code {
+  --hl-comment: #7a7a72; --hl-string: #2a7a3b; --hl-number: #a55a00;
+  --hl-keyword: var(--green-dark); --hl-type: #8a6d00;
+  --hl-func: #1f6fb2; --hl-pre: #8a3fb0;
+}
+.hl-c { color: var(--hl-comment); font-style: italic; }
+.hl-s { color: var(--hl-string); }
+.hl-n { color: var(--hl-number); }
+.hl-k { color: var(--hl-keyword); font-weight: 600; }
+.hl-t { color: var(--hl-type); }
+.hl-f { color: var(--hl-func); }
+.hl-p { color: var(--hl-pre); }
+

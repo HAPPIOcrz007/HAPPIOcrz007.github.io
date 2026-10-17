@@ -1,0 +1,49 @@
+/* ================================================================
+   CERTIFICATES
+   ================================================================ */
+.cert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.cert-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s var(--ease),
+              box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
+  contain: layout style;
+}
+
+.cert-card:hover,
+.cert-card:focus-visible {
+  border-color: var(--green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.cert-issuer {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+  transition: color 0.3s ease;
+}
+
+.cert-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  transition: color 0.3s ease;
+}
+
+.cert-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+

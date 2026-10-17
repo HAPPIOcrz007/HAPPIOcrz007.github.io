@@ -1,0 +1,231 @@
+/* ================================================================
+   HERO SECTION HOVER THEME REVERSAL
+   ================================================================ */
+[data-theme="dark"] .stat:hover,
+[data-theme="dark"] .hero-ctas .btn:hover {
+  background: #F5F5F0;
+  border-color: #e8510f;
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .stat:hover .stat-value {
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .stat:hover .stat-label {
+  color: #444444;
+}
+
+[data-theme="dark"] .hero-ctas .btn-ghost:hover {
+  background: #F5F5F0;
+  border-color: #e8510f;
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .hero-ctas .btn-primary:hover {
+  background: #1A1A1A;
+  border-color: #1A1A1A;
+  color: #F5F5F0;
+}
+
+[data-theme="dark"] .avatar-frame:hover {
+  background: radial-gradient(circle at 30% 30%, rgba(232, 81, 15, 0.25), transparent 70%);
+  border-color: #e8510f;
+}
+
+[data-theme="dark"] .avatar-label:hover {
+  color: #F5F5F0;
+}
+
+[data-theme="light"] .stat:hover,
+[data-theme="light"] .hero-ctas .btn:hover {
+  background: #121212;
+  border-color: #e8510f;
+  color: #EDEDED;
+}
+
+[data-theme="light"] .stat:hover .stat-value {
+  color: #EDEDED;
+}
+
+[data-theme="light"] .stat:hover .stat-label {
+  color: #a0a0a0;
+}
+
+[data-theme="light"] .hero-ctas .btn-ghost:hover {
+  background: #121212;
+  border-color: #e8510f;
+  color: #EDEDED;
+}
+
+[data-theme="light"] .hero-ctas .btn-primary:hover {
+  background: #EDEDED;
+  border-color: #EDEDED;
+  color: #121212;
+}
+
+[data-theme="light"] .avatar-frame:hover {
+  background: radial-gradient(circle at 30% 30%, rgba(232, 81, 15, 0.2), transparent 70%);
+  border-color: #e8510f;
+}
+
+[data-theme="light"] .avatar-label:hover {
+  color: #121212;
+}
+
+/* ================================================================
+   CARD HOVER THEME REVERSAL — DARK TO LIGHT
+   ================================================================ */
+[data-theme="dark"] .project-card:hover,
+[data-theme="dark"] .skill-card:hover,
+[data-theme="dark"] .ach-item:hover,
+[data-theme="dark"] .cert-card:hover,
+[data-theme="dark"] .contact-row:hover,
+[data-theme="dark"] .notify-box:hover {
+  background: #F5F5F0;
+  border-color: #e8510f;
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .project-card:hover .project-title,
+[data-theme="dark"] .skill-card:hover .skill-cat,
+[data-theme="dark"] .ach-item:hover .ach-title,
+[data-theme="dark"] .cert-card:hover .cert-title,
+[data-theme="dark"] .contact-row:hover .contact-value {
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .project-card:hover .project-desc,
+[data-theme="dark"] .project-card:hover .project-date,
+[data-theme="dark"] .skill-card:hover .skill-pill,
+[data-theme="dark"] .ach-item:hover .ach-desc,
+[data-theme="dark"] .cert-card:hover .cert-date,
+[data-theme="dark"] .cert-card:hover .cert-issuer,
+[data-theme="dark"] .contact-row:hover .contact-label,
+[data-theme="dark"] .notify-box:hover .notify-context {
+  color: #444444;
+}
+
+[data-theme="dark"] .notify-box:hover .notify-emoji {
+  background: rgba(232, 81, 15, 0.12);
+  border-color: rgba(232, 81, 15, 0.3);
+}
+
+[data-theme="dark"] .notify-box:hover .notify-close {
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .notify-box:hover .notify-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .project-card:hover .tech-tag {
+  background: #E0E0DA;
+  border-color: #B8B8B2;
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .project-card:hover .tech-tag:hover {
+  border-color: #e8510f;
+  color: #e8510f;
+}
+
+[data-theme="dark"] .ach-item:hover .ach-rank {
+  background: rgba(232, 81, 15, 0.12);
+  border-color: rgba(232, 81, 15, 0.3);
+  color: #e8510f;
+}
+
+[data-theme="dark"] .project-card:hover .project-thumb {
+  background: #E0E0DA;
+}
+
+[data-theme="dark"] .skill-card:hover .skill-pill {
+  background: #E0E0DA;
+  border-color: #B8B8B2;
+  color: #1A1A1A;
+}
+
+[data-theme="dark"] .skill-card:hover .skill-pill:hover {
+  border-color: #e8510f;
+  color: #e8510f;
+}
+
+/* ================================================================
+   CARD HOVER THEME REVERSAL — LIGHT TO DARK
+   ================================================================ */
+[data-theme="light"] .project-card:hover,
+[data-theme="light"] .skill-card:hover,
+[data-theme="light"] .ach-item:hover,
+[data-theme="light"] .cert-card:hover,
+[data-theme="light"] .contact-row:hover,
+[data-theme="light"] .notify-box:hover {
+  background: #121212;
+  border-color: #e8510f;
+  color: #EDEDED;
+}
+
+[data-theme="light"] .project-card:hover .project-title,
+[data-theme="light"] .skill-card:hover .skill-cat,
+[data-theme="light"] .ach-item:hover .ach-title,
+[data-theme="light"] .cert-card:hover .cert-title,
+[data-theme="light"] .contact-row:hover .contact-value {
+  color: #EDEDED;
+}
+
+[data-theme="light"] .project-card:hover .project-desc,
+[data-theme="light"] .project-card:hover .project-date,
+[data-theme="light"] .skill-card:hover .skill-pill,
+[data-theme="light"] .ach-item:hover .ach-desc,
+[data-theme="light"] .cert-card:hover .cert-date,
+[data-theme="light"] .cert-card:hover .cert-issuer,
+[data-theme="light"] .contact-row:hover .contact-label,
+[data-theme="light"] .notify-box:hover .notify-context {
+  color: #a0a0a0;
+}
+
+[data-theme="light"] .notify-box:hover .notify-emoji {
+  background: rgba(232, 81, 15, 0.15);
+  border-color: rgba(232, 81, 15, 0.25);
+}
+
+[data-theme="light"] .notify-box:hover .notify-close {
+  color: #EDEDED;
+}
+
+[data-theme="light"] .notify-box:hover .notify-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .project-card:hover .tech-tag {
+  background: #181818;
+  border-color: #2a2a2a;
+  color: #EDEDED;
+}
+
+[data-theme="light"] .project-card:hover .tech-tag:hover {
+  border-color: #e8510f;
+  color: #e8510f;
+}
+
+[data-theme="light"] .ach-item:hover .ach-rank {
+  background: rgba(232, 81, 15, 0.15);
+  border-color: rgba(232, 81, 15, 0.25);
+  color: #e8510f;
+}
+
+[data-theme="light"] .project-card:hover .project-thumb {
+  background: #181818;
+}
+
+[data-theme="light"] .skill-card:hover .skill-pill {
+  background: #181818;
+  border-color: #2a2a2a;
+  color: #EDEDED;
+}
+
+[data-theme="light"] .skill-card:hover .skill-pill:hover {
+  border-color: #e8510f;
+  color: #e8510f;
+}
+

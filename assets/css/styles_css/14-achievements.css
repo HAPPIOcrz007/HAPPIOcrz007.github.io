@@ -1,0 +1,58 @@
+/* ================================================================
+   ACHIEVEMENTS
+   ================================================================ */
+.ach-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ach-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, transform 0.25s var(--ease),
+              box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
+  word-break: break-word;
+  contain: layout style;
+}
+
+.ach-item:hover {
+  border-color: var(--green);
+  transform: translateX(5px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ach-rank {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--green);
+  text-align: center;
+  padding: 0.3rem 0.7rem;
+  background: var(--green-glow);
+  border-radius: var(--radius);
+  border: 1px solid var(--green-dim);
+  white-space: nowrap;
+  min-width: 44px;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.ach-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.ach-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+

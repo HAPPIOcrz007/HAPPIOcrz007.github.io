@@ -1,0 +1,45 @@
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    visibility: visible !important;
+  }
+
+  .avatar-frame::before,
+  .status-dot,
+  .heatmap-bar::after,
+  .heatmap-scroll-indicator::after,
+  .heatmap-marker.active .dot {
+    animation: none !important;
+  }
+
+  .btn .ripple      { display: none !important; }
+
+  .heatmap-particle {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .scroll-progress  { transition: none !important; }
+
+  .notify-box {
+    transition: opacity 0.01ms !important;
+    transform: none !important;
+  }
+
+  .projects-grid { scroll-behavior: auto !important; }
+}
+

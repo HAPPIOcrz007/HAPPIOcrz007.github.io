@@ -1,0 +1,11 @@
+/* ================================================================
+   LOADING
+   ================================================================ */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+

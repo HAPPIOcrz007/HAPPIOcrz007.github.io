@@ -1,0 +1,70 @@
+/* ================================================================
+   TOKENS (Design System) — ACCENT: #E8510F (orange)
+   Was GitHub green (#2da44e) — swapped 2026-09; variable names below
+   (--green, --green-rgb, etc.) are unchanged to avoid touching every
+   call site, they just hold orange values now.
+   ================================================================ */
+:root {
+  /* Spacing & Layout */
+  --radius:      10px;
+  --radius-lg:   16px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease:        cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-snap:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-apple:  cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.8, 0.64, 1);
+
+  --green-rgb:   232, 81, 15;
+  --green:       #e8510f;
+  --green-dim:   rgba(232, 81, 15, 0.08);
+  --green-glow:  rgba(232, 81, 15, 0.04);
+  --green-hover: #d84d11;
+  --green-dark:  #bc3b03;
+  --green-light: #e96c35;
+
+  /* Typography Scale */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  2rem;
+  --text-4xl:  2.5rem;
+  --text-5xl:  3rem;
+
+  /* Font Families */
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+[data-theme="dark"] {
+  --bg:         #0A0A0A;
+  --bg2:        #111111;
+  --bg3:        #181818;
+  --card:       #121212;
+  --border:     #222222;
+  --border2:    #2a2a2a;
+  --text:       #EDEDED;
+  --text-dim:   #a0a0a0;
+  --text-muted: #666666;
+  --shadow:     0 8px 30px rgba(0, 0, 0, 0.6);
+  --shadow-sm:  0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  --bg:         #F5F5F0;
+  --bg2:        #EBEBE5;
+  --bg3:        #E0E0DA;
+  --card:       #FFFFFF;
+  --border:     #D0D0CA;
+  --border2:    #B8B8B2;
+  --text:       #1A1A1A;
+  --text-dim:   #444444;
+  --text-muted: #777777;
+  --shadow:     0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-sm:  0 4px 12px rgba(0, 0, 0, 0.04);
+}
+

@@ -1,0 +1,109 @@
+/* Code blocks: bold code, token colors come from the active theme */
+.md pre.code {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: .75rem 1rem;
+    overflow: auto;
+    margin: .6rem 0
+}
+
+.md pre.code code {
+    background: none;
+    padding: 0;
+    font: 700 12.5px/1.6 var(--font-mono), ui-monospace, Menlo, Consolas, monospace;
+    white-space: pre
+}
+
+.tk-k {
+    color: var(--tk-k)
+}
+
+.tk-s {
+    color: var(--tk-s)
+}
+
+.tk-c {
+    color: var(--tk-c);
+    font-style: italic;
+    font-weight: 600
+}
+
+.tk-n {
+    color: var(--tk-n)
+}
+
+.tk-f {
+    color: var(--tk-f)
+}
+
+.tk-t {
+    color: var(--tk-t);
+    font-style: var(--tk-t-style)
+}
+
+.tk-p {
+    color: var(--tk-p)
+}
+
+.tk-l {
+    color: var(--tk-l)
+}
+
+.tk-b {
+    color: var(--tk-b)
+}
+
+/* Per-language touches */
+pre[data-lang="python"] .tk-b {
+    font-style: italic
+}
+
+/* self, builtins */
+pre[data-lang="python"] .tk-p {
+    font-style: italic
+}
+
+/* @decorators */
+pre[data-lang="java"] .tk-p {
+    font-style: italic
+}
+
+/* @Annotations */
+pre[data-lang="rust"] .tk-p {
+    font-style: italic
+}
+
+/* #[attrs], 'lifetimes */
+pre[data-lang="cpp"] .tk-p {
+    font-weight: 800
+}
+
+/* #include / #define */
+pre[data-lang="js"] .tk-b {
+    font-style: italic
+}
+
+/* this, console */
+#mNotes {
+    font: 12.5px/1.5 var(--font-mono), ui-monospace, Menlo, Consolas, monospace
+}
+
+.toolbar {
+    display: flex;
+    gap: .4rem;
+    align-items: center;
+    margin: .3rem 0;
+    flex-wrap: wrap
+}
+
+.toolbar select {
+    width: auto
+}
+
+.preview {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: .5rem .8rem;
+    min-height: 110px
+}

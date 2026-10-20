@@ -1,0 +1,196 @@
+/* Report layout. Prints in the active theme (dark themes included). */
+@page {
+  margin: 10mm 10mm 14mm;
+
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 9px;
+    color: #888
+  }
+}
+
+@media print {
+  .noprint {
+    display: none !important
+  }
+
+  html,
+  body {
+    background: var(--bg) !important;
+    color: var(--text)
+  }
+
+  body {
+    font-size: 11.5px;
+    line-height: 1.45;
+    padding: 4mm
+  }
+
+  /* extra edge space even if the print dialog uses 'no margins' */
+  main {
+    max-width: none;
+    padding: 0;
+    gap: 12px
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact
+  }
+
+  .print-head {
+    display: block;
+    text-align: center;
+    padding: 0 0 14px;
+    margin-bottom: 2px;
+    border-bottom: 3px solid var(--accent)
+  }
+
+  .ph-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px
+  }
+
+  .ph-kicker {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent)
+  }
+
+  .print-head h2 {
+    font-size: 30px;
+    line-height: 1.15;
+    margin: 0;
+    text-align: center
+  }
+
+  .ph-date {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center
+  }
+
+  .ph-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap
+  }
+
+  .pl {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    padding: 3px 14px 3px 10px;
+    font-size: 11.5px;
+    background: var(--card)
+  }
+
+  .pl svg {
+    width: 15px;
+    height: 15px;
+    flex: none
+  }
+
+  .pl b {
+    font-weight: 600;
+    color: var(--muted)
+  }
+
+  .pl a {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none
+  }
+
+  .card,
+  .stat,
+  .plat {
+    box-shadow: none;
+    border: 1px solid var(--line);
+    break-inside: avoid
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px
+  }
+
+  .stat {
+    padding: 8px 12px
+  }
+
+  .stat b {
+    font-size: 18px
+  }
+
+  .stat span {
+    font-size: 10px
+  }
+
+  .card h3 {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted)
+  }
+
+  .platforms {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px
+  }
+
+  .plat .big {
+    font-size: 26px
+  }
+
+  .sec-title {
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    margin: 6px 0 8px
+  }
+
+  .entry {
+    break-inside: avoid;
+    margin-bottom: 10px;
+    padding: 12px 14px
+  }
+
+  .entry header h3 {
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text)
+  }
+
+  .entry .shot {
+    max-height: 105mm;
+    display: block;
+    margin: 8px auto 0
+  }
+
+  .md pre.code {
+    break-inside: avoid
+  }
+
+  .print-foot {
+    display: block;
+    margin-top: 14px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 9.5px;
+    text-align: center
+  }
+}

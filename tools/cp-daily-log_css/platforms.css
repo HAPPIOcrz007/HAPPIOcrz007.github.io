@@ -1,0 +1,117 @@
+/* Codeforces / LeetCode stat cards */
+.platforms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem
+}
+
+.plat {
+    --rk: var(--accent);
+    border-left: 5px solid var(--rk);
+    background: color-mix(in srgb, var(--rk) 12%, var(--card))
+}
+
+.plat header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .5rem
+}
+
+.plat .label {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--muted);
+    font-weight: 700
+}
+
+.plat .who {
+    font-weight: 700
+}
+
+.plat .big {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
+    flex-wrap: wrap
+}
+
+.plat .big small {
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    background: var(--rk);
+    color: #fff;
+    padding: .1rem .65rem;
+    border-radius: 99px
+}
+
+.mini {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    margin-top: .8rem
+}
+
+.mini.two {
+    grid-template-columns: repeat(2, 1fr)
+}
+
+.mini b {
+    display: block;
+    font-size: 1.05rem
+}
+
+.mini span,
+.plat .foot {
+    color: var(--muted);
+    font-size: .75rem
+}
+
+.plat .foot {
+    margin-top: .7rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap
+}
+
+.mini-btn {
+    padding: .15rem .6rem;
+    font-size: .75rem
+}
+
+.bar {
+    display: grid;
+    grid-template-columns: 56px 1fr 84px;
+    gap: .5rem;
+    align-items: center;
+    font-size: .8rem;
+    margin-top: .4rem
+}
+
+.bar i {
+    display: block;
+    height: 7px;
+    background: var(--line);
+    border-radius: 99px;
+    overflow: hidden
+}
+
+.bar u {
+    display: block;
+    height: 100%;
+    border-radius: 99px
+}
+
+.bar em {
+    font-style: normal;
+    text-align: right;
+    color: var(--muted)
+}

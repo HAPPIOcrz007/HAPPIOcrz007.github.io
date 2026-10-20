@@ -1,0 +1,87 @@
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 5
+}
+
+.top h1 {
+    font-size: 1.25rem;
+    margin: 0
+}
+
+.actions {
+    display: flex;
+    gap: .5rem;
+    align-items: center
+}
+
+.actions select {
+    width: auto
+}
+
+main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 1.25rem;
+    display: grid;
+    gap: 1rem
+}
+
+.profile {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: .6rem
+}
+
+.row {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    align-items: center
+}
+
+@media(max-width:600px) {
+    .profile {
+        grid-template-columns: 1fr
+    }
+}
+
+.print-head {
+    display: none
+}
+
+.print-foot {
+    display: none
+}
+
+.sec-title {
+    font-size: .8rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: .4rem 0
+}
+
+.top h1 a {
+    color: inherit;
+    text-decoration: none
+}
+
+.top h1 a:hover {
+    color: var(--accent);
+    text-decoration: none
+}

@@ -1,0 +1,210 @@
+/* Default themes (Light / Dark) use the tokens from 02-variables.css */
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+    --line: var(--border);
+    --muted: var(--text-muted);
+    --accent: var(--green);
+    --btn: var(--green);
+    --btn-on: #fff;
+    --code-bg: var(--bg2)
+}
+
+:root[data-theme="light"] {
+    --easy: #1f9d55;
+    --medium: #d4a017;
+    --hard: #d92d20;
+    --on: #fff;
+    --on-m: #1a1a1a;
+    --tk-k: #bc3b03;
+    --tk-s: #0b7a4b;
+    --tk-c: #777777;
+    --tk-n: #1d4ed8;
+    --tk-f: #7c3aed;
+    --tk-t: #b45309;
+    --tk-p: #be185d;
+    --tk-l: #1d4ed8;
+    --tk-b: #0e7490;
+    --tk-t-style: normal
+}
+
+:root[data-theme="dark"] {
+    --easy: #3fb950;
+    --medium: #e3b341;
+    --hard: #f85149;
+    --on: #0a0a0a;
+    --tk-k: #ff8a50;
+    --tk-s: #a8d98b;
+    --tk-c: #7d7d7d;
+    --tk-n: #7cb7ff;
+    --tk-f: #c4a1ff;
+    --tk-t: #ffc66d;
+    --tk-p: #ff7ab6;
+    --tk-l: #7cb7ff;
+    --tk-b: #5ed3e0;
+    --tk-t-style: normal
+}
+
+/* The extra themes keep system fonts */
+:root[data-theme]:not([data-theme="light"]):not([data-theme="dark"]) {
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+}
+
+/* Theme palettes. theme.js sets data-theme on <html> (Auto resolves to GitHub Light/Dark). */
+:root[data-theme="github-light"] {
+    --bg: #fff;
+    --card: #f6f8fa;
+    --text: #1f2328;
+    --muted: #656d76;
+    --line: #d0d7de;
+    --accent: #0969da;
+    --btn: #1f883d;
+    --btn-on: #fff;
+    --easy: #1a7f37;
+    --medium: #bf8700;
+    --hard: #cf222e;
+    --on: #fff;
+    --on-m: #1f2328;
+    --code-bg: #eff2f5;
+    --tk-k: #cf222e;
+    --tk-s: #0a3069;
+    --tk-c: #6e7781;
+    --tk-n: #0550ae;
+    --tk-f: #8250df;
+    --tk-t: #953800;
+    --tk-p: #116329;
+    --tk-l: #0550ae;
+    --tk-b: #0550ae;
+    --tk-t-style: normal
+}
+
+:root[data-theme="github-dark"] {
+    --bg: #0d1117;
+    --card: #161b22;
+    --text: #e6edf3;
+    --muted: #848d97;
+    --line: #30363d;
+    --accent: #2f81f7;
+    --btn: #238636;
+    --btn-on: #fff;
+    --easy: #3fb950;
+    --medium: #d29922;
+    --hard: #f85149;
+    --on: #0d1117;
+    --code-bg: #1c2128;
+    --tk-k: #ff7b72;
+    --tk-s: #a5d6ff;
+    --tk-c: #8b949e;
+    --tk-n: #79c0ff;
+    --tk-f: #d2a8ff;
+    --tk-t: #ffa657;
+    --tk-p: #7ee787;
+    --tk-l: #79c0ff;
+    --tk-b: #79c0ff;
+    --tk-t-style: normal
+}
+
+:root[data-theme="dracula"] {
+    --bg: #282a36;
+    --card: #21222c;
+    --text: #f8f8f2;
+    --muted: #8b96c4;
+    --line: #44475a;
+    --accent: #bd93f9;
+    --btn: #bd93f9;
+    --btn-on: #282a36;
+    --easy: #50fa7b;
+    --medium: #f1fa8c;
+    --hard: #ff5555;
+    --on: #282a36;
+    --code-bg: #1e1f29;
+    --tk-k: #ff79c6;
+    --tk-s: #f1fa8c;
+    --tk-c: #6272a4;
+    --tk-n: #bd93f9;
+    --tk-f: #50fa7b;
+    --tk-t: #8be9fd;
+    --tk-p: #ffb86c;
+    --tk-l: #bd93f9;
+    --tk-b: #8be9fd;
+    --tk-t-style: italic
+}
+
+:root[data-theme="monokai"] {
+    --bg: #272822;
+    --card: #1e1f1c;
+    --text: #f8f8f2;
+    --muted: #90908a;
+    --line: #49483e;
+    --accent: #a6e22e;
+    --btn: #a6e22e;
+    --btn-on: #272822;
+    --easy: #a6e22e;
+    --medium: #e6db74;
+    --hard: #f92672;
+    --on: #272822;
+    --code-bg: #1a1b18;
+    --tk-k: #f92672;
+    --tk-s: #e6db74;
+    --tk-c: #75715e;
+    --tk-n: #ae81ff;
+    --tk-f: #a6e22e;
+    --tk-t: #66d9ef;
+    --tk-p: #fd971f;
+    --tk-l: #ae81ff;
+    --tk-b: #66d9ef;
+    --tk-t-style: italic
+}
+
+:root[data-theme="vscode-dark"] {
+    --bg: #1e1e1e;
+    --card: #252526;
+    --text: #d4d4d4;
+    --muted: #858585;
+    --line: #3c3c3c;
+    --accent: #3794ff;
+    --btn: #0e639c;
+    --btn-on: #fff;
+    --easy: #89d185;
+    --medium: #cca700;
+    --hard: #f14c4c;
+    --on: #1e1e1e;
+    --code-bg: #1b1b1b;
+    --tk-k: #569cd6;
+    --tk-s: #ce9178;
+    --tk-c: #6a9955;
+    --tk-n: #b5cea8;
+    --tk-f: #dcdcaa;
+    --tk-t: #4ec9b0;
+    --tk-p: #c586c0;
+    --tk-l: #569cd6;
+    --tk-b: #9cdcfe;
+    --tk-t-style: normal
+}
+
+:root[data-theme="vscode-light"] {
+    --bg: #fff;
+    --card: #f3f3f3;
+    --text: #1f1f1f;
+    --muted: #616161;
+    --line: #d4d4d4;
+    --accent: #0066bf;
+    --btn: #007acc;
+    --btn-on: #fff;
+    --easy: #2e7d32;
+    --medium: #c18401;
+    --hard: #cd3131;
+    --on: #fff;
+    --on-m: #1f1f1f;
+    --code-bg: #f8f8f8;
+    --tk-k: #0000ff;
+    --tk-s: #a31515;
+    --tk-c: #008000;
+    --tk-n: #098658;
+    --tk-f: #795e26;
+    --tk-t: #267f99;
+    --tk-p: #af00db;
+    --tk-l: #0000ff;
+    --tk-b: #001080;
+    --tk-t-style: normal
+}

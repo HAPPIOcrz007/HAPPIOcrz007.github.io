@@ -1,0 +1,59 @@
+/* Base styles; colors live in themes.css */
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 var(--font-body), system-ui, sans-serif
+}
+
+h1,
+h2,
+h3 {
+    margin: 0 0 .5rem
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none
+}
+
+a:hover {
+    text-decoration: underline
+}
+
+img {
+    max-width: 100%
+}
+
+input,
+select,
+textarea,
+button {
+    font: inherit;
+    color: inherit
+}
+
+input,
+select,
+textarea {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: .4rem .7rem;
+    width: 100%
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px
+}
+
+.hidden {
+    display: none !important
+}

@@ -1,0 +1,281 @@
+/* Uses the site's tokens (accent, surfaces, fonts, light/dark) from the main variables file. */
+@import url("../../assets/css/styles_css/02-variables.css");
+
+:root {
+    --easy: #2da44e;
+    --medium: #d9a400;
+    --hard: #e5484d
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: var(--text-base)/1.5 var(--font-body);
+    transition: background .3s var(--ease), color .3s var(--ease)
+}
+
+a {
+    color: var(--green)
+}
+
+.muted {
+    color: var(--text-muted);
+    font-size: var(--text-sm)
+}
+
+.top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border)
+}
+
+.top h1 {
+    margin: 0;
+    font-size: var(--text-xl);
+    flex: 1
+}
+
+input,
+button {
+    font: inherit;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    transition: border-color .2s var(--ease), background .2s var(--ease)
+}
+
+button {
+    cursor: pointer
+}
+
+button:hover,
+.tabs .on,
+input:focus {
+    border-color: var(--green)
+}
+
+.tabs .on {
+    background: var(--green-dim)
+}
+
+:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px
+}
+
+.notice {
+    margin: 16px 20px 0;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    background: var(--card);
+    font-size: var(--text-sm);
+    color: var(--text-dim)
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px
+}
+
+.filters #q {
+    flex: 1;
+    min-width: 240px
+}
+
+.filters label {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--text-dim)
+}
+
+.filters label input {
+    width: 90px
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px
+}
+
+.card {
+    text-align: left;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm)
+}
+
+.card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px)
+}
+
+.card.done {
+    border-color: #2da44e;
+    box-shadow: 0 0 0 1px #2da44e, var(--shadow-sm)
+}
+
+.card h3 {
+    margin: 0;
+    font-size: var(--text-base)
+}
+
+.split {
+    display: flex;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--border)
+}
+
+.split i.e {
+    background: var(--easy)
+}
+
+.split i.m {
+    background: var(--medium)
+}
+
+.split i.h {
+    background: var(--hard)
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 14px
+}
+
+.head h2 {
+    margin: 0
+}
+
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0
+}
+
+.wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card)
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse
+}
+
+th,
+td {
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top
+}
+
+th {
+    background: var(--bg2);
+    font-size: var(--text-sm)
+}
+
+th[data-k] {
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none
+}
+
+th.s::after {
+    content: attr(data-d)
+}
+
+td:nth-child(3),
+td:nth-child(4) {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm)
+}
+
+.pill {
+    font-size: var(--text-xs);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    border: 1px solid currentColor
+}
+
+.pill.easy {
+    color: var(--easy)
+}
+
+.pill.medium {
+    color: var(--medium)
+}
+
+.pill.hard {
+    color: var(--hard)
+}
+
+.chk {
+    padding: 2px 10px
+}
+
+.chk.on {
+    color: var(--easy);
+    border-color: var(--easy)
+}
+
+@media(max-width:600px) {
+    main {
+        padding: 12px
+    }
+
+    .top {
+        padding: 12px
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    * {
+        transition: none !important
+    }
+
+    .card:hover {
+        transform: none
+    }
+}
+
+@media print {
+
+    .filters,
+    .profile,
+    .tabs {
+        display: none
+    }
+}

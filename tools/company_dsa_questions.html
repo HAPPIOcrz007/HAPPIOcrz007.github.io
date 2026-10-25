@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company DSA Questions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <script>
+    /* Same theme as the main site. If your theme.js stores it under another localStorage key, change 'theme' here. */
+    (function () {
+      var t = null; try { t = localStorage.getItem('theme') } catch (e) { }
+      document.documentElement.setAttribute('data-theme', t || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'))
+    })();
+  </script>
+  <link rel="stylesheet" href="company_dsa_questions_css/style.css">
+</head>
+
+<body>
+  <header class="top">
+    <a class="back" href="../index_tools.html">Back to tools</a>
+    <h1>Company DSA Questions</h1>
+    <form id="profile" class="profile">
+      <input id="lcUser" placeholder="LeetCode username" autocomplete="off" aria-label="LeetCode username">
+      <button type="submit">Check solved</button>
+      <span id="lcStatus" class="muted" role="status"></span>
+    </form>
+  </header>
+  <aside class="notice">
+    Data comes from <a href="https://github.com/liquidslr/leetcode-company-wise-problems" target="_blank"
+      rel="noopener">liquidslr/leetcode-company-wise-problems</a>,
+    added to this repo as a git remote and read from a local copy (no live requests to the source). Only titles, links
+    and metadata are shown.
+    Not affiliated with LeetCode. If LeetCode asks for removal, this tool will be taken down.
+    <span id="gen" class="muted"></span>
+  </aside>
+  <main>
+    <section id="listView">
+      <div class="filters">
+        <input id="q" type="search" placeholder="Search companies, comma-separated: google, amazon"
+          aria-label="Search companies">
+        <label>Min avg acceptance <input id="acc" type="number" step="0.001" min="0" placeholder="0"></label>
+        <button id="sortBtn" type="button" title="Switch card order">Most solved first</button>
+        <span id="count" class="muted"></span>
+      </div>
+      <div id="cards" class="cards"></div>
+    </section>
+    <section id="tableView" hidden>
+      <div class="head"><button id="backBtn" type="button">All companies</button>
+        <h2 id="coName"></h2>
+      </div>
+      <div id="tabs" class="tabs" role="tablist"></div>
+      <div class="wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-k="difficulty">Difficulty</th>
+              <th data-k="title">Title</th>
+              <th data-k="freq">Frequency</th>
+              <th data-k="acc" title="Value exactly as given in the source CSV">Acceptance Rate</th>
+              <th>Link</th>
+              <th data-k="topics">Topics</th>
+              <th data-k="solved">Solved</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="../data/company_dsa_questions.js"></script>
+  <script src="company_dsa_questions_js/csv.js"></script>
+  <script src="company_dsa_questions_js/data.js"></script>
+  <script src="company_dsa_questions_js/solved.js"></script>
+  <script src="company_dsa_questions_js/ui.js"></script>
+  <script src="company_dsa_questions_js/main.js"></script>
+</body>
+
+</html>

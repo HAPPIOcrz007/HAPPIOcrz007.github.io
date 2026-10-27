@@ -1,0 +1,5 @@
+# private source sheet
+*.xlsx
+
+# python virtual env
+.venv/

@@ -4,6 +4,8 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   let mode = 'solved', cur = null, win = 'all', rows = [], sort = { k: 'freq', dir: -1 };
 
+  function pct(c, k) { return k ? Math.max(1, Math.round(k / c.t * 100)) : 0; }
+
   function solvedN(c) {
     const sl = DSA.slugs();
     return (c.s || []).reduce((n, i) => n + (Solved.has(sl[i]) ? 1 : 0), 0);
@@ -18,7 +20,7 @@
     list.sort((a, b) => (mode === 'solved' ? b.k - a.k : (b.c.t - b.k) - (a.c.t - a.k)) || a.c.n.localeCompare(b.c.n));
     $('#count').textContent = list.length + ' companies';
     $('#cards').innerHTML = list.map(({ c, k }) =>
-      `<button class="card${k ? ' done' : ''}" data-d="${esc(c.d)}"><h3>${esc(c.n)}</h3>
+      `<button class="card${k ? ' done' : ''}" data-d="${esc(c.d)}"><div class="ch"><h3>${esc(c.n)}</h3><div class="ring" style="--p:${pct(c, k)}" role="img" aria-label="${k} of ${c.t} solved" title="${k} of ${c.t} solved"><span>${pct(c, k)}%</span></div></div>
        <span class="muted">${c.t} questions${k ? ', ' + k + ' solved' : ''}</span>
        <div class="split"><i class="e" style="flex:${c.e}"></i><i class="m" style="flex:${c.m}"></i><i class="h" style="flex:${c.h}"></i></div>
        <span class="muted">Easy ${c.e}, Medium ${c.m}, Hard ${c.h}</span></button>`).join('')

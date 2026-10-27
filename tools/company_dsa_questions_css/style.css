@@ -140,6 +140,43 @@ main {
     box-shadow: 0 0 0 1px #2da44e, var(--shadow-sm)
 }
 
+.ch {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px
+}
+
+.ring {
+    --sz: 46px;
+    position: relative;
+    flex: none;
+    width: var(--sz);
+    height: var(--sz);
+    border-radius: 50%;
+    background: conic-gradient(#2da44e calc(var(--p)*1%), var(--border) 0);
+    display: grid;
+    place-items: center
+}
+
+.ring::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--card)
+}
+
+.ring span {
+    position: relative;
+    font: 500 var(--text-xs)/1 var(--font-mono);
+    color: var(--text-dim)
+}
+
+.card.done .ring span {
+    color: #2da44e
+}
+
 .card h3 {
     margin: 0;
     font-size: var(--text-base)

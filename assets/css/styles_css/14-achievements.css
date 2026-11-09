@@ -14,36 +14,32 @@
   padding: 1rem 1.2rem;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   transition: border-color 0.2s, transform 0.25s var(--ease),
               box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
   word-break: break-word;
   contain: layout style;
 }
 
-.ach-item:hover {
-  border-color: var(--green);
-  transform: translateX(5px);
-  box-shadow: var(--shadow-sm);
-}
-
+/* rank badge = the cyan "1 / 1457 specialist" pill look */
 .ach-rank {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--green);
+  color: var(--cyan);
   text-align: center;
-  padding: 0.3rem 0.7rem;
-  background: var(--green-glow);
-  border-radius: var(--radius);
-  border: 1px solid var(--green-dim);
+  padding: 0.3rem 0.8rem;
+  background: color-mix(in srgb, var(--cyan) 12%, transparent);
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
   white-space: nowrap;
   min-width: 44px;
   transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .ach-title {
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-weight: 700;
   margin-bottom: 0.25rem;
   font-size: 0.95rem;
   transition: color 0.3s ease;
@@ -55,4 +51,3 @@
   line-height: 1.5;
   transition: color 0.3s ease;
 }
-

@@ -10,7 +10,7 @@
 .cert-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 1.4rem;
   cursor: pointer;
   transition: border-color 0.2s, transform 0.2s var(--ease),
@@ -18,10 +18,8 @@
   contain: layout style;
 }
 
-.cert-card:hover,
 .cert-card:focus-visible {
   border-color: var(--green);
-  transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
 
@@ -30,20 +28,27 @@
   font-size: 0.7rem;
   color: var(--green);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.4rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
   transition: color 0.3s ease;
 }
 
+.cert-issuer::before {
+  content: "// ";
+  opacity: 0.6;
+}
+
 .cert-title {
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.98rem;
   margin-bottom: 0.35rem;
   transition: color 0.3s ease;
 }
 
 .cert-date {
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   color: var(--text-muted);
   transition: color 0.3s ease;
 }
-

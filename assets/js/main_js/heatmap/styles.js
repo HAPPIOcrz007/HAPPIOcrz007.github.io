@@ -30,7 +30,7 @@ export function injectStyles() {
       .ahm-stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--green, #e8510f);
+        color: var(--green, #7c5cff);
         line-height: 1;
         letter-spacing: -0.02em;
       }
@@ -98,7 +98,7 @@ export function injectStyles() {
 
       .ahm-badge em {
         font-style: normal;
-        color: var(--green, #e8510f);
+        color: var(--green, #7c5cff);
         font-weight: 600;
       }
 
@@ -152,8 +152,8 @@ export function injectStyles() {
         transition: opacity 0.15s, filter 0.15s;
         stroke-width: 1.5;
       }
-      [data-theme="dark"]  .ahm-cell { stroke: #0A0A0A; }
-      [data-theme="light"] .ahm-cell { stroke: #F5F5F0; }
+      [data-theme="dark"]  .ahm-cell { stroke: var(--bg); }
+      [data-theme="light"] .ahm-cell { stroke: var(--bg); }
 
       .ahm-cell--active {
         cursor: pointer;

@@ -112,7 +112,7 @@ window.GlobalTip = (function () {
         justify-content: center;
         background: var(--bg2, #111);
         border: 1px solid var(--border2, #2a2a2a);
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 0.4rem 0.7rem;
         font-family: var(--font-mono, 'JetBrains Mono', monospace);
         font-size: 0.7rem;
@@ -148,7 +148,7 @@ window.GlobalTip = (function () {
         border-bottom: 5px solid var(--bg2, #111);
       }
       .global-tip strong {
-        color: var(--green, #e8510f);
+        color: var(--green, #7c5cff);
         font-weight: 700;
       }
       .global-tip span {
@@ -159,7 +159,7 @@ window.GlobalTip = (function () {
       .global-tip span:first-child { border-left: none; padding-left: 0; }
 
       [data-theme="light"] .global-tip {
-        background: #ffffff;
+        background: var(--card);
         border-color: var(--border2);
         color: var(--text);
         box-shadow: 0 10px 30px rgba(0,0,0,0.10);

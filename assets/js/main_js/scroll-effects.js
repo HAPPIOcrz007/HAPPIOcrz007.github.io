@@ -101,17 +101,17 @@ export function initScrollEffects() {
 
       const glow = 0.05 + (progress / 100) * 0.3;
       heatmapBar.style.boxShadow =
-        `0 0 ${(20 + progress * 1.5).toFixed(1)}px rgba(232,81,15,${glow.toFixed(3)})`;
+        `0 0 ${(20 + progress * 1.5).toFixed(1)}px rgba(var(--green-rgb),${glow.toFixed(3)})`;
 
       const p = progress / 100;
       heatmapBar.style.background = `linear-gradient(to top,
-        rgba(232,81,15,${(0.05 + p * 0.1).toFixed(3)}) 0%,
-        rgba(232,81,15,${(0.15 + p * 0.2).toFixed(3)}) 15%,
-        rgba(232,81,15,${(0.30 + p * 0.3).toFixed(3)}) 30%,
-        rgba(232,81,15,${(0.50 + p * 0.4).toFixed(3)}) 50%,
-        rgba(232,81,15,${(0.70 + p * 0.3).toFixed(3)}) 70%,
-        rgba(232,81,15,${(0.85 + p * 0.15).toFixed(3)}) 85%,
-        rgba(232,81,15,1) 100%)`;
+        rgba(var(--green-rgb),${(0.05 + p * 0.1).toFixed(3)}) 0%,
+        rgba(var(--green-rgb),${(0.15 + p * 0.2).toFixed(3)}) 15%,
+        rgba(var(--green-rgb),${(0.30 + p * 0.3).toFixed(3)}) 30%,
+        rgba(var(--green-rgb),${(0.50 + p * 0.4).toFixed(3)}) 50%,
+        rgba(var(--green-rgb),${(0.70 + p * 0.3).toFixed(3)}) 70%,
+        rgba(var(--green-rgb),${(0.85 + p * 0.15).toFixed(3)}) 85%,
+        rgba(var(--green-rgb),1) 100%)`;
     }
   }
 
@@ -141,7 +141,9 @@ export function initScrollEffects() {
       if (id === '#') return;
       const target = document.querySelector(id);
       if (target) {
-        const top = target.getBoundingClientRect().top + window.pageYOffset - 60;
+        // floating top nav on desktop (offset), bottom tab bar on mobile (no offset)
+        const offset = window.matchMedia('(max-width: 820px)').matches ? 0 : 70;
+        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
         if (history.pushState) history.pushState(null, '', id);
       }

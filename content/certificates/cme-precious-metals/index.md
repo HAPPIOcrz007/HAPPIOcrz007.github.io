@@ -6,11 +6,11 @@ Certificate in precious metals trading, covering the fundamentals of =(#ffd700)g
 
 ## =(#f0a030)Course Content=
 
-- =(#2da44e)Market Fundamentals= — Supply, demand, and macroeconomic drivers
+- =(#6d4df0)Market Fundamentals= — Supply, demand, and macroeconomic drivers
 - =(#58a6ff)CME Precious Metals Products= — Futures, options, and spreads
 - =(#f0a030)Hedging Strategies= — Risk management for miners and jewelers
 - =(#ff6b6b)Price Discovery= — Factors influencing gold and silver prices
-- =(#2da44e)Trading Mechanics= — Contract specifications, margin, settlement
+- =(#6d4df0)Trading Mechanics= — Contract specifications, margin, settlement
 
 ## =(#1866E1)Key Learnings=
 

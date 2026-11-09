@@ -1,5 +1,5 @@
 /* ================================================================
-   BACKGROUND
+   BACKGROUND — flat, like the app. No decorative grid.
    ================================================================ */
 .animated-bg {
   position: fixed;
@@ -36,10 +36,12 @@
   to   { transform: scaleX(1); }
 }
 
+/* Grid kept in the DOM but nearly invisible (delete .grid-bg from
+   index.html later if you want it gone completely). */
 .grid-bg {
   position: absolute;
   inset: 0;
-  opacity: 0.15;
+  opacity: 0.05;
   pointer-events: none;
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
@@ -48,4 +50,3 @@
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 }
-

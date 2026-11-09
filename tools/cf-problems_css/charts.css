@@ -1,0 +1,214 @@
+/* ================================================================
+   CHARTS — heatmaps (activity + rating), legend, pie, histogram
+   Heat levels use the theme accent via --green-rgb.
+   ================================================================ */
+svg text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-muted);
+}
+
+.c {
+  stroke: var(--bg);
+  stroke-width: 1;
+}
+
+.l0 { fill: var(--bg3); }
+.l1 { fill: rgba(var(--green-rgb), .25); }
+.l2 { fill: rgba(var(--green-rgb), .45); }
+.l3 { fill: rgba(var(--green-rgb), .7); }
+.l4 { fill: var(--green); }
+
+.c:hover {
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+
+.c.st {
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+#rh rect[data-r] {
+  cursor: pointer;
+}
+
+svg text.v {
+  fill: var(--text);
+  font-size: 9px;
+  pointer-events: none;
+}
+
+/* numbers on the dark (l3/l4) cells must be light */
+svg text.v.hi {
+  fill: #fff;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--text-muted);
+}
+
+.legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: block;
+}
+
+.legend i.l0 { background: var(--bg3); }
+.legend i.l1 { background: rgba(var(--green-rgb), .25); }
+.legend i.l2 { background: rgba(var(--green-rgb), .45); }
+.legend i.l3 { background: rgba(var(--green-rgb), .7); }
+.legend i.l4 { background: var(--green); }
+
+.stkl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stkl i {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--text);
+  border-radius: 2px;
+  display: block;
+}
+
+/* ---------- pie ---------- */
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.pie svg {
+  width: 240px;
+  height: 240px;
+  flex-shrink: 0;
+}
+
+.pie path,
+.pie circle {
+  stroke: var(--card);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: opacity .2s, transform .2s var(--ease);
+  transform-origin: 110px 110px;
+}
+
+.pie path:hover,
+.pie circle:hover {
+  opacity: .85;
+  transform: scale(1.04);
+}
+
+.pl {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: .4rem .9rem;
+  flex: 1 1 340px;
+}
+
+.pl button {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: .3rem .5rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 400;
+}
+
+.pl button:hover {
+  border-color: var(--green);
+}
+
+.pl i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.pl em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ---------- rating histogram ---------- */
+.hist {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 130px;
+  padding: 10px 12px 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.col {
+  flex: 1 0 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--text-muted);
+  border: 0;
+  background: none;
+  padding: 0 0 4px;
+  border-radius: 0;
+}
+
+.col i {
+  display: block;
+  width: 70%;
+  background: rgba(var(--green-rgb), .55);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: background .2s;
+}
+
+.col:hover i,
+.col.on i {
+  background: var(--green);
+}
+
+.col.on {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.col em {
+  font-style: normal;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .pie svg {
+    width: 200px;
+    height: 200px;
+  }
+}

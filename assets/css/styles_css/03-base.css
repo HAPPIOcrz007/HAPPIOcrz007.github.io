@@ -11,7 +11,6 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.6;
-  /* theme + fade-in transitions combined */
   transition: background 0.25s ease, color 0.25s ease, opacity 0.3s ease;
   overflow-x: hidden;
   min-height: 100vh;
@@ -24,15 +23,30 @@ body.loading {
   opacity: 0;
 }
 
+/* Terminal-app feel: monospace for headings and UI chrome,
+   Space Grotesk stays for body copy / long-form reading. */
+h1, h2, h3, h4,
+nav, .nav-logo, .nav-links a,
+.btn, button,
+.sec-label, .tech-tag, .skill-pill,
+.stat-label, .avatar-label, .avatar-status,
+.hero-eyebrow, footer {
+  font-family: var(--font-ui);
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+
 ::selection {
   background: var(--green);
-  color: #000;
+  color: #fff;
 }
 
 :focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 a {
@@ -46,4 +60,3 @@ a {
   margin: 0 auto;
   padding: 0 clamp(1.25rem, 4vw, 3rem);
 }
-

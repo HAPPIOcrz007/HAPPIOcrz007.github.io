@@ -5,7 +5,7 @@
    ================================================================ */
 #activity {
   /* matches the rhythm of every other section */
-  padding: 90px 0;
+  padding: 80px 0;
   border-top: 1px solid var(--border);
   position: relative;
   z-index: 1;
@@ -44,7 +44,7 @@
 
 /* ── Responsive adjustments ── */
 @media (max-width: 860px) {
-  #activity { padding: 70px 0; }
+  #activity { padding: 56px 0; }
 
   .ahm-stats {
     gap: 1rem 2rem;
@@ -61,4 +61,3 @@
   .ahm-stat-label { font-size: 0.6rem; }
   .ahm-badge      { font-size: 0.65rem; padding: 0.25rem 0.55rem; }
 }
-

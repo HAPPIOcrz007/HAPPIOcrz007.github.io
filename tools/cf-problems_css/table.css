@@ -1,0 +1,62 @@
+/* ================================================================
+   TABLE — problem list
+   ================================================================ */
+.wrap {
+  overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 900px;
+}
+
+th,
+td {
+  padding: .7rem .85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  font-size: .88rem;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+}
+
+th:hover {
+  color: var(--green);
+}
+
+th.s {
+  color: var(--green);
+}
+
+th.s::after {
+  content: " ▲";
+}
+
+th.s.d::after {
+  content: " ▼";
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover td {
+  background: var(--green-glow);
+}

@@ -26,7 +26,7 @@ export function injectStyles() {
       .cses-stat-value {
         font-size: 1.35rem;
         font-weight: 700;
-        color: var(--green, #e8510f);
+        color: var(--green, #7c5cff);
         line-height: 1;
         letter-spacing: -0.02em;
       }
@@ -48,7 +48,7 @@ export function injectStyles() {
         margin-left: auto;
       }
       .cses-badge[data-platform="cses"]:hover {
-        border-color: #e8510f;
+        border-color: var(--green);
         border-width: 3px;
         color: var(--text);
         font-weight: 800;
@@ -66,7 +66,7 @@ export function injectStyles() {
         transition: border-color 0.2s, color 0.2s;
       }
       .cses-toggle-all-btn:hover {
-        border-color: var(--green, #e8510f);
+        border-color: var(--green, #7c5cff);
         color: var(--text, #ededed);
       }
 
@@ -110,11 +110,11 @@ export function injectStyles() {
       }
 
       .cses-box--solved {
-        background: #e8510f;
-        border-color: #e8510f;
-        color: #210a02;
+        background: var(--green);
+        border-color: var(--green);
+        color: #fff;
       }
-      [data-theme="light"] .cses-box--solved { color: #fff2ea; }
+      [data-theme="light"] .cses-box--solved { color: #fff; }
 
       .cses-box:hover {
         transform: scale(1.15);

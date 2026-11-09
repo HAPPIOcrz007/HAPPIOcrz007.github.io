@@ -1,14 +1,15 @@
 /* ================================================================
-   BUTTONS
+   BUTTONS — tinted "$ command" pills, like $ open / $ calendar
    ================================================================ */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.65rem 1.1rem;
+  padding: 0.65rem 1.2rem;
   border-radius: var(--radius);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
   transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease),
               border-color 0.2s, color 0.2s, background 0.2s;
   border: 1px solid transparent;
@@ -20,29 +21,38 @@
   justify-content: center;
 }
 
+/* terminal prompt on the hero buttons (not the nav resume button) */
+.hero-ctas .btn::before {
+  content: "$";
+  opacity: 0.6;
+}
+
+/* primary = indigo tint */
 .btn-primary {
-  background: var(--green);
-  color: #0A0A0A;
-  border-color: var(--green);
+  background: var(--green-dim);
+  color: var(--green);
+  border-color: rgba(var(--green-rgb), 0.4);
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--green-dim);
   background: var(--green-hover);
+  border-color: var(--green-hover);
+  color: #fff;
 }
 
+/* ghost = amber tint (the "$ calendar" look) */
 .btn-ghost {
-  background: transparent;
-  color: var(--text);
-  border-color: var(--border2);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  color: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 38%, transparent);
 }
 
 .btn-ghost:hover,
 .btn-ghost:focus-visible {
-  border-color: var(--green);
-  color: var(--green);
+  border-color: var(--warn);
   transform: translateY(-2px);
 }
 
@@ -58,4 +68,3 @@
   from { transform: scale(0); opacity: 1; }
   to   { transform: scale(1); opacity: 0; }
 }
-

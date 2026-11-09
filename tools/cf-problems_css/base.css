@@ -1,0 +1,193 @@
+/* ================================================================
+   BASE — reset, body, header, form controls, buttons
+   ================================================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  transition: background .25s ease, color .25s ease;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--green);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+a {
+  color: var(--green);
+  text-decoration: none;
+  transition: color .2s;
+}
+
+a:hover {
+  color: var(--green-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px clamp(1.25rem, 4vw, 3rem) 70px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.eyebrow,
+.sec-label {
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  color: var(--green);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .9;
+}
+
+.sec-label::before {
+  content: "// ";
+  opacity: .6;
+}
+
+h1,
+h2 {
+  font-family: var(--font-mono);
+}
+
+h1 {
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+  margin: .3rem 0 .4rem;
+}
+
+.sub {
+  color: var(--text-dim);
+  margin-bottom: 1.4rem;
+}
+
+.theme-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1rem;
+  transition: border-color .2s, color .2s, transform .2s var(--ease);
+}
+
+.theme-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  transform: rotate(20deg) scale(1.1);
+}
+
+.bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  font-size: .9rem;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: .6rem .8rem;
+  transition: border-color .2s, background .3s;
+}
+
+input:hover,
+select:hover,
+input:focus {
+  border-color: var(--green);
+}
+
+#h {
+  flex: 1 1 220px;
+  max-width: 340px;
+}
+
+/* tinted "$ command" button, same as the main site */
+.btn {
+  font-family: var(--font-mono);
+  font-size: .82rem;
+  background: var(--green-dim);
+  color: var(--green);
+  border-color: rgba(var(--green-rgb), .4);
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 42px;
+  transition: transform .2s var(--ease), background .2s, box-shadow .2s, color .2s;
+}
+
+.btn:hover {
+  background: var(--green-hover);
+  border-color: var(--green-hover);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--green-dim);
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: wait;
+  transform: none;
+}
+
+#msg {
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: .85rem;
+}
+
+#msg.err {
+  color: var(--green);
+}
+
+#app {
+  display: none;
+}
+
+.rep,
+.po {
+  display: none;
+}
+
+.po {
+  margin: 1.2rem 0 .5rem;
+}

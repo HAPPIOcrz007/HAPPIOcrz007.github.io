@@ -16,27 +16,26 @@ export const CELL_GAP = 3;
 export const CELL_STEP = CELL_SIZE + CELL_GAP;
 
 /*
- * Theme-aware cell palettes.
- * Opacity-based greens wash out on light and disappear on very dark backgrounds
- * — so we use solid hex stops tuned per theme instead.
+ * Theme-aware cell palettes (indigo accent).
+ * Solid hex stops tuned per theme.
  *
- * Dark  : empty cell is a visible orange-tinted slate; oranges step muted → vivid.
- * Light : empty cell is soft peach; oranges are deep enough to read on white.
+ * Dark  : indigo steps from muted -> vivid; empty cells blend into the bg.
+ * Light : indigo steps from soft -> deep so they read on the off-white bg.
  */
 const PALETTES = {
   dark: [
     'transparent', // 0 — empty : invisible, blends into dark bg
-    '#7a2a0a',   // 1 — low   : deep rust
-    '#a83a0d',   // 2 — mid
-    '#e8510f',   // 3 — high  : theme accent
-    '#ff6b35',   // 4 — peak  : bright vivid orange
+    '#3a2f8a',   // 1 — low   : deep indigo
+    '#5b44d6',   // 2 — mid
+    '#7c5cff',   // 3 — high  : theme accent
+    '#a99bff',   // 4 — peak  : bright lavender
   ],
   light: [
     'transparent', // 0 — empty : invisible, blends into light bg
-    '#e8834f',   // 1 — low   : soft orange
-    '#d1611f',   // 2 — mid
-    '#b0430a',   // 3 — high
-    '#7a2a05',   // 4 — peak  : deep burnt orange, max contrast on light bg
+    '#bdb2ff',   // 1 — low   : soft indigo
+    '#8f7bfb',   // 2 — mid
+    '#5b3df5',   // 3 — high  : theme accent
+    '#33199e',   // 4 — peak  : deep indigo, max contrast on light bg
   ],
 };
 

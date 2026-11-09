@@ -1,13 +1,14 @@
 /* ================================================================
-   TOKENS (Design System) — ACCENT: #E8510F (orange)
-   Was GitHub green (#2da44e) — swapped 2026-09; variable names below
-   (--green, --green-rgb, etc.) are unchanged to avoid touching every
-   call site, they just hold orange values now.
+   TOKENS (Design System) — "terminal app" theme
+   Indigo accent, warm off-white light / near-black dark.
+   NOTE: variable names --green, --green-rgb, etc. are kept so every
+   existing call site keeps working; they now hold the INDIGO accent.
+   Secondary colors: --cyan, --ok, --warn, --info.
    ================================================================ */
 :root {
   /* Spacing & Layout */
-  --radius:      10px;
-  --radius-lg:   16px;
+  --radius:      14px;
+  --radius-lg:   22px;
   --radius-full: 9999px;
 
   /* Motion */
@@ -15,14 +16,6 @@
   --ease-snap:   cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-apple:  cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.8, 0.64, 1);
-
-  --green-rgb:   232, 81, 15;
-  --green:       #e8510f;
-  --green-dim:   rgba(232, 81, 15, 0.08);
-  --green-glow:  rgba(232, 81, 15, 0.04);
-  --green-hover: #d84d11;
-  --green-dark:  #bc3b03;
-  --green-light: #e96c35;
 
   /* Typography Scale */
   --text-xs:   0.75rem;
@@ -37,34 +30,66 @@
 
   /* Font Families */
   --font-body: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-ui:   var(--font-mono);   /* headings, labels, buttons, tags */
 }
 
 [data-theme="dark"] {
-  --bg:         #0A0A0A;
-  --bg2:        #111111;
-  --bg3:        #181818;
-  --card:       #121212;
-  --border:     #222222;
-  --border2:    #2a2a2a;
-  --text:       #EDEDED;
-  --text-dim:   #a0a0a0;
-  --text-muted: #666666;
-  --shadow:     0 8px 30px rgba(0, 0, 0, 0.6);
+  --bg:         #0B0C10;
+  --bg2:        #101218;
+  --bg3:        #1A1D25;
+  --card:       #14161C;
+  --border:     #23262F;
+  --border2:    #343845;
+  --text:       #F2F2F5;
+  --text-dim:   #A3A7B3;
+  --text-muted: #6E7280;
+  --shadow:     0 12px 32px rgba(0, 0, 0, 0.55);
   --shadow-sm:  0 4px 16px rgba(0, 0, 0, 0.4);
+
+  /* accent (indigo) */
+  --green-rgb:   124, 92, 255;
+  --green:       #7c5cff;
+  --green-hover: #8f74ff;
+  --green-dark:  #5b3df5;
+  --green-light: #a28cff;
+  --green-dim:   rgba(124, 92, 255, 0.12);
+  --green-glow:  rgba(124, 92, 255, 0.06);
+  --accent-tint: rgba(124, 92, 255, 0.10);
+
+  /* secondary */
+  --cyan: #22d3ee;
+  --ok:   #34d399;
+  --warn: #fbbf24;
+  --info: #60a5fa;
 }
 
 [data-theme="light"] {
-  --bg:         #F5F5F0;
-  --bg2:        #EBEBE5;
-  --bg3:        #E0E0DA;
+  --bg:         #FAFAF7;
+  --bg2:        #F1F0EC;
+  --bg3:        #E8E7E2;
   --card:       #FFFFFF;
-  --border:     #D0D0CA;
-  --border2:    #B8B8B2;
-  --text:       #1A1A1A;
-  --text-dim:   #444444;
-  --text-muted: #777777;
-  --shadow:     0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-sm:  0 4px 12px rgba(0, 0, 0, 0.04);
-}
+  --border:     #E6E4DE;
+  --border2:    #D3D1CA;
+  --text:       #14141A;
+  --text-dim:   #50505C;
+  --text-muted: #8A8A94;
+  --shadow:     0 12px 30px rgba(20, 20, 26, 0.08);
+  --shadow-sm:  0 4px 12px rgba(20, 20, 26, 0.05);
 
+  /* accent (indigo) */
+  --green-rgb:   91, 61, 245;
+  --green:       #5b3df5;
+  --green-hover: #4a2fe0;
+  --green-dark:  #3b22c4;
+  --green-light: #7a60f7;
+  --green-dim:   rgba(91, 61, 245, 0.10);
+  --green-glow:  rgba(91, 61, 245, 0.05);
+  --accent-tint: rgba(91, 61, 245, 0.07);
+
+  /* secondary */
+  --cyan: #0cb8d6;
+  --ok:   #16a34a;
+  --warn: #b7860b;
+  --info: #2563eb;
+}

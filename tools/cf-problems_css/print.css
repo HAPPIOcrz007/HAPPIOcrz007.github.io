@@ -1,0 +1,101 @@
+/* ================================================================
+   PRINT — report layout (JS switches to the light theme while printing)
+   ================================================================ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  body {
+    background: #fff;
+    min-height: 0;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  .top,
+  #f,
+  #msg,
+  .actions,
+  .filters,
+  .ctl,
+  .theme-btn {
+    display: none !important;
+  }
+
+  .rep,
+  .po {
+    display: block;
+  }
+
+  .rep {
+    margin-bottom: 1rem;
+  }
+
+  .scroll,
+  .hist,
+  .wrap {
+    overflow: visible;
+  }
+
+  .scroll svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .card,
+  .stat,
+  .streak,
+  .hist {
+    break-inside: avoid;
+  }
+
+  .stat:hover,
+  .card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .col {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  table {
+    min-width: 0;
+  }
+
+  th,
+  td {
+    padding: .3rem .45rem;
+    font-size: .7rem;
+  }
+
+  th {
+    position: static;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

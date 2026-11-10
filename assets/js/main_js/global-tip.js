@@ -101,7 +101,7 @@ window.GlobalTip = (function () {
         position: fixed;
         top: -9999px;   /* real position set inline by JS before it's shown */
         left: -9999px;
-        z-index: 190;
+        z-index: var(--z-tooltip);
         pointer-events: none;
         max-width: min(90vw, 320px);
         width: max-content;
@@ -110,18 +110,18 @@ window.GlobalTip = (function () {
         gap: 0.5rem;
         flex-wrap: wrap;
         justify-content: center;
-        background: var(--bg2, #111);
-        border: 1px solid var(--border2, #2a2a2a);
-        border-radius: 12px;
+        background: var(--tip-bg);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius);
         padding: 0.4rem 0.7rem;
         font-family: var(--font-mono, 'JetBrains Mono', monospace);
         font-size: 0.7rem;
         line-height: 1.4;
-        color: var(--text, #ededed);
+        color: var(--text);
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+        box-shadow: var(--shadow);
         opacity: 0;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--dur-instant) ease;
       }
       .global-tip--visible {
         opacity: 1;
@@ -136,38 +136,27 @@ window.GlobalTip = (function () {
         bottom: -5px;
         transform: translateX(-50%);
         border: 5px solid transparent;
-        border-top-color: var(--bg2, #111);
+        border-top-color: var(--tip-bg);
         border-bottom: none;
       }
       .global-tip--below::after {
         bottom: auto;
         top: -5px;
         border-top-color: transparent;
-        border-bottom-color: var(--bg2, #111);
+        border-bottom-color: var(--tip-bg);
         border-top: none;
-        border-bottom: 5px solid var(--bg2, #111);
+        border-bottom: 5px solid var(--tip-bg);
       }
       .global-tip strong {
-        color: var(--green, #7c5cff);
+        color: var(--green);
         font-weight: 700;
       }
       .global-tip span {
-        color: var(--text-dim, #a0a0a0);
+        color: var(--text-dim);
         padding-left: 0.5rem;
-        border-left: 1px solid var(--border2, #2a2a2a);
+        border-left: 1px solid var(--border2);
       }
       .global-tip span:first-child { border-left: none; padding-left: 0; }
-
-      [data-theme="light"] .global-tip {
-        background: var(--card);
-        border-color: var(--border2);
-        color: var(--text);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.10);
-      }
-      [data-theme="light"] .global-tip::after { border-top-color: #ffffff; }
-      [data-theme="light"] .global-tip--below::after { border-top-color: transparent; border-bottom-color: #ffffff; }
-      [data-theme="light"] .global-tip strong { color: var(--green-dark); }
-      [data-theme="light"] .global-tip span   { color: var(--text-dim); border-left-color: var(--border2); }
 
       @media (prefers-reduced-motion: reduce) {
         .global-tip { transition: none; }

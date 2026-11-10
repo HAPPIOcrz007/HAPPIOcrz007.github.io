@@ -1,95 +1,21 @@
 /* ================================================================
-   TOKENS (Design System) — "terminal app" theme
-   Indigo accent, warm off-white light / near-black dark.
-   NOTE: variable names --green, --green-rgb, etc. are kept so every
-   existing call site keeps working; they now hold the INDIGO accent.
-   Secondary colors: --cyan, --ok, --warn, --info.
+   02-variables.css — DESIGN TOKENS ENTRY POINT
+   This file only imports the token files in tokens/. It is also linked
+   directly by the tools pages, so everything on the site reads the same
+   tokens. @imports must stay at the very top of this file.
+
+     tokens/colors.css   colors, shadows, heat/chart/code palettes   ← re-color the site here
+     tokens/shape.css    corner radii, border widths, blur
+     tokens/type.css     fonts, size scale, weights
+     tokens/motion.css   easing curves, durations
+     tokens/layout.css   widths, nav size, section rhythm, spacing, breakpoints list
+     tokens/layers.css   z-index stack
+
+   Full guide: README.md at the repo root.
    ================================================================ */
-:root {
-  /* Spacing & Layout */
-  --radius:      14px;
-  --radius-lg:   22px;
-  --radius-full: 9999px;
-
-  /* Motion */
-  --ease:        cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-snap:   cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-apple:  cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.8, 0.64, 1);
-
-  /* Typography Scale */
-  --text-xs:   0.75rem;
-  --text-sm:   0.875rem;
-  --text-base: 1rem;
-  --text-lg:   1.125rem;
-  --text-xl:   1.25rem;
-  --text-2xl:  1.5rem;
-  --text-3xl:  2rem;
-  --text-4xl:  2.5rem;
-  --text-5xl:  3rem;
-
-  /* Font Families */
-  --font-body: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --font-ui:   var(--font-mono);   /* headings, labels, buttons, tags */
-}
-
-[data-theme="dark"] {
-  --bg:         #0B0C10;
-  --bg2:        #101218;
-  --bg3:        #1A1D25;
-  --card:       #14161C;
-  --border:     #23262F;
-  --border2:    #343845;
-  --text:       #F2F2F5;
-  --text-dim:   #A3A7B3;
-  --text-muted: #6E7280;
-  --shadow:     0 12px 32px rgba(0, 0, 0, 0.55);
-  --shadow-sm:  0 4px 16px rgba(0, 0, 0, 0.4);
-
-  /* accent (indigo) */
-  --green-rgb:   124, 92, 255;
-  --green:       #7c5cff;
-  --green-hover: #8f74ff;
-  --green-dark:  #5b3df5;
-  --green-light: #a28cff;
-  --green-dim:   rgba(124, 92, 255, 0.12);
-  --green-glow:  rgba(124, 92, 255, 0.06);
-  --accent-tint: rgba(124, 92, 255, 0.10);
-
-  /* secondary */
-  --cyan: #22d3ee;
-  --ok:   #34d399;
-  --warn: #fbbf24;
-  --info: #60a5fa;
-}
-
-[data-theme="light"] {
-  --bg:         #FAFAF7;
-  --bg2:        #F1F0EC;
-  --bg3:        #E8E7E2;
-  --card:       #FFFFFF;
-  --border:     #E6E4DE;
-  --border2:    #D3D1CA;
-  --text:       #14141A;
-  --text-dim:   #50505C;
-  --text-muted: #8A8A94;
-  --shadow:     0 12px 30px rgba(20, 20, 26, 0.08);
-  --shadow-sm:  0 4px 12px rgba(20, 20, 26, 0.05);
-
-  /* accent (indigo) */
-  --green-rgb:   91, 61, 245;
-  --green:       #5b3df5;
-  --green-hover: #4a2fe0;
-  --green-dark:  #3b22c4;
-  --green-light: #7a60f7;
-  --green-dim:   rgba(91, 61, 245, 0.10);
-  --green-glow:  rgba(91, 61, 245, 0.05);
-  --accent-tint: rgba(91, 61, 245, 0.07);
-
-  /* secondary */
-  --cyan: #0cb8d6;
-  --ok:   #16a34a;
-  --warn: #b7860b;
-  --info: #2563eb;
-}
+@import url("tokens/colors.css");
+@import url("tokens/shape.css");
+@import url("tokens/type.css");
+@import url("tokens/motion.css");
+@import url("tokens/layout.css");
+@import url("tokens/layers.css");

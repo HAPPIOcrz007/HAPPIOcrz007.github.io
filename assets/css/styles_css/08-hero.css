@@ -3,10 +3,10 @@
    rounded-square avatar.
    ================================================================ */
 #hero {
-  padding: 150px 0 90px;
+  padding: var(--hero-pad-top) 0 var(--hero-pad-bottom);
   position: relative;
   overflow: hidden;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .hero-inner {
@@ -15,7 +15,7 @@
   gap: 4rem;
   align-items: center;
   position: relative;
-  z-index: 2;
+  z-index: var(--z-raised);
 }
 
 .hero-eyebrow {
@@ -63,8 +63,8 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: background 0.3s ease, border-color 0.25s ease,
-              transform 0.2s var(--ease), box-shadow 0.2s ease;
+  transition: background var(--dur-theme) ease, border-color var(--dur-base) ease,
+              transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) ease;
   contain: layout style paint;
 }
 
@@ -73,7 +73,7 @@
   font-size: 1.5rem;
   color: var(--green);
   font-weight: 700;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 /* cycle the secondary colors, like the app's stat tiles */
@@ -89,7 +89,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 0.35rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .hero-ctas {
@@ -109,12 +109,12 @@
 .avatar-frame {
   width: clamp(200px, 26vw, 300px);
   aspect-ratio: 1;
-  border-radius: 12%;
+  border-radius: var(--radius-avatar);
   border: 1px solid var(--border2);
   padding: 8px;
   background: var(--card);
   position: relative;
-  transition: border-color 0.3s ease, background 0.3s ease;
+  transition: border-color var(--dur-theme) ease, background var(--dur-theme) ease;
 }
 
 .avatar-frame::before {
@@ -124,7 +124,7 @@
 .avatar-frame img {
   width: 100%;
   height: 100%;
-  border-radius: 9%;
+  border-radius: var(--radius-avatar-inner);
   object-fit: cover;
   display: block;
 }
@@ -134,7 +134,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   text-align: center;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .avatar-status {
@@ -151,10 +151,10 @@
   width: 8px;
   height: 8px;
   background: var(--ok);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   box-shadow: 0 0 8px var(--ok);
   animation: pulse 2s ease-in-out infinite;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: box-shadow var(--dur-theme) ease, transform var(--dur-theme) ease;
 }
 
 @keyframes pulse {

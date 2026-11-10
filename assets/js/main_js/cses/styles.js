@@ -10,7 +10,7 @@ export function injectStyles() {
         font-family: var(--font-mono, 'JetBrains Mono', monospace);
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 1px solid var(--border, #222);
+        border-top: 1px solid var(--border);
       }
 
       .cses-stats {
@@ -26,14 +26,14 @@ export function injectStyles() {
       .cses-stat-value {
         font-size: 1.35rem;
         font-weight: 700;
-        color: var(--green, #7c5cff);
+        color: var(--green);
         line-height: 1;
         letter-spacing: -0.02em;
       }
 
       .cses-stat-label {
         font-size: 0.65rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.1em;
       }
@@ -57,17 +57,17 @@ export function injectStyles() {
       .cses-toggle-all-btn {
         font-family: inherit;
         font-size: 0.68rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
         background: transparent;
-        border: 1px solid var(--border, #222);
-        border-radius: 9999px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
         padding: 0.3rem 0.65rem;
         cursor: pointer;
         transition: border-color 0.2s, color 0.2s;
       }
       .cses-toggle-all-btn:hover {
-        border-color: var(--green, #7c5cff);
-        color: var(--text, #ededed);
+        border-color: var(--green);
+        color: var(--text);
       }
 
       /* Smooth collapse/expand of the whole matrix without knowing
@@ -95,7 +95,7 @@ export function injectStyles() {
       .cses-box {
         width: 20px;
         height: 20px;
-        border-radius: 4px;
+        border-radius: var(--radius-xs);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -104,17 +104,16 @@ export function injectStyles() {
         text-decoration: none;
         cursor: pointer;
         transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
-        background: var(--bg3, #181818);
-        border: 1.5px solid var(--border, #222);
+        background: var(--bg3);
+        border: 1.5px solid var(--border);
         color: transparent;
       }
 
       .cses-box--solved {
         background: var(--green);
         border-color: var(--green);
-        color: #fff;
+        color: var(--on-accent);
       }
-      [data-theme="light"] .cses-box--solved { color: #fff; }
 
       .cses-box:hover {
         transform: scale(1.15);

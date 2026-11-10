@@ -8,9 +8,9 @@ export function handleError(message) {
   const div = document.createElement('div');
   div.style.cssText = `
     position:fixed;bottom:20px;right:20px;padding:16px 20px;
-    background:#1a1a1a;border:1px solid #e74c3c;border-radius:8px;
-    color:#fff;font-family:'JetBrains Mono',monospace;font-size:14px;
-    z-index:9999;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,.3);
+    background:var(--card);border:1px solid var(--danger);border-radius:var(--radius-sm);
+    color:var(--text);font-family:var(--font-mono);font-size:14px;
+    z-index:var(--z-skip);max-width:400px;box-shadow:var(--shadow);
     animation:slideUp 0.3s ease;
   `;
   div.textContent = `⚠️ ${message}`;

@@ -2,7 +2,7 @@
    FOOTER
    ================================================================ */
 footer {
-  padding: 2rem clamp(1.25rem, 4vw, 3rem);
+  padding: 2rem var(--gutter);
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -11,7 +11,7 @@ footer {
   font-size: 0.85rem;
   color: var(--text-dim);
   position: relative;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .footer-sig {

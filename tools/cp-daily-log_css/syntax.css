@@ -2,7 +2,7 @@
 .md pre.code {
     background: var(--code-bg);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     padding: .75rem 1rem;
     overflow: auto;
     margin: .6rem 0
@@ -103,7 +103,7 @@ pre[data-lang="js"] .tk-b {
 
 .preview {
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     padding: .5rem .8rem;
     min-height: 110px
 }

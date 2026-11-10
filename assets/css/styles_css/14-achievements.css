@@ -15,8 +15,8 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: border-color 0.2s, transform 0.25s var(--ease),
-              box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
+  transition: border-color var(--dur-fast), transform var(--dur-base) var(--ease),
+              box-shadow var(--dur-fast), background var(--dur-theme) ease, color var(--dur-theme) ease;
   word-break: break-word;
   contain: layout style;
 }
@@ -34,7 +34,7 @@
   border: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent);
   white-space: nowrap;
   min-width: 44px;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background var(--dur-theme) ease, border-color var(--dur-theme) ease, color var(--dur-theme) ease;
 }
 
 .ach-title {
@@ -42,12 +42,12 @@
   font-weight: 700;
   margin-bottom: 0.25rem;
   font-size: 0.95rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .ach-desc {
   font-size: 0.85rem;
   color: var(--text-dim);
   line-height: 1.5;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }

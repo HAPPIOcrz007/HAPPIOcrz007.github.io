@@ -24,7 +24,7 @@
                 image+text blocks, or dense tables. Omit for normal text posts.
 
    Every text field accepts the same inline markdown as the rest of the site
-   (**bold**, *italic*, `code`, [link](url), =(#e8510f)color=).
+   (**bold**, *italic*, `code`, [link](url), =(accent)color=).
    Order here = order on the page, so put the newest post first.
    ================================================================ */
 window.DATA_BLOGS = [

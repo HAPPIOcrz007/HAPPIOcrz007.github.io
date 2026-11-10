@@ -15,7 +15,7 @@
   }
 
   body {
-    background: #fff;
+    background: var(--print-bg);
     min-height: 0;
   }
 

@@ -42,7 +42,7 @@ select,
 textarea {
     background: var(--bg);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     padding: .4rem .7rem;
     width: 100%
 }

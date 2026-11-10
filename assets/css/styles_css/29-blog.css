@@ -20,27 +20,27 @@
 .blog-reader {
   position: fixed;
   inset: 0;
-  z-index: 1050;               /* above nav (200) and modal (1000) */
+  z-index: var(--z-reader);               /* --z-reader: above nav and modal */
   background: var(--bg);
   color: var(--text);
   overflow-y: auto;
   overscroll-behavior: contain;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn var(--dur-fast) ease;
 }
 .blog-reader[hidden] { display: none; }
 
 .blog-reader-bar {
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  height: var(--nav-h);
   padding: 0 clamp(1rem, 4vw, 2.5rem);
   background: color-mix(in srgb, var(--bg) 90%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
   border-bottom: 1px solid var(--border);
 }
 
@@ -63,7 +63,7 @@
   color: var(--text-dim);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color var(--dur-fast), color var(--dur-fast);
 }
 .blog-back { font-size: 0.8rem; padding: 0.4rem 0.9rem; }
 .blog-reader-close { font-size: 1.3rem; line-height: 1; width: 34px; height: 34px; }
@@ -74,7 +74,7 @@
 }
 
 .blog-article {
-  max-width: 760px;
+  max-width: var(--reader-max);
   margin: 0 auto;
   padding: 2rem clamp(1.1rem, 4vw, 2rem) 5rem;
 }
@@ -84,10 +84,10 @@
    body. Use it for chart-heavy posts that need more horizontal room
    than the default reading column. */
 .blog-article--wide {
-  max-width: 1080px;
+  max-width: var(--reader-wide);
 }
 @media (min-width: 1200px) {
-  .blog-article--wide { max-width: 1160px; }
+  .blog-article--wide { max-width: var(--reader-wide-xl); }
 }
 
 .blog-cover img {
@@ -176,7 +176,7 @@
   width: 3px;
   height: 1em;
   background: var(--green);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   margin-right: 0.55rem;
   vertical-align: -0.1em;
 }
@@ -237,7 +237,7 @@
   font-size: 0.75rem;
   color: var(--text-muted);
 }
-.blog-inline-img { max-height: 1.4em; vertical-align: middle; border-radius: 3px; }
+.blog-inline-img { max-height: 1.4em; vertical-align: middle; border-radius: var(--radius-xs); }
 
 .blog-table-wrap { overflow-x: auto; margin: 1.25rem 0; }
 .blog-table-wrap table { margin: 0; min-width: 100%; }
@@ -299,7 +299,7 @@
   border-radius: var(--radius);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s var(--ease);
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-instant) var(--ease);
 }
 .blog-embed:hover,
 .blog-embed:focus-visible {
@@ -317,7 +317,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: var(--green-dim);
   border: 1px solid var(--border);
   color: var(--green);
@@ -357,7 +357,7 @@
 .blog-embed--inline .blog-embed-icon {
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   font-size: 0.75rem;
   background: transparent;
   border: none;
@@ -371,12 +371,12 @@
 .blog-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: var(--z-lightbox);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(0, 0, 0, 0.92);
+  background: var(--overlay-strong);
   cursor: zoom-out;
 }
 .blog-lightbox[hidden] { display: none; }

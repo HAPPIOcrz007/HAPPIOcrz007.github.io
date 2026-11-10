@@ -1,13 +1,17 @@
 /* ================================================================
-   RESPONSIVE
+   RESPONSIVE — page-level rules per breakpoint.
+   Breakpoints are plain numbers (CSS can't put variables in @media);
+   the full list is in tokens/layout.css. Padding values come from
+   --section-pad-* / --hero-pad-* tokens.
+
+   NOTE: .nav-links is intentionally NOT hidden here. At <= 860px the
+   nav becomes a bottom tab bar (06-navigation.css) and needs its links.
    ================================================================ */
 @media (max-width: 1024px) {
   .hero-inner { gap: 2.5rem; }
 }
 
 @media (max-width: 860px) {
-  .nav-links { display: none; }
-
   .hero-inner {
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -24,8 +28,9 @@
   .hero-ctas     { justify-content: center; }
   .hero-stats    { grid-template-columns: repeat(2, 1fr); }
 
-  section        { padding: 70px 0; }
-  #hero          { padding: 110px 0 70px; }
+  section        { padding: var(--section-pad-md) 0; }
+  #hero          { padding: var(--hero-pad-top-md) 0 var(--hero-pad-bottom-md); }
+  .sec-title     { margin-bottom: 1.75rem; }
 
   .contact-wrap  { grid-template-columns: 1fr; }
   .contact-intro { max-width: 100%; }
@@ -56,8 +61,7 @@
 }
 
 @media (max-width: 640px) {
-  .hero-name    { font-size: 2.5rem; }
-  .sec-title    { font-size: 1.5rem; }
+  section       { padding: var(--section-pad-sm) 0; }
 
   .skills-grid,
   .cert-grid    { grid-template-columns: 1fr; }
@@ -98,7 +102,6 @@
     text-align: center;
   }
 
-  .btn          { min-height: 44px; padding: 0.5rem 0.9rem; }
+  .btn          { min-height: var(--tap); padding: 0.5rem 0.9rem; }
   .avatar-frame { width: 200px; }
 }
-

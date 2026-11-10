@@ -1,0 +1,31 @@
+/* ================================================================
+   TOKENS / TYPE — font families, size scale, weights, line height.
+   Terminal-app look: monospace for UI chrome (--font-ui), Space Grotesk
+   for reading text (--font-body). Point --font-ui at --font-body to turn
+   the monospace look off everywhere.
+   Micro sizes inside individual components (0.68rem tags etc.) are
+   deliberately left in their component files.
+   ================================================================ */
+:root {
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-ui:   var(--font-mono);
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  2rem;
+  --text-4xl:  2.5rem;
+  --text-5xl:  3rem;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --lh-body:  1.6;
+  --lh-tight: 1.15;
+}

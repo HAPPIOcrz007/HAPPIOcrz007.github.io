@@ -35,11 +35,11 @@
   border-radius: var(--radius-full);
   padding: 0.2rem 0.7rem;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color var(--dur-fast), color var(--dur-fast);
 }
 .blog-code-copy:hover,
 .blog-code-copy:focus-visible { border-color: var(--green); color: var(--green); }
-.blog-code-copy.is-copied     { border-color: #2da44e; color: #2da44e; }
+.blog-code-copy.is-copied     { border-color: var(--ok); color: var(--ok); }
 
 .blog-body .blog-code pre {
   margin: 0;
@@ -56,17 +56,7 @@
   white-space: pre;
 }
 
-/* Syntax colours — tuned per theme */
-.blog-code {
-  --hl-comment: #6b7280; --hl-string: #7ec27e; --hl-number: #d19a66;
-  --hl-keyword: var(--green-light); --hl-type: #e5c07b;
-  --hl-func: #61afef; --hl-pre: #c678dd;
-}
-[data-theme="light"] .blog-code {
-  --hl-comment: #7a7a72; --hl-string: #2a7a3b; --hl-number: #a55a00;
-  --hl-keyword: var(--green-dark); --hl-type: #8a6d00;
-  --hl-func: #1f6fb2; --hl-pre: #8a3fb0;
-}
+/* Syntax colours: --hl-* tokens live in tokens/colors.css (per theme) */
 .hl-c { color: var(--hl-comment); font-style: italic; }
 .hl-s { color: var(--hl-string); }
 .hl-n { color: var(--hl-number); }

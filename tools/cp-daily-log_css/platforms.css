@@ -46,7 +46,7 @@
     font-weight: 700;
     text-transform: capitalize;
     background: var(--rk);
-    color: #fff;
+    color: var(--on-scrim);
     padding: .1rem .65rem;
     border-radius: 99px
 }
@@ -100,7 +100,7 @@
     display: block;
     height: 7px;
     background: var(--line);
-    border-radius: 99px;
+    border-radius: var(--radius-full);
     overflow: hidden
 }
 

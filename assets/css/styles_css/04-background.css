@@ -4,7 +4,7 @@
 .animated-bg {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: var(--z-bg);
   pointer-events: none;
   background: var(--bg);
 }
@@ -15,11 +15,11 @@
   left: 0;
   height: 2px;
   background: var(--green);
-  z-index: 1000;
+  z-index: var(--z-progress);
   width: 0%;
   opacity: 0.3;
   transform-origin: left center;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--dur-fast) ease;
 }
 
 @supports (animation-timeline: scroll()) {

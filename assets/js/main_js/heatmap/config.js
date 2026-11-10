@@ -1,4 +1,6 @@
-/* heatmap/config.js — usernames override, grid size, theme-aware colour palettes. */
+/* heatmap/config.js — usernames override, grid size, theme-aware colour levels. */
+
+import { heatLevels } from '../tokens.js';
 
 /* ── CONFIG ─────────────────────────────────────────────────── */
 // Usernames are read from data-* attrs on #activityHeatmap.
@@ -16,30 +18,11 @@ export const CELL_GAP = 3;
 export const CELL_STEP = CELL_SIZE + CELL_GAP;
 
 /*
- * Theme-aware cell palettes (indigo accent).
- * Solid hex stops tuned per theme.
- *
- * Dark  : indigo steps from muted -> vivid; empty cells blend into the bg.
- * Light : indigo steps from soft -> deep so they read on the off-white bg.
+ * Cell colours come from the CSS tokens --heat-0 … --heat-4
+ * (assets/css/styles_css/tokens/colors.css, one set per theme).
+ * Change them there — nothing to edit in this file.
+ * Index 0 = empty cell, 4 = peak.
  */
-const PALETTES = {
-  dark: [
-    'transparent', // 0 — empty : invisible, blends into dark bg
-    '#3a2f8a',   // 1 — low   : deep indigo
-    '#5b44d6',   // 2 — mid
-    '#7c5cff',   // 3 — high  : theme accent
-    '#a99bff',   // 4 — peak  : bright lavender
-  ],
-  light: [
-    'transparent', // 0 — empty : invisible, blends into light bg
-    '#bdb2ff',   // 1 — low   : soft indigo
-    '#8f7bfb',   // 2 — mid
-    '#5b3df5',   // 3 — high  : theme accent
-    '#33199e',   // 4 — peak  : deep indigo, max contrast on light bg
-  ],
-};
-
 export function getLevels() {
-  const theme = document.documentElement.dataset.theme || 'dark';
-  return PALETTES[theme] || PALETTES.dark;
+  return heatLevels();
 }

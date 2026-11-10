@@ -90,8 +90,8 @@ export function renderBlogMarkdown(md, blogId) {
   function inline(text) {
     let h = escapeHtml(text);                     // everything below sees escaped text
     h = h.replace(/`([^`]+?)`/g, (_, c) => keep(`<code>${c}</code>`));
-    h = h.replace(/=\(#([A-Fa-f0-9]{6})\)(.*?)=/gs,
-      (_, hex, c) => `${keep(`<span style="color:#${hex}">`)}${c}${keep('</span>')}`);
+    h = h.replace(/=\(((?:#[A-Fa-f0-9]{6})|accent|ok|warn|info|cyan|danger|muted|dim)\)(.*?)=/gs,
+      (_, col, c) => `${keep(`<span style="color:${tokenColor(col)}">`)}${c}${keep('</span>')}`);
     h = h.replace(/!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?/g,
       (_, alt, src, attrStr) => {
         if (unsafeUrl(src)) return '';
@@ -305,4 +305,12 @@ export function renderBlogMarkdown(md, blogId) {
     (_, info, code) => `\n${keep(codeBlockHtml(info, code.replace(/\n$/, '')))}\n`);
 
   return restore(parseBlocks(src.split('\n')).join('\n'));
+}
+
+/* =(accent)text= / =(#hex)text= colour spans. Names map to CSS tokens, so a
+   retheme in tokens/colors.css recolours the content too. */
+function tokenColor(c) {
+  if (c[0] === '#') return c;
+  const map = { accent: '--green', muted: '--text-muted', dim: '--text-dim' };
+  return `var(${map[c] || '--' + c})`;
 }

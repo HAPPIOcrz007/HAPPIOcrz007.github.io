@@ -41,7 +41,7 @@ svg text.v {
 
 /* numbers on the dark (l3/l4) cells must be light */
 svg text.v.hi {
-  fill: #fff;
+  fill: var(--on-accent);
 }
 
 .legend {
@@ -56,7 +56,7 @@ svg text.v.hi {
 .legend i {
   width: 12px;
   height: 12px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   display: block;
 }
 
@@ -76,7 +76,7 @@ svg text.v.hi {
   width: 12px;
   height: 12px;
   border: 2px solid var(--text);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   display: block;
 }
 
@@ -100,7 +100,7 @@ svg text.v.hi {
   stroke: var(--card);
   stroke-width: 2;
   cursor: pointer;
-  transition: opacity .2s, transform .2s var(--ease);
+  transition: opacity var(--dur-fast), transform var(--dur-fast) var(--ease);
   transform-origin: 110px 110px;
 }
 
@@ -138,7 +138,7 @@ svg text.v.hi {
 .pl i {
   width: 12px;
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   flex-shrink: 0;
 }
 
@@ -186,9 +186,9 @@ svg text.v.hi {
   display: block;
   width: 70%;
   background: rgba(var(--green-rgb), .55);
-  border-radius: 3px 3px 0 0;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   min-height: 2px;
-  transition: background .2s;
+  transition: background var(--dur-fast);
 }
 
 .col:hover i,

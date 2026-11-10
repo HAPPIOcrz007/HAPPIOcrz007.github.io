@@ -5,8 +5,8 @@ import { escapeHtml } from './utils.js';
 
 /* ===== Markdown renderer ===== */
 function applyColorCodes(html) {
-  return html.replace(/=\(#([A-Fa-f0-9]{6})\)(.*?)=/gs,
-    (_, hex, content) => `<span style="color:#${hex}">${content}</span>`);
+  return html.replace(/=\(((?:#[A-Fa-f0-9]{6})|accent|ok|warn|info|cyan|danger|muted|dim)\)(.*?)=/gs,
+    (_, c, content) => `<span style="color:${tokenColor(c)}">${content}</span>`);
 }
 
 export function renderMarkdown(md) {
@@ -41,7 +41,7 @@ export function renderMarkdown(md) {
 /* ===== Inline markdown renderer =====
    For single-line / short data-driven text (titles, labels, pills, tags,
    contact rows, notifications, hero copy, etc). Supports the same
-   **bold**, *italic*, `code`, [text](url) links and =(#hex)...= color-code
+   **bold**, *italic*, `code`, [text](url) links and =(accent)...= / =(#hex)...= color-code
    syntax as renderMarkdown() above, but never emits block-level tags
    (no <p>, <h#>, <ul>, code fences) so it's safe to drop into any inline
    container (a span, a pill, a title) without breaking its layout. */
@@ -71,4 +71,12 @@ export function stripMarkdown(md) {
     .replace(/`([^`]+?)`/g, '$1')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
     .trim();
+}
+
+/* =(accent)text= / =(#hex)text= colour spans. Names map to CSS tokens, so a
+   retheme in tokens/colors.css recolours the content too. */
+function tokenColor(c) {
+  if (c[0] === '#') return c;
+  const map = { accent: '--green', muted: '--text-muted', dim: '--text-dim' };
+  return `var(${map[c] || '--' + c})`;
 }

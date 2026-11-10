@@ -34,7 +34,7 @@
 .hero-ctas .btn-primary:hover {
   background: var(--green-hover);
   border-color: var(--green-hover);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* ---- Avatar ---- */

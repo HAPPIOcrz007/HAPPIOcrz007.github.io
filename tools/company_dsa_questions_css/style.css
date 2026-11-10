@@ -2,9 +2,9 @@
 @import url("../../assets/css/styles_css/02-variables.css");
 
 :root {
-    --easy: #2da44e;
-    --medium: #d9a400;
-    --hard: #e5484d
+    --easy: var(--ok);
+    --medium: var(--warn);
+    --hard: var(--danger)
 }
 
 * {
@@ -136,8 +136,8 @@ main {
 }
 
 .card.done {
-    border-color: #2da44e;
-    box-shadow: 0 0 0 1px #2da44e, var(--shadow-sm)
+    border-color: var(--ok);
+    box-shadow: 0 0 0 1px var(--ok), var(--shadow-sm)
 }
 
 .ch {
@@ -153,8 +153,8 @@ main {
     flex: none;
     width: var(--sz);
     height: var(--sz);
-    border-radius: 50%;
-    background: conic-gradient(#2da44e calc(var(--p)*1%), var(--border) 0);
+    border-radius: var(--radius-circle);
+    background: conic-gradient(var(--ok) calc(var(--p)*1%), var(--border) 0);
     display: grid;
     place-items: center
 }
@@ -163,7 +163,7 @@ main {
     content: "";
     position: absolute;
     inset: 5px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     background: var(--card)
 }
 
@@ -174,7 +174,7 @@ main {
 }
 
 .card.done .ring span {
-    color: #2da44e
+    color: var(--ok)
 }
 
 .card h3 {
@@ -185,7 +185,7 @@ main {
 .split {
     display: flex;
     height: 6px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     overflow: hidden;
     background: var(--border)
 }

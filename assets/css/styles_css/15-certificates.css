@@ -13,8 +13,8 @@
   border-radius: var(--radius-lg);
   padding: 1.4rem;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.2s var(--ease),
-              box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
+  transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast), background var(--dur-theme) ease, color var(--dur-theme) ease;
   contain: layout style;
 }
 
@@ -30,7 +30,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .cert-issuer::before {
@@ -43,12 +43,12 @@
   font-weight: 700;
   font-size: 0.98rem;
   margin-bottom: 0.35rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .cert-date {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--text-muted);
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }

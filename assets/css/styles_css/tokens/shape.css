@@ -1,0 +1,29 @@
+/* ================================================================
+   TOKENS / SHAPE — corner radii, border widths, blur, accent shadow.
+   Change --radius / --radius-lg to make the whole site rounder/sharper.
+   (Theme-dependent shadows --shadow / --shadow-sm live in colors.css.)
+   ================================================================ */
+:root {
+  /* corner radii — a 5-step scale + special shapes */
+  --radius-xs:   4px;      /* code chips, tiny swatches, scrollbar thumb */
+  --radius-sm:   8px;      /* tags, pills inside cards, icon tiles */
+  --radius:      14px;     /* buttons, inputs, small cards, images */
+  --radius-lg:   22px;     /* cards, modals, stat tiles, nav-sized surfaces */
+  --radius-full: 9999px;   /* pills, nav bar */
+  --radius-circle: 50%;    /* round buttons, dots */
+  --radius-avatar:       12%;   /* rounded-square profile frame */
+  --radius-avatar-inner: 9%;
+
+  /* border widths */
+  --bw:        1px;
+  --bw-strong: 2px;
+
+  /* frosted-glass surfaces */
+  --blur-sm: 6px;
+  --blur-md: 12px;
+  --blur-lg: 16px;
+  --glass-strength: 85%;   /* how opaque the floating nav is */
+
+  /* accent glow under primary buttons */
+  --shadow-accent: 0 8px 24px var(--green-dim);
+}

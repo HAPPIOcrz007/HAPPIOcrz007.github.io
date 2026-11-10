@@ -30,14 +30,14 @@ export function injectStyles() {
       .ahm-stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--green, #7c5cff);
+        color: var(--green);
         line-height: 1;
         letter-spacing: -0.02em;
       }
 
       .ahm-stat-label {
         font-size: 0.65rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.1em;
       }
@@ -45,13 +45,13 @@ export function injectStyles() {
       /* ── Last Updated Timestamp ── */
       .ahm-last-updated {
         font-size: 0.7rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
         gap: 0.4rem;
         padding: 0.25rem 0;
-        border-bottom: 1px solid var(--border, #222);
+        border-bottom: 1px solid var(--border);
         opacity: 0.7;
         transition: opacity 0.3s ease;
       }
@@ -71,7 +71,7 @@ export function injectStyles() {
       }
 
       .ahm-last-updated time {
-        color: var(--text-dim, #a0a0a0);
+        color: var(--text-dim);
         font-weight: 500;
       }
 
@@ -88,35 +88,32 @@ export function injectStyles() {
         align-items: center;
         gap: 0.35rem;
         padding: 0.3rem 0.7rem;
-        border: 1px solid var(--border, #222);
-        border-radius: 9999px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-full);
         font-size: 0.7rem;
-        color: var(--text-dim, #a0a0a0);
-        background: var(--bg3, #181818);
+        color: var(--text-dim);
+        background: var(--bg3);
         transition: border-color 0.2s, color 0.2s;
       }
 
       .ahm-badge em {
         font-style: normal;
-        color: var(--green, #7c5cff);
+        color: var(--green);
         font-weight: 600;
       }
 
       .ahm-badge[data-platform="gh"]:hover,
-      .ahm-badge[data-platform="gh"].ahm-badge--active { border-color: #2da44e; border-width: 3px; color: var(--text); font-weight: 800;}
+      .ahm-badge[data-platform="gh"].ahm-badge--active { border-color: var(--brand-github); border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="cf"]:hover,
-      .ahm-badge[data-platform="cf"].ahm-badge--active { border-color: #B82024; border-width: 3px; color: var(--text); font-weight: 800;}
+      .ahm-badge[data-platform="cf"].ahm-badge--active { border-color: var(--brand-codeforces); border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="lc"]:hover,
-      .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: #ffa116; border-width: 3px; color: var(--text); font-weight: 800;}
+      .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: var(--brand-leetcode); border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="ac"]:hover,
-      .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: #1890ff; border-width: 3px; color: var(--text); font-weight: 800;}
+      .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: var(--brand-atcoder); border-width: 3px; color: var(--text); font-weight: 800;}
 
       .ahm-badge--active {
-        background: rgba(255,255,255,0.05);
+        background: var(--tint-hover);
         font-weight: 800;
-      }
-      [data-theme="light"] .ahm-badge--active {
-        background: rgba(0,0,0,0.05);
       }
 
       /* ── SVG grid ── */
@@ -135,14 +132,14 @@ export function injectStyles() {
       .ahm-month {
         font-family: var(--font-mono, monospace);
         font-size: 9px;
-        fill: var(--text-muted, #666);
+        fill: var(--text-muted);
         letter-spacing: 0.05em;
       }
 
       .ahm-day {
         font-family: var(--font-mono, monospace);
         font-size: 9px;
-        fill: var(--text-muted, #666);
+        fill: var(--text-muted);
         text-anchor: middle;
       }
 
@@ -172,17 +169,16 @@ export function injectStyles() {
         margin-top: 0.6rem;
         justify-content: flex-end;
         font-size: 0.65rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
       }
 
       .ahm-legend-cell {
         width: 11px;
         height: 11px;
-        border-radius: 2px;
+        border-radius: var(--radius-xs);
         display: inline-block;
       }
-      [data-theme="dark"]  .ahm-legend-cell { border: 1px solid rgba(255,255,255,0.06); }
-      [data-theme="light"] .ahm-legend-cell { border: 1px solid rgba(0,0,0,0.08); }
+      .ahm-legend-cell { border: 1px solid var(--hairline); }
 
       /* Tooltip styling now lives with the shared .global-tip
          component (top-centre, under the nav). */
@@ -191,13 +187,13 @@ export function injectStyles() {
       .ahm-skeleton {
         background: linear-gradient(
           90deg,
-          var(--bg3, #181818) 25%,
-          var(--bg2, #111)    50%,
-          var(--bg3, #181818) 75%
+          var(--bg3) 25%,
+          var(--bg2)    50%,
+          var(--bg3) 75%
         );
         background-size: 200% 100%;
         animation: ahm-shimmer 1.5s infinite;
-        border-radius: 6px;
+        border-radius: var(--radius-xs);
       }
 
       @keyframes ahm-shimmer {
@@ -224,13 +220,13 @@ export function injectStyles() {
       .ahm-loading-text {
         margin-top: 1rem;
         font-size: 0.8rem;
-        color: var(--text-muted, #666);
+        color: var(--text-muted);
         font-family: var(--font-mono, monospace);
         text-align: center;
       }
 
       .ahm-error-msg {
-        color: var(--text-dim, #a0a0a0);
+        color: var(--text-dim);
         font-size: 0.85rem;
         font-family: var(--font-mono, monospace);
         padding: 1.5rem 0;

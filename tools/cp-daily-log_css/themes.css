@@ -15,7 +15,7 @@
     --hard: #d92d20;
     --on: #fff;
     --on-m: #1a1a1a;
-    --tk-k: #bc3b03;
+    --tk-k: var(--hl-keyword);
     --tk-s: #0b7a4b;
     --tk-c: #777777;
     --tk-n: #1d4ed8;
@@ -32,7 +32,7 @@
     --medium: #e3b341;
     --hard: #f85149;
     --on: #0a0a0a;
-    --tk-k: #ff8a50;
+    --tk-k: var(--hl-keyword);
     --tk-s: #a8d98b;
     --tk-c: #7d7d7d;
     --tk-n: #7cb7ff;

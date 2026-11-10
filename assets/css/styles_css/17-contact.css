@@ -29,8 +29,8 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: border-color 0.2s, transform 0.2s var(--ease),
-              background 0.3s ease, box-shadow 0.2s, color 0.3s ease;
+  transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease),
+              background var(--dur-theme) ease, box-shadow var(--dur-fast), color var(--dur-theme) ease;
   position: relative;
   overflow: hidden;
   min-height: 52px;
@@ -46,7 +46,7 @@
   background: var(--green);
   transform: scaleY(0);
   transform-origin: bottom;
-  transition: transform 0.25s var(--ease);
+  transition: transform var(--dur-base) var(--ease);
 }
 
 .contact-row:hover::before {
@@ -63,7 +63,7 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .contact-label::before {
@@ -76,7 +76,7 @@
   font-family: var(--font-mono);
   font-size: 0.88rem;
   color: var(--text);
-  transition: color 0.2s;
+  transition: color var(--dur-fast);
   word-break: break-all;
 }
 
@@ -84,6 +84,4 @@
   color: var(--green);
 }
 
-@media (max-width: 820px) {
-  .contact-wrap { grid-template-columns: 1fr; }
-}
+/* mobile stacking lives in 23-responsive.css */

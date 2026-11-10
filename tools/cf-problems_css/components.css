@@ -13,7 +13,7 @@
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: border-color .25s, transform .2s var(--ease), box-shadow .2s;
+  transition: border-color var(--dur-base), transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast);
 }
 
 .stat:hover {
@@ -50,7 +50,7 @@
   border-radius: var(--radius-lg);
   padding: 1.25rem 1.4rem;
   margin-bottom: 1rem;
-  transition: border-color .25s, background .3s;
+  transition: border-color var(--dur-base), background var(--dur-theme);
 }
 
 .card:hover {
@@ -157,7 +157,7 @@
 .pill {
   display: inline-block;
   padding: 1px 9px;
-  border-radius: 99px;
+  border-radius: var(--radius-full);
   font-family: var(--font-mono);
   font-size: .7rem;
   font-weight: 600;
@@ -195,7 +195,7 @@
   padding: .1rem .5rem;
   background: var(--green-dim);
   border: 1px solid rgba(var(--green-rgb), .25);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: .68rem;
   color: var(--text-dim);

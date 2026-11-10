@@ -1,5 +1,10 @@
 /* scroll-effects.js — one rAF-throttled scroll handler: progress bar, parallax, side heatmap, smooth nav. */
 
+import { tokenNum } from './tokens.js';
+
+/* Must match the mobile breakpoint in 06-navigation.css (nav moves to the bottom). */
+const NAV_MOBILE_MAX = 860;
+
 /* ================================================================
    UNIFIED SCROLL HANDLER
    One rAF-throttled listener drives the progress bar, parallax, and
@@ -142,7 +147,7 @@ export function initScrollEffects() {
       const target = document.querySelector(id);
       if (target) {
         // floating top nav on desktop (offset), bottom tab bar on mobile (no offset)
-        const offset = window.matchMedia('(max-width: 820px)').matches ? 0 : 70;
+        const offset = window.matchMedia(`(max-width: ${NAV_MOBILE_MAX}px)`).matches ? 0 : tokenNum('--nav-offset', 70);
         const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
         window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
         if (history.pushState) history.pushState(null, '', id);

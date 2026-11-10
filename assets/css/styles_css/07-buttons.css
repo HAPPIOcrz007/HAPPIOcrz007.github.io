@@ -10,14 +10,14 @@
   font-family: var(--font-mono);
   font-size: 0.82rem;
   font-weight: 600;
-  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease),
-              border-color 0.2s, color 0.2s, background 0.2s;
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
+              border-color var(--dur-fast), color var(--dur-fast), background var(--dur-fast);
   border: 1px solid transparent;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--tap);
+  min-width: var(--tap);
   justify-content: center;
 }
 
@@ -37,10 +37,10 @@
 .btn-primary:hover,
 .btn-primary:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--green-dim);
+  box-shadow: var(--shadow-accent);
   background: var(--green-hover);
   border-color: var(--green-hover);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* ghost = amber tint (the "$ calendar" look) */
@@ -58,10 +58,10 @@
 
 .btn .ripple {
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-circle);
+  background: var(--ripple);
   pointer-events: none;
-  animation: ripple-expand 0.55s var(--ease) forwards;
+  animation: ripple-expand var(--dur-ripple) var(--ease) forwards;
 }
 
 @keyframes ripple-expand {

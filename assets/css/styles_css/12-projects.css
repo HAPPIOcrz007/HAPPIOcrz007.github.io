@@ -38,10 +38,10 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  flex: 0 0 clamp(260px, 32vw, 340px);
+  flex: 0 0 var(--card-w-project);
   scroll-snap-align: start;
-  transition: border-color 0.25s, transform 0.3s var(--ease-spring),
-              box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transition: border-color var(--dur-base), transform var(--dur-theme) var(--ease-spring),
+              box-shadow var(--dur-theme) ease, background var(--dur-theme) ease, color var(--dur-theme) ease;
   contain: layout style paint;
 }
 
@@ -51,7 +51,7 @@
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);
@@ -62,10 +62,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 5;
+  z-index: var(--z-sticky);
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease, opacity 0.2s ease,
-              transform 0.2s var(--ease), background 0.3s ease, color 0.3s ease;
+  transition: border-color var(--dur-fast) ease, opacity var(--dur-fast) ease,
+              transform var(--dur-fast) var(--ease), background var(--dur-theme) ease, color var(--dur-theme) ease;
 }
 
 .scroll-nav:hover  { border-color: var(--green); color: var(--green); }
@@ -90,14 +90,14 @@
   overflow: hidden;
   position: relative;
   border-bottom: 1px solid var(--border);
-  transition: background 0.3s ease;
+  transition: background var(--dur-theme) ease;
 }
 
 .project-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
   will-change: transform;
 }
 
@@ -124,7 +124,7 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .project-date::before {
@@ -138,7 +138,7 @@
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .project-desc {
@@ -146,7 +146,7 @@
   color: var(--text-dim);
   margin-bottom: 1rem;
   line-height: 1.6;
-  transition: color 0.3s ease;
+  transition: color var(--dur-theme) ease;
 }
 
 .tech-tags {
@@ -162,9 +162,9 @@
   padding: 0.25rem 0.6rem;
   background: var(--green-dim);
   color: var(--green);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid rgba(var(--green-rgb), 0.25);
-  transition: border-color 0.2s, color 0.2s, background 0.3s ease;
+  transition: border-color var(--dur-fast), color var(--dur-fast), background var(--dur-theme) ease;
 }
 
 .tech-tag:hover {

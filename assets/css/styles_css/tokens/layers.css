@@ -1,0 +1,20 @@
+/* ================================================================
+   TOKENS / LAYERS — the z-index stack, lowest to highest.
+   Always use these instead of raw numbers so stacking stays predictable.
+   ================================================================ */
+:root {
+  --z-bg:        0;      /* animated background */
+  --z-base:      1;      /* sections, footer */
+  --z-raised:    2;      /* hero content, indicators */
+  --z-sticky:    5;      /* sticky bars, scroll arrows */
+  --z-dropdown:  20;
+  --z-notify:    60;     /* floating notification toast */
+  --z-heatmap:   100;    /* side scroll-progress heatmap */
+  --z-tooltip:   190;
+  --z-nav:       200;
+  --z-modal:     1000;
+  --z-progress:  1000;   /* top scroll-progress line */
+  --z-reader:    1050;   /* full-page blog reader (above modal) */
+  --z-lightbox:  1100;   /* image zoom (above reader) */
+  --z-skip:      9999;   /* skip link, error toast */
+}

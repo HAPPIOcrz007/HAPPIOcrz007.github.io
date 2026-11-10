@@ -5,8 +5,8 @@
   opacity: 0;
   transform: translateY(24px) scale(0.98);
   transition:
-    opacity  700ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity  var(--dur-reveal) var(--ease-apple),
+    transform var(--dur-reveal) var(--ease-apple);
   will-change: opacity, transform;
   visibility: hidden;
 }
@@ -22,28 +22,28 @@
 .cert-card.reveal,
 .skill-card.reveal {
   transition:
-    opacity      700ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform    700ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.25s ease,
-    box-shadow   0.25s ease,
-    background   0.3s ease,
-    color        0.3s ease;
+    opacity      var(--dur-reveal) var(--ease-apple),
+    transform    var(--dur-reveal) var(--ease-apple),
+    border-color var(--dur-base) ease,
+    box-shadow   var(--dur-base) ease,
+    background   var(--dur-theme) ease,
+    color        var(--dur-theme) ease;
 }
 
 .stat.reveal {
   transition:
-    opacity      700ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform    700ms cubic-bezier(0.22, 1, 0.36, 1),
-    background   0.3s ease,
-    color        0.3s ease,
-    border-color 0.25s ease;
+    opacity      var(--dur-reveal) var(--ease-apple),
+    transform    var(--dur-reveal) var(--ease-apple),
+    background   var(--dur-theme) ease,
+    color        var(--dur-theme) ease,
+    border-color var(--dur-base) ease;
 }
 
 .sec-label.reveal,
 .sec-title.reveal {
   transition:
-    opacity   500ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity   var(--dur-reveal-sm) var(--ease-apple),
+    transform var(--dur-reveal-sm) var(--ease-apple);
 }
 
 .reveal-delay-1 { transition-delay: 0.05s; }

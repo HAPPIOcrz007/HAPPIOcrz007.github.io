@@ -1,0 +1,55 @@
+/* ================================================================
+   TOKENS / LAYOUT — page widths, nav size, section rhythm, spacing.
+
+   BREAKPOINTS cannot be CSS variables (@media can't read them). They are
+   fixed numbers used across the files — if you change one, search for it:
+     1200px  blog wide layout      (29-blog.css)
+     1024px  hero gap              (23-responsive.css)
+      860px  MOBILE: nav becomes bottom bar, hero stacks
+             (06-navigation, 09-notification, 23-responsive, 28-activity-heatmap,
+              and NAV_MOBILE_MAX in scroll-effects.js)
+      720px  blog floats stack     (29-blog.css)
+      640px  small phones          (23-responsive, heatmap/CSES JS styles)
+   ================================================================ */
+:root {
+  /* page */
+  --container-max: 1200px;
+  --gutter:        clamp(1.25rem, 4vw, 3rem);
+
+  /* floating nav */
+  --nav-width:      1120px;
+  --nav-h:          56px;
+  --nav-gap:        14px;     /* distance from top edge (desktop) */
+  --nav-h-mobile:   62px;
+  --nav-gap-mobile: 12px;     /* distance from bottom edge (mobile) */
+  --nav-offset:     70px;     /* = --nav-gap + --nav-h : used for scroll-to-anchor */
+
+  /* touch target minimum */
+  --tap: 44px;
+
+  /* section rhythm */
+  --section-pad:    80px;
+  --section-pad-md: 70px;     /* <= 860px */
+  --section-pad-sm: 56px;     /* <= 640px */
+  --hero-pad-top:       150px;
+  --hero-pad-bottom:    90px;
+  --hero-pad-top-md:    96px;
+  --hero-pad-bottom-md: 70px;
+
+  /* content widths */
+  --modal-max:        760px;
+  --reader-max:       760px;
+  --reader-wide:      1080px;
+  --reader-wide-xl:   1160px;
+  --card-w-project:   clamp(260px, 32vw, 340px);
+
+  /* spacing scale (for new work; existing components keep their own padding) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+}

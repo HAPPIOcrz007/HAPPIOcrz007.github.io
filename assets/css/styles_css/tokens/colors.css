@@ -1,0 +1,181 @@
+/* ================================================================
+   TOKENS / COLORS — the ONLY file that should contain raw colors.
+   Every other CSS file (and every JS-injected style) uses var(--…).
+
+   QUICK EDITS
+   · Change the accent color   → --green-rgb in BOTH theme blocks below
+                                 (hover/dark/light/dim/glow all derive from it)
+   · Change page backgrounds   → --bg / --bg2 / --bg3 / --card
+   · Change a data-viz palette → --heat-* (heatmaps), --chart-* (pie charts)
+   · Change code highlighting  → --hl-*
+   NOTE: <meta name="theme-color"> tags and site.webmanifest cannot read
+   CSS — keep them equal to --bg by hand (see README.md).
+
+   Variable names --green* are historical: they hold the ACCENT color
+   (currently indigo). Names kept so no component had to change.
+   ================================================================ */
+
+/* ---- constants (identical in both themes) ---- */
+:root {
+  --on-accent:      #ffffff;                  /* text/icons placed ON the accent color */
+  --on-scrim:       #ffffff;                  /* text/icons on dark translucent scrims */
+  --overlay:        rgba(0, 0, 0, 0.85);      /* modal backdrop */
+  --overlay-strong: rgba(0, 0, 0, 0.92);      /* image lightbox backdrop */
+  --scrim:          rgba(0, 0, 0, 0.6);       /* carousel buttons etc. */
+  --ripple:         rgba(255, 255, 255, 0.15);
+  --paper:          #ffffff;                  /* PDF page canvas */
+
+  /* print is always light, whatever theme is active */
+  --print-bg:       #ffffff;
+  --print-fg:       #000000;
+  --print-border:   #cccccc;
+  --print-muted: #888;
+
+  /* third-party brand colors (meaning-bearing: do not retheme) */
+  --brand-github:     #2da44e;
+  --brand-codeforces: #b82024;
+  --brand-leetcode:   #ffa116;
+  --brand-atcoder:    #1890ff;
+  --brand-cses:       var(--green);
+
+  /* difficulty (tools) */
+  --easy:   var(--ok);
+  --medium: var(--warn);
+  --hard:   var(--danger);
+
+  /* accent alphas (shared) */
+  --green:      rgb(var(--green-rgb));
+  --green-dim:  rgba(var(--green-rgb), 0.11);
+  --green-glow: rgba(var(--green-rgb), 0.055);
+  --accent-tint: rgba(var(--green-rgb), 0.085);
+}
+
+/* ================================================================
+   DARK
+   ================================================================ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* surfaces */
+  --bg:         #0B0C10;
+  --bg2:        #101218;
+  --bg3:        #1A1D25;
+  --card:       #14161C;
+  --border:     #23262F;
+  --border2:    #343845;
+
+  /* text */
+  --text:       #F2F2F5;
+  --text-dim:   #A3A7B3;
+  --text-muted: #6E7280;
+
+  /* accent (indigo) — edit this ONE line to re-color the site */
+  --green-rgb:   124, 92, 255;
+  --green-hover: color-mix(in srgb, var(--green) 88%, #fff);
+  --green-light: color-mix(in srgb, var(--green) 70%, #fff);
+  --green-dark:  color-mix(in srgb, var(--green) 75%, #000);
+
+  /* secondary / semantic */
+  --cyan:   #22d3ee;
+  --ok:     #34d399;
+  --warn:   #fbbf24;
+  --info:   #60a5fa;
+  --danger: #f87171;
+
+  /* depth */
+  --shadow:     0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-sm:  0 4px 16px rgba(0, 0, 0, 0.4);
+
+  /* subtle fills / lines drawn over any surface */
+  --tint-hover: rgba(255, 255, 255, 0.05);
+  --hairline:   rgba(255, 255, 255, 0.06);
+  --tip-bg:     var(--bg2);               /* hover tooltip */
+
+  /* heatmap levels 0-4 (read by JS: heatmap/config.js) */
+  --heat-0: transparent;
+  --heat-1: #3a2f8a;
+  --heat-2: #5b44d6;
+  --heat-3: var(--green);
+  --heat-4: #a99bff;
+
+  /* chart slices 1-9 (pie charts) */
+  --chart-1: var(--green);
+  --chart-2: var(--cyan);
+  --chart-3: var(--ok);
+  --chart-4: var(--warn);
+  --chart-5: #f472b6;
+  --chart-6: var(--info);
+  --chart-7: #fb923c;
+  --chart-8: #a3e635;
+  --chart-9: #8a8a94;
+
+  /* code highlighting (blog code blocks) */
+  --hl-comment: #6b7280;
+  --hl-string:  #7ec27e;
+  --hl-number:  #d19a66;
+  --hl-keyword: var(--green-light);
+  --hl-type:    #e5c07b;
+  --hl-func:    #61afef;
+  --hl-pre:     #c678dd;
+}
+
+/* ================================================================
+   LIGHT
+   ================================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:         #FAFAF7;
+  --bg2:        #F1F0EC;
+  --bg3:        #E8E7E2;
+  --card:       #FFFFFF;
+  --border:     #E6E4DE;
+  --border2:    #D3D1CA;
+
+  --text:       #14141A;
+  --text-dim:   #50505C;
+  --text-muted: #8A8A94;
+
+  /* accent (indigo) — edit this ONE line to re-color the site */
+  --green-rgb:   91, 61, 245;
+  --green-hover: color-mix(in srgb, var(--green) 85%, #000);
+  --green-light: color-mix(in srgb, var(--green) 80%, #fff);
+  --green-dark:  color-mix(in srgb, var(--green) 72%, #000);
+
+  --cyan:   #0cb8d6;
+  --ok:     #16a34a;
+  --warn:   #b7860b;
+  --info:   #2563eb;
+  --danger: #dc2626;
+
+  --shadow:     0 12px 30px rgba(20, 20, 26, 0.08);
+  --shadow-sm:  0 4px 12px rgba(20, 20, 26, 0.05);
+
+  --tint-hover: rgba(0, 0, 0, 0.05);
+  --hairline:   rgba(0, 0, 0, 0.08);
+  --tip-bg:     var(--card);
+
+  --heat-0: transparent;
+  --heat-1: #bdb2ff;
+  --heat-2: #8f7bfb;
+  --heat-3: var(--green);
+  --heat-4: #33199e;
+
+  --chart-1: var(--green);
+  --chart-2: var(--cyan);
+  --chart-3: var(--ok);
+  --chart-4: var(--warn);
+  --chart-5: #db2777;
+  --chart-6: var(--info);
+  --chart-7: #ea580c;
+  --chart-8: #65a30d;
+  --chart-9: #8a8a94;
+
+  --hl-comment: #7a7a72;
+  --hl-string:  #2a7a3b;
+  --hl-number:  #a55a00;
+  --hl-keyword: var(--green-dark);
+  --hl-type:    #8a6d00;
+  --hl-func:    #1f6fb2;
+  --hl-pre:     #8a3fb0;
+}

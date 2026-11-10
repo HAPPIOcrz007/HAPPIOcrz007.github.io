@@ -14,20 +14,20 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.6;
-  transition: background .25s ease, color .25s ease;
+  transition: background var(--dur-base) ease, color var(--dur-base) ease;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 }
 
 ::selection {
   background: var(--green);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 :focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 [hidden] {
@@ -37,7 +37,7 @@ body {
 a {
   color: var(--green);
   text-decoration: none;
-  transition: color .2s;
+  transition: color var(--dur-fast);
 }
 
 a:hover {
@@ -98,11 +98,11 @@ h1 {
   color: var(--text);
   width: 38px;
   height: 38px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   cursor: pointer;
   flex-shrink: 0;
   font-size: 1rem;
-  transition: border-color .2s, color .2s, transform .2s var(--ease);
+  transition: border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-fast) var(--ease);
 }
 
 .theme-btn:hover {
@@ -127,7 +127,7 @@ button {
   border: 1px solid var(--border2);
   border-radius: var(--radius);
   padding: .6rem .8rem;
-  transition: border-color .2s, background .3s;
+  transition: border-color var(--dur-fast), background var(--dur-theme);
 }
 
 input:hover,
@@ -151,13 +151,13 @@ input:focus {
   cursor: pointer;
   font-weight: 600;
   min-height: 42px;
-  transition: transform .2s var(--ease), background .2s, box-shadow .2s, color .2s;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast), box-shadow var(--dur-fast), color var(--dur-fast);
 }
 
 .btn:hover {
   background: var(--green-hover);
   border-color: var(--green-hover);
-  color: #fff;
+  color: var(--on-accent);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--green-dim);
 }

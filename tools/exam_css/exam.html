@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Exam tool</title>
+  <meta name="description" content="Encrypted exam tool: set a paper, let students answer it, and check their answers — entirely in the browser.">
+  <meta name="theme-color" content="#0B0C10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FAFAF7" media="(prefers-color-scheme: light)">
+  <script>
+    /* set the theme before first paint (same key as exam_js/theme.js) */
+    (function () {
+      try {
+        var t = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+      } catch (e) { /* keep default */ }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="../assets/css/styles_css/02-variables.css">
+  <link rel="stylesheet" href="exam_css/markdown.css">
+  <link rel="stylesheet" href="exam_css/editor.css">
+  <link rel="stylesheet" href="exam_css/exam.css">
+</head>
+<body>
+  <a class="ex-skip" href="#ex-main">Skip to content</a>
+
+  <header class="ex-top">
+    <div class="ex-topin">
+      <a class="ex-brand" href="../index_tools.html" aria-label="Back to tools">← Tools</a>
+      <nav class="ex-nav" aria-label="Exam tool sections">
+        <a data-route="answer" href="#answer">Answer a paper</a>
+        <span class="ex-navgroup">
+          <span class="ex-navlabel">Admin</span>
+          <a data-route="set" href="#set">Set paper</a>
+          <a data-route="check" href="#check">Check paper</a>
+        </span>
+      </nav>
+      <button id="theme-toggle" class="ex-btn ghost small" type="button">☀ Light</button>
+    </div>
+  </header>
+
+  <main id="ex-main" class="ex-app">
+    <section id="view-answer" aria-label="Answer a paper"></section>
+    <section id="view-set" aria-label="Set a paper" hidden></section>
+    <section id="view-check" aria-label="Check papers" hidden></section>
+    <noscript><p class="ex-err">This tool needs JavaScript (it encrypts and decrypts files in your browser).</p></noscript>
+  </main>
+
+  <script type="module" src="exam_js/main.js"></script>
+</body>
+</html>

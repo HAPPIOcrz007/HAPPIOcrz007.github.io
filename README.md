@@ -38,22 +38,22 @@ z-index number. It uses `var(--…)`. If you need a new value, add a token first
 
 ## 2. "I want to change…" cheat sheet
 
-| Goal | Edit | Where |
-|---|---|---|
-| Accent color (buttons, links, labels, heatmap, scrollbar) | `--green-rgb` | `tokens/colors.css` — **both** `[data-theme]` blocks. Hover/dark/light/dim/glow shades derive automatically |
-| Page / card / border colors | `--bg --bg2 --bg3 --card --border --border2` | `tokens/colors.css` |
-| Text colors | `--text --text-dim --text-muted` | `tokens/colors.css` |
-| Secondary colors (green/amber/blue/cyan/red) | `--ok --warn --info --cyan --danger` | `tokens/colors.css` |
-| Heatmap cell colors | `--heat-0 … --heat-4` | `tokens/colors.css` (JS reads them) |
-| Pie-chart colors | `--chart-1 … --chart-9` | `tokens/colors.css` |
-| Blog code highlighting | `--hl-*` | `tokens/colors.css` |
-| How round everything is | `--radius-xs/sm/` `--radius` `--radius-lg` | `tokens/shape.css` |
-| Fonts | `--font-body`, `--font-mono`, `--font-ui` | `tokens/type.css` (set `--font-ui: var(--font-body)` to drop the monospace look) |
-| Animation speed | `--dur-*` | `tokens/motion.css` (set to `0s` to disable) |
-| Nav size / position | `--nav-*` | `tokens/layout.css` |
-| Section spacing | `--section-pad*`, `--hero-pad*` | `tokens/layout.css` |
-| Page width | `--container-max`, `--gutter` | `tokens/layout.css` |
-| What sits above what | `--z-*` | `tokens/layers.css` |
+| Goal                                                      | Edit                                         | Where                                                                                                       |
+| --------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Accent color (buttons, links, labels, heatmap, scrollbar) | `--green-rgb`                                | `tokens/colors.css` — **both** `[data-theme]` blocks. Hover/dark/light/dim/glow shades derive automatically |
+| Page / card / border colors                               | `--bg --bg2 --bg3 --card --border --border2` | `tokens/colors.css`                                                                                         |
+| Text colors                                               | `--text --text-dim --text-muted`             | `tokens/colors.css`                                                                                         |
+| Secondary colors (green/amber/blue/cyan/red)              | `--ok --warn --info --cyan --danger`         | `tokens/colors.css`                                                                                         |
+| Heatmap cell colors                                       | `--heat-0 … --heat-4`                        | `tokens/colors.css` (JS reads them)                                                                         |
+| Pie-chart colors                                          | `--chart-1 … --chart-9`                      | `tokens/colors.css`                                                                                         |
+| Blog code highlighting                                    | `--hl-*`                                     | `tokens/colors.css`                                                                                         |
+| How round everything is                                   | `--radius-xs/sm/` `--radius` `--radius-lg`   | `tokens/shape.css`                                                                                          |
+| Fonts                                                     | `--font-body`, `--font-mono`, `--font-ui`    | `tokens/type.css` (set `--font-ui: var(--font-body)` to drop the monospace look)                            |
+| Animation speed                                           | `--dur-*`                                    | `tokens/motion.css` (set to `0s` to disable)                                                                |
+| Nav size / position                                       | `--nav-*`                                    | `tokens/layout.css`                                                                                         |
+| Section spacing                                           | `--section-pad*`, `--hero-pad*`              | `tokens/layout.css`                                                                                         |
+| Page width                                                | `--container-max`, `--gutter`                | `tokens/layout.css`                                                                                         |
+| What sits above what                                      | `--z-*`                                      | `tokens/layers.css`                                                                                         |
 
 ---
 
@@ -79,13 +79,13 @@ stay in their component file; the global scale is `--text-xs … --text-5xl`.
 
 CSS can't use variables inside `@media`, so these are fixed numbers. If you change one, search for it:
 
-| px | Meaning | Files |
-|---|---|---|
-| 1200 | blog wide layout | `29-blog.css` |
-| 1024 | hero gap | `23-responsive.css` |
+| px      | Meaning                                                                  | Files                                                                                                              |
+| ------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| 1200    | blog wide layout                                                         | `29-blog.css`                                                                                                      |
+| 1024    | hero gap                                                                 | `23-responsive.css`                                                                                                |
 | **860** | **mobile**: nav → bottom tab bar, hero stacks, toast lifts above the bar | `06-navigation`, `09-notification`, `23-responsive`, `28-activity-heatmap`, `scroll-effects.js` (`NAV_MOBILE_MAX`) |
-| 720 | blog floats stack | `29-blog.css` |
-| 640 | small phones | `23-responsive`, `09-notification`, heatmap/CSES injected styles |
+| 720     | blog floats stack                                                        | `29-blog.css`                                                                                                      |
+| 640     | small phones                                                             | `23-responsive`, `09-notification`, heatmap/CSES injected styles                                                   |
 
 ---
 
@@ -114,11 +114,11 @@ CSS injected from JS (`heatmap/styles.js`, `cses/styles.js`, `global-tip.js`) us
 These cannot read CSS variables. Keep them equal to `--bg`
 (dark **`#0B0C10`**, light **`#FAFAF7`**) whenever you change the background:
 
-| File | What |
-|---|---|
-| `index.html`, `index_tools.html` | `<meta name="theme-color">` ×2 |
-| `tools/cp-daily-log.html`, `tools/dsa_problem_set.html`, `tools/company_dsa_questions.html`, `tools/cf-problems.html` | `<meta name="theme-color">` ×2 |
-| `site.webmanifest` | `background_color`, `theme_color` |
+| File                                                                                                                  | What                              |
+| --------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `index.html`, `index_tools.html`                                                                                      | `<meta name="theme-color">` ×2    |
+| `tools/cp-daily-log.html`, `tools/dsa_problem_set.html`, `tools/company_dsa_questions.html`, `tools/cf-problems.html` | `<meta name="theme-color">` ×2    |
+| `site.webmanifest`                                                                                                    | `background_color`, `theme_color` |
 
 One-liner (run from repo root, after you change the two values):
 
@@ -153,16 +153,16 @@ sed -i 's/#0A0A0A/#0B0C10/g' site.webmanifest
 
 ## 9. Colored text in markdown / data strings
 
-Write `=(name)text=` anywhere markdown is rendered (projects, certificates, blogs, notifications).
+Write [=(name)text=] anywhere markdown is rendered (projects, certificates, blogs, notifications).
 
-| Name | Token | Name | Token |
-|---|---|---|---|
-| `accent` | `--green` | `danger` | `--danger` |
-| `ok` | `--ok` | `muted` | `--text-muted` |
-| `warn` | `--warn` | `dim` | `--text-dim` |
-| `info` | `--info` | `cyan` | `--cyan` |
+| Name     | Token     | Name     | Token          |
+| -------- | --------- | -------- | -------------- |
+| `accent` | `--green` | `danger` | `--danger`     |
+| `ok`     | `--ok`    | `muted`  | `--text-muted` |
+| `warn`   | `--warn`  | `dim`    | `--text-dim`   |
+| `info`   | `--info`  | `cyan`   | `--cyan`       |
 
-`=(#RRGGBB)text=` still works for one-off colors, but it won't follow the theme.
+[=(#RRGGBB)text=] still works for one-off colors, but it won't follow the theme.
 New names: add one to the regex and, if needed, the `map` in `tokenColor()` in
 `assets/js/main_js/markdown.js` and `blog/markdown.js` (keep both in sync).
 

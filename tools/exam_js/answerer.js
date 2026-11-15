@@ -3,15 +3,17 @@
    → Submit → encrypted .ans file to send back to the setter.
    The start time and submit time are recorded in the answer file; the setter may also have set a fixed
    closing time and/or a time limit — whichever comes first ends the paper (auto-submit).
+   With "Start question" on, each question stays hidden (its text isn't even put on the page) until the student presses the
+   button; the moment is recorded as seconds into the paper. Code answers can offer several languages to choose from.
    With "block repeat attempts" on, a device lock (lock.js) stops the same exam being answered again on this
    device — also by another paper file with the same secret id — until the cooldown ends. */
 
 import { el, debounce, toast, dialog, confirmDialog, bulletList, dropZone, readBytes, fmtDur, plural } from './ui.js';
-import { isMcq, isQuestion, buildOrder, newSeed, answerFileName, downloadText, hydratePaper, effectiveDeadline, fmtInZone, lockSubject, normKey } from './format.js';
+import { isMcq, isQuestion, buildOrder, newSeed, answerFileName, downloadText, hydratePaper, effectiveDeadline, fmtInZone, lockSubject, normKey, codeLangOptions } from './format.js';
 import { lockKeyFor, readLock, recordAttempt, lockStatus } from './lock.js';
 import { createMarkdownEditor } from './md-editor.js';
 import { createCodeEditor } from './code-editor.js';
-import { renderMarkdown } from './markdown.js';
+import { renderMarkdown, renderSamples, enhanceCodeBlocks } from './markdown.js';
 import { openPaperAsAnswerer, createAnswerFile, CryptoError } from './crypto.js';
 import { readPaperBytes } from './zip.js';
 import { isBlank } from './grade.js';
@@ -35,7 +37,7 @@ export function mountAnswerer(root) {
     try {
       localStorage.setItem(PROGRESS(S.paperId), JSON.stringify({
         identity: S.identity, answers: S.answers, seed: S.seed, startedAt: S.startedAt, submitted: S.submitted || null,
-        timing: S.tracker ? S.tracker.snapshot() : (S.timing || null),
+        timing: S.tracker ? S.tracker.snapshot() : (S.timing || null), qStarts: S.qStarts || {}, langs: S.langs || {},
       }));
     } catch { /* storage full or blocked — answers still live in memory */ }
   }, 400);
@@ -55,12 +57,12 @@ export function mountAnswerer(root) {
       go.disabled = true; go.textContent = 'Opening…';
       try {
         const r = await openPaperAsAnswerer(await readPaperBytes(await readBytes(file)), key.value);
-        S = { paper: hydratePaper(r.paper), pub: r.pub, paperId: r.paperId, identity: {}, answers: {}, seed: null, order: [], layout: [], optionOrder: {}, startedAt: null, submitted: null };
+        S = { paper: hydratePaper(r.paper), pub: r.pub, paperId: r.paperId, identity: {}, answers: {}, seed: null, order: [], layout: [], optionOrder: {}, startedAt: null, submitted: null, qStarts: {}, langs: {} };
         const st = S.paper.settings;
         S.lockKey = st.blockRepeats ? await lockKeyFor(lockSubject(st, S.paperId)) : null;
         S.lock = S.lockKey ? await readLock(S.lockKey) : null;
         const prev = load(S.paperId);
-        if (prev) Object.assign(S, { identity: prev.identity || {}, answers: prev.answers || {}, seed: prev.seed, startedAt: prev.startedAt, submitted: prev.submitted, timing: prev.timing || null });
+        if (prev) Object.assign(S, { identity: prev.identity || {}, answers: prev.answers || {}, seed: prev.seed, startedAt: prev.startedAt, submitted: prev.submitted, timing: prev.timing || null, qStarts: prev.qStarts || {}, langs: prev.langs || {} });
         S.submitted ? showDone() : showIntro();
       } catch (e) {
         err.textContent = e instanceof CryptoError ? e.message : 'That file could not be opened.';
@@ -165,8 +167,10 @@ export function mountAnswerer(root) {
       for (const q of qs) {
         const b = navBtns.get(q.id), a = answered(q);
         b.classList.toggle('done', a); b.classList.toggle('need', !a && q.mandatory);
+        b.classList.toggle('locked', !!paper.settings.gateQuestions && !S.qStarts[q.id] && !a);
       }
     };
+    const onStart = (q) => { S.qStarts[q.id] = { at: Date.now(), sec: Math.round(elapsed()) }; S.tracker.activity(Date.now()); save.flush(); refresh(); };
     const onAnswer = (q, v) => { S.answers[q.id] = v; S.tracker.edit(q.id, elapsed(), !answered(q)); save(); refresh(); };
 
     const flow = [];
@@ -180,7 +184,7 @@ export function mountAnswerer(root) {
         flow.push(el('div', { class: 'ex-card exam-md ex-textblock', html: md(it.text) }));
       } else {
         const i = n++;
-        const card = answerCard(it, i, onAnswer);
+        const card = answerCard(it, i, onAnswer, onStart);
         cardEls.set(it.id, card);
         navBtns.set(it.id, el('button', {
           type: 'button', class: 'ex-navbtn', text: i + 1, title: `Question ${i + 1}${it.mandatory ? ' (required)' : ''}`,
@@ -216,9 +220,9 @@ export function mountAnswerer(root) {
     /* per-question timing: the question holding focus, else the one across the middle of the screen */
     const pickActive = () => {
       const f = document.activeElement && document.activeElement.closest ? document.activeElement.closest('.ex-q') : null;
-      if (f && f.id) return f.id.slice(2);
+      if (f && f.id && !f.dataset.locked) return f.id.slice(2);
       const mid = window.innerHeight / 2;
-      for (const [id, c] of cardEls) { const r = c.getBoundingClientRect(); if (r.top <= mid && r.bottom >= mid && r.height > 0) return id; }
+      for (const [id, c] of cardEls) { const r = c.getBoundingClientRect(); if (!c.dataset.locked && r.top <= mid && r.bottom >= mid && r.height > 0) return id; }
       return null;
     };
     const present = () => !document.hidden && (document.hasFocus ? document.hasFocus() : true);
@@ -236,55 +240,93 @@ export function mountAnswerer(root) {
     S._qs = qs;
   }
 
-  function answerCard(q, i, onAnswer) {
+  function answerCard(q, i, onAnswer, onStart) {
     const { paper } = S;
+    const gate = !!paper.settings.gateQuestions;
+    const startTag = el('span', { class: 'ex-startedtag' });
+    const startBtn = el('button', { type: 'button', class: 'ex-btn primary small ex-startbtn', text: '▶ Start question' });
     const meta = el('div', { class: 'ex-qmeta' },
       el('strong', { text: `Question ${i + 1}` }),
       el('span', { class: 'ex-tag', text: '#' + q.id }),
       el('span', { class: `ex-badge ${q.mandatory ? 'warn' : ''}`, text: q.mandatory ? 'Required' : 'Optional' }),
       paper.settings.showMarks ? el('span', { class: `ex-badge ${q.marked ? 'accent' : ''}`, text: q.marked ? `${q.marks} mark${Number(q.marks) === 1 ? '' : 's'}` : 'Unmarked' }) : null,
-      el('span', { class: 'ex-muted', text: TYPE_HINT[q.type] }));
-    const card = el('article', { class: 'ex-q', tabindex: '-1', id: 'q-' + q.id }, meta,
-      el('div', { class: 'exam-md ex-prompt', html: md(q.prompt) }));
+      el('span', { class: 'ex-muted', text: TYPE_HINT[q.type] }),
+      el('span', { class: 'ex-spacer' }), startTag, startBtn);
+    const body = el('div', { class: 'ex-qlive' });
+    const card = el('article', { class: 'ex-q', tabindex: '-1', id: 'q-' + q.id }, meta, body);
 
-    if (isMcq(q)) {
-      const single = q.type === 'mcq-single', name = 'a-' + q.id;
-      const byOpt = new Map(q.options.map((o) => [o.id, o]));
-      const cur = () => new Set([].concat(S.answers[q.id] ?? []));
-      const opts = el('div', { class: 'ex-choices', role: single ? 'radiogroup' : 'group' });
-      for (const oid of S.optionOrder[q.id] || q.options.map((o) => o.id)) {
-        const o = byOpt.get(oid);
-        if (!o) continue;
-        const input = el('input', { type: single ? 'radio' : 'checkbox', name, value: o.id });
-        input.checked = cur().has(o.id);
-        input.addEventListener('change', () => {
-          if (single) onAnswer(q, o.id);
-          else { const c = cur(); input.checked ? c.add(o.id) : c.delete(o.id); onAnswer(q, [...c]); }
-          opts.querySelectorAll('.ex-choice').forEach((r) => r.classList.toggle('picked', r.querySelector('input').checked));
+    /* the real content is only built once the question has been started */
+    const fill = () => {
+      body.replaceChildren(el('div', { class: 'exam-md ex-prompt', html: md(q.prompt) }),
+        q.samples && q.samples.length ? el('div', { class: 'exam-md ex-samples-out', html: renderSamples(q.samples, { images: true, assets: S.paper.assets }) }) : null);
+      if (isMcq(q)) {
+        const single = q.type === 'mcq-single', name = 'a-' + q.id;
+        const byOpt = new Map(q.options.map((o) => [o.id, o]));
+        const cur = () => new Set([].concat(S.answers[q.id] ?? []));
+        const opts = el('div', { class: 'ex-choices', role: single ? 'radiogroup' : 'group' });
+        for (const oid of S.optionOrder[q.id] || q.options.map((o) => o.id)) {
+          const o = byOpt.get(oid);
+          if (!o) continue;
+          const input = el('input', { type: single ? 'radio' : 'checkbox', name, value: o.id });
+          input.checked = cur().has(o.id);
+          input.addEventListener('change', () => {
+            if (single) onAnswer(q, o.id);
+            else { const c = cur(); input.checked ? c.add(o.id) : c.delete(o.id); onAnswer(q, [...c]); }
+            opts.querySelectorAll('.ex-choice').forEach((r) => r.classList.toggle('picked', r.querySelector('input').checked));
+          });
+          opts.append(el('label', { class: `ex-choice${input.checked ? ' picked' : ''}` }, input, el('div', { class: 'exam-md', html: md(o.text) })));
+        }
+        body.append(opts, el('button', {
+          type: 'button', class: 'ex-btn ghost small', text: 'Clear answer', onclick: () => {
+            opts.querySelectorAll('input').forEach((x) => { x.checked = false; });
+            opts.querySelectorAll('.ex-choice').forEach((r) => r.classList.remove('picked'));
+            onAnswer(q, single ? '' : []);
+          },
+        }));
+      } else if (q.type === 'code') {
+        const langs = codeLangOptions(q);
+        const chosen = () => langs.find((l) => l.id === S.langs[q.id]) || langs[0];
+        const ed = createCodeEditor({
+          value: S.answers[q.id] ?? q.starter ?? '', lang: chosen().id, langLabel: chosen().label, highlightKey: chosen().key,
+          minLines: 10, onChange: (v) => onAnswer(q, v),
         });
-        opts.append(el('label', { class: `ex-choice${input.checked ? ' picked' : ''}` }, input, el('div', { class: 'exam-md', html: md(o.text) })));
+        if (langs.length > 1) {
+          const pick = el('select', { class: 'ex-input narrow ex-langpick', 'aria-label': 'Answer language' }, langs.map((l) => el('option', { value: l.id, text: l.label })));
+          pick.value = chosen().id;
+          pick.addEventListener('change', () => { S.langs[q.id] = pick.value; ed.setLanguage(chosen()); save(); });
+          body.append(el('div', { class: 'ex-row wrap' }, el('span', { class: 'ex-label', text: 'Answer in' }), pick,
+            el('small', { class: 'ex-muted', text: 'Pick one language for this answer — you can change it any time.' })));
+        }
+        body.append(ed.el);
+      } else {
+        const ed = createMarkdownEditor({
+          value: S.answers[q.id] ?? '', compact: q.type === 'short', rows: q.type === 'short' ? 2 : 8, allowImages: false,
+          label: `Answer to question ${i + 1}`, placeholder: 'Type your answer — markdown works (bold, lists, tables, code).',
+          onChange: (v) => onAnswer(q, v),
+        });
+        body.append(ed.el);
       }
-      card.append(opts, el('button', {
-        type: 'button', class: 'ex-btn ghost small', text: 'Clear answer', onclick: () => {
-          opts.querySelectorAll('input').forEach((x) => { x.checked = false; });
-          opts.querySelectorAll('.ex-choice').forEach((r) => r.classList.remove('picked'));
-          onAnswer(q, single ? '' : []);
-        },
-      }));
-    } else if (q.type === 'code') {
-      const ed = createCodeEditor({
-        value: S.answers[q.id] ?? q.starter ?? '', lang: q.codeLang, langLabel: q.codeLangLabel,
-        minLines: 10, onChange: (v) => onAnswer(q, v),
-      });
-      card.append(ed.el);
-    } else {
-      const ed = createMarkdownEditor({
-        value: S.answers[q.id] ?? '', compact: q.type === 'short', rows: q.type === 'short' ? 2 : 8, allowImages: false,
-        label: `Answer to question ${i + 1}`, placeholder: 'Type your answer — markdown works (bold, lists, tables, code).',
-        onChange: (v) => onAnswer(q, v),
-      });
-      card.append(ed.el);
-    }
+    };
+    const lock = () => {
+      card.classList.add('locked'); card.dataset.locked = '1';
+      body.replaceChildren(el('div', { class: 'ex-lockedbox', role: 'group', 'aria-label': 'This question is hidden until you press Start question' },
+        el('div', { class: 'ex-fake', 'aria-hidden': 'true' }, [92, 78, 86, 54].map((w) => el('i', { style: `width:${w}%` }))),
+        el('p', { class: 'ex-muted', text: 'Hidden until you press “Start question”. The moment you start is recorded.' })));
+    };
+    const paintStart = () => {
+      const st = S.qStarts[q.id];
+      startBtn.hidden = !gate || !!st;
+      startTag.textContent = st ? `▶ started ${fmtDur(st.sec)} into the paper` : '';
+    };
+    startBtn.addEventListener('click', () => {
+      onStart(q);
+      card.classList.remove('locked'); delete card.dataset.locked;
+      fill(); paintStart();
+      const first = body.querySelector('textarea, input, select');
+      if (first) first.focus();
+    });
+    if (!gate || S.qStarts[q.id] || answered(q)) fill(); else lock();
+    paintStart();
     return card;
   }
 
@@ -316,12 +358,14 @@ export function mountAnswerer(root) {
     const deadline = effectiveDeadline(paper.settings, S.startedAt);
     const payload = {
       paperId: S.paperId, submittedAt: now.toISOString(), identity: S.identity, answers: ans,
+      langs: Object.fromEntries(paper.questions.filter((q) => q.type === 'code' && answered(q)).map((q) => [q.id, (codeLangOptions(q).find((l) => l.id === S.langs[q.id]) || codeLangOptions(q)[0]).id])),
       meta: {
         seed: S.seed, layout: S.layout, order: S.order, optionOrder: S.optionOrder,
         startedAt: new Date(S.startedAt).toISOString(), deadlineAt: deadline != null ? new Date(deadline).toISOString() : null,
         durationSec: Math.round((now.getTime() - S.startedAt) / 1000), timeUp: !!timeUp,
         skipped: paper.questions.filter((q) => !answered(q)).map((q) => q.id),
         qTimes: S.tracker ? S.tracker.snapshot() : {}, activeSec: S.tracker ? S.tracker.totalSec() : 0,
+        qStarts: Object.fromEntries(Object.entries(S.qStarts).map(([id, v]) => [id, { startedAt: new Date(v.at).toISOString(), sec: v.sec }])),
         secretId: normKey(paper.settings.secretId) || null,
         priorAttempts: ((S.lock && S.lock.attempts) || []).filter((a) => a.startedAt !== S.startedAt)
           .map((a) => ({ startedAt: new Date(a.startedAt).toISOString(), submittedAt: a.submittedAt ? new Date(a.submittedAt).toISOString() : null })),
@@ -358,5 +402,6 @@ export function mountAnswerer(root) {
         }))));
   }
 
+  enhanceCodeBlocks(root);          // one delegated handler: code-block Copy, {{chips}}, copy blocks, sample input/output
   showUnlock();
 }

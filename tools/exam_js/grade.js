@@ -82,6 +82,16 @@ function discrimination(qi, subs) {
   const ratio = (s) => { const r = s.grade.rows[qi]; return r.score / r.max; };
   return mean(sorted.slice(0, k).map(ratio)) - mean(sorted.slice(-k).map(ratio));
 }
+/** One verdict for a question in a submission — the same colours everywhere (ranklist, printed papers):
+    ok = full marks · bad = wrong · part = partial marks · warn = no verdict yet (awaiting marking, or the question carries no marks) · none = not answered */
+export function rowState(q, row, ans) {
+  if (isBlank(ans)) return { cls: 'none', sym: '–', label: 'Not answered' };
+  if (!q.marked) return { cls: 'warn', sym: '·', label: 'Not scored' };
+  if (row.pending) return { cls: 'warn', sym: '?', label: 'Awaiting marking' };
+  if (row.max > 0 && row.score >= row.max) return { cls: 'ok', sym: '✓', label: 'Correct' };
+  if (row.score <= 0) return { cls: 'bad', sym: '✗', label: 'Wrong' };
+  return { cls: 'part', sym: String(row.score), label: `Partial ${row.score}/${row.max}` };
+}
 export const questionSeconds = (s, qid) => { const t = (s.payload.meta?.qTimes || {})[qid]; return t && Number.isFinite(t.sec) ? t.sec : null; };
 export const activeSeconds = (s) => {
   const t = s.payload.meta?.qTimes;
@@ -151,13 +161,15 @@ const csvCell = (v) => { v = String(v ?? ''); return /[",\n\r]/.test(v) ? `"${v.
 /** subs = [{ payload, grade, batch, fileName }] */
 export function toCsv(paper, subs) {
   const fields = paper.settings.identityFields;
-  const head = ['batch', 'file', 'started', 'submitted', ...fields.map((f) => f.label), 'duration_sec', 'total', 'max', 'percent', 'pending_manual', 'counted', 'review_status', 'repeat_of', 'active_sec', ...paper.questions.map((q) => q.id), ...paper.questions.map((q) => 'sec_' + q.id)];
+  const head = ['batch', 'file', 'started', 'submitted', ...fields.map((f) => f.label), 'duration_sec', 'total', 'max', 'percent', 'pending_manual', 'counted', 'review_status', 'repeat_of', 'active_sec', 'overall_note', ...paper.questions.map((q) => q.id), ...paper.questions.map((q) => 'sec_' + q.id), ...paper.questions.filter((q) => q.type === 'code').map((q) => 'lang_' + q.id), ...paper.questions.map((q) => 'note_' + q.id)];
   const rows = subs.map((s) => [
     s.batch, s.fileName, s.payload.meta?.startedAt ?? '', s.payload.submittedAt, ...fields.map((f) => (s.payload.identity || {})[f.id] ?? ''),
     s.payload.meta?.durationSec ?? '', s.grade.total, s.grade.max, Math.round(s.grade.pct * 10) / 10, s.grade.pending,
-    s.counted === false ? 'no' : 'yes', s.reviewStatus ?? '', s.flag ? s.flag.originalFile : '', activeSeconds(s) ?? '',
+    s.counted === false ? 'no' : 'yes', s.reviewStatus ?? '', s.flag ? s.flag.originalFile : '', activeSeconds(s) ?? '', (s.notes || {})._all ?? '',
     ...s.grade.rows.map((r) => (r.marked ? (r.pending ? '' : r.score) : 'n/a')),
     ...paper.questions.map((q) => questionSeconds(s, q.id) ?? ''),
+    ...paper.questions.filter((q) => q.type === 'code').map((q) => (s.payload.langs || {})[q.id] ?? ''),
+    ...paper.questions.map((q) => (s.notes || {})[q.id] ?? ''),
   ]);
   return [head, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n');
 }

@@ -6,10 +6,10 @@
 import { el, debounce, toast, dialog, confirmDialog, bulletList, copyText, dropZone, readBytes, readText, plural } from './ui.js';
 import {
   blankPaper, blankQuestion, blankSection, blankText, nextItemId, migrateItems, isQuestion, QUESTION_TYPES, CODE_LANGS, TIMEZONES,
-  isMcq, validatePaper, paperFileName, downloadText, safeName, zonedToUtcMs, fmtInZone,
+  isMcq, validatePaper, paperFileName, downloadText, safeName, zonedToUtcMs, fmtInZone, codeLangOptions, customLangId,
 } from './format.js';
 import { createMarkdownEditor } from './md-editor.js';
-import { collectBlockIds, collectImageIds, stripMarkdown, renderMarkdown } from './markdown.js';
+import { collectBlockIds, collectImageIds, stripMarkdown, renderMarkdown, renderSamples, enhanceCodeBlocks } from './markdown.js';
 import { totalAssetBytes } from './images.js';
 import { createPaperFile, openPaperAsSetter, CryptoError } from './crypto.js';
 import { packPaperZip, readPaperBytes } from './zip.js';
@@ -25,7 +25,7 @@ function normalize(d) {
   for (const q of d.paper.items) {
     if (!isQuestion(q)) continue;
     if (isMcq(q) && !q.options) q.options = blankQuestion(q.type, []).options;
-    if (q.type === 'code') { q.codeLang ||= 'python'; q.starter ||= ''; }
+    if (q.type === 'code') { q.codeLang ||= 'python'; q.starter ||= ''; q.codeLangs = codeLangOptions(q).map(({ id, label }) => ({ id, label })); }
   }
   return d;
 }
@@ -220,6 +220,7 @@ export function mountSetter(root) {
           check('Shuffle the order of sections', s.shuffleSections, (v) => { s.shuffleSections = v; touch(); }),
           check('Shuffle MCQ options', s.shuffleOptions, (v) => { s.shuffleOptions = v; touch(); }),
           check('Show marks next to marked questions', s.showMarks, (v) => { s.showMarks = v; touch(); }),
+          check('Hide each question until the student presses “Start question” (the start time is recorded)', s.gateQuestions, (v) => { s.gateQuestions = v; touch(); }),
           el('small', { class: 'ex-muted', text: 'Shuffling inside a section is set on the section itself. A paragraph moves together with the question after it.' })),
         el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'Ask each student for' }), fieldsEl,
           el('small', { class: 'ex-muted', text: 'Goes into the answer file’s name and the check panel. “Identifies student” fields are how Check paper recognises the same person submitting twice (case, spaces and punctuation are ignored: “Harsh Rathod” = “harshrathod”).' }))),
@@ -281,7 +282,7 @@ export function mountSetter(root) {
       q.type = typeSel.value;
       if (isMcq(q) && !q.options) q.options = blankQuestion('mcq-single', []).options;
       if (q.type === 'mcq-single' && (sol(q).correct || []).length > 1) sol(q).correct = [sol(q).correct[0]];
-      if (q.type === 'code') { q.codeLang ||= 'python'; q.starter ||= ''; }
+      if (q.type === 'code') { q.codeLang ||= 'python'; q.starter ||= ''; if (!Array.isArray(q.codeLangs)) q.codeLangs = codeLangOptions(q).map(({ id, label }) => ({ id, label })); }
       renderBody(); touch();
     });
     const marks = el('input', { class: 'ex-input narrow', type: 'number', min: 0, step: 0.5, value: q.marks, 'aria-label': 'Marks', disabled: !q.marked });
@@ -348,16 +349,59 @@ export function mountSetter(root) {
         check('Case-sensitive match', s.caseSensitive, (v) => { s.caseSensitive = v; touch(); }));
     }
     function codeExtras() {
-      const lang = el('select', { class: 'ex-input', 'aria-label': 'Language' }, CODE_LANGS.map((l) => el('option', { value: l.id, text: l.label })));
-      lang.value = q.codeLang;
-      const other = el('input', { class: 'ex-input', value: q.codeLangLabel || '', placeholder: 'Language name, e.g. Haskell', 'aria-label': 'Language name' });
-      other.hidden = q.codeLang !== 'other';
-      lang.addEventListener('change', () => { q.codeLang = lang.value; other.hidden = lang.value !== 'other'; touch(); });
-      other.addEventListener('input', () => { q.codeLangLabel = other.value; touch(); });
+      /* languages the student may choose from: tick the built-in ones and/or type any others */
+      const builtins = CODE_LANGS.filter((l) => l.id !== 'other');
+      const cur = codeLangOptions(q);
+      const checked = new Set(cur.filter((l) => builtins.some((b) => b.id === l.id)).map((l) => l.id));
+      let customText = cur.filter((l) => !builtins.some((b) => b.id === l.id)).map((l) => l.label).join(', ');
+      const summary = el('small', { class: 'ex-muted' });
+      const apply = () => {
+        const customs = [], seen = new Set();
+        for (const raw of customText.split(',')) {
+          const label = raw.trim();
+          if (label && !seen.has(label.toLowerCase())) { seen.add(label.toLowerCase()); customs.push({ id: customLangId(label), label }); }
+        }
+        q.codeLangs = [...builtins.filter((b) => checked.has(b.id)).map((b) => ({ id: b.id, label: b.label })), ...customs];
+        const first = q.codeLangs[0];
+        q.codeLang = first ? (builtins.some((b) => b.id === first.id) ? first.id : 'other') : 'python';
+        q.codeLangLabel = first && q.codeLang === 'other' ? first.label : '';
+        summary.textContent = q.codeLangs.length ? `Students choose from: ${q.codeLangs.map((l) => l.label).join(', ')} · default ${q.codeLangs[0].label}` : 'Choose at least one language.';
+        summary.classList.toggle('ex-err', !q.codeLangs.length);
+      };
+      const other = el('input', { class: 'ex-input', value: customText, placeholder: 'Other languages, comma-separated — e.g. Go, JavaScript, Haskell', 'aria-label': 'Other languages' });
+      other.addEventListener('input', () => { customText = other.value; apply(); touch(); });
+      apply();
+      const langBox = el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'Languages students can answer in' }),
+        el('div', { class: 'ex-row wrap' }, builtins.map((b) => check(b.label, checked.has(b.id), (v) => { v ? checked.add(b.id) : checked.delete(b.id); apply(); touch(); }))),
+        other, summary);
       const starter = el('textarea', { class: 'ex-input mono', rows: 3, placeholder: 'Starter code shown in the answer box (optional)', spellcheck: 'false' });
       starter.value = q.starter || '';
       starter.addEventListener('input', () => { q.starter = starter.value; touch(); });
-      return el('div', { class: 'ex-stack' }, el('div', { class: 'ex-row wrap' }, field('Answer language', lang), other), field('Starter code', starter));
+      return el('div', { class: 'ex-stack' }, langBox, field('Starter code', starter), samplesEditor());
+    }
+    /* Codeforces-style sample tests: each shows as Input / Output boxes with Copy buttons */
+    function samplesEditor() {
+      q.samples ||= [];
+      const wrap = el('div', { class: 'ex-stack ex-samples' });
+      const paint = () => {
+        wrap.replaceChildren(
+          el('span', { class: 'ex-label', text: 'Sample tests — shown like Codeforces, each box has a Copy button' }),
+          ...q.samples.map((sm, i) => {
+            const mk = (key, ph, rows) => {
+              const t = el('textarea', { class: 'ex-input mono', rows, placeholder: ph, spellcheck: 'false', 'aria-label': `Example ${i + 1} ${ph.toLowerCase()}` });
+              t.value = sm[key] || '';
+              t.addEventListener('input', () => { sm[key] = t.value; touch(); });
+              return t;
+            };
+            return el('div', { class: 'ex-sample' },
+              el('div', { class: 'ex-row spread' }, el('strong', { text: `Example ${i + 1}` }), iconBtn('✕', 'Remove example', () => { q.samples.splice(i, 1); paint(); touch(); })),
+              el('div', { class: 'ex-grid2' }, field('Input', mk('input', 'Input', 3)), field('Output', mk('output', 'Output', 3))),
+              field('Note (optional, markdown)', mk('note', 'Explanation of this example', 2)));
+          }),
+          el('button', { type: 'button', class: 'ex-btn ghost small', text: '+ Add example', onclick: () => { q.samples.push({ input: '', output: '', note: '' }); paint(); touch(); } }));
+      };
+      paint();
+      return wrap;
     }
 
     renderBody(); setSnippet();
@@ -440,9 +484,13 @@ export function mountSetter(root) {
       const o = { kind: 'question', id: it.id.trim(), type: it.type, prompt: it.prompt, mandatory: !!it.mandatory, marked: !!it.marked, marks: it.marked ? Number(it.marks) : 0 };
       if (isMcq(it)) o.options = it.options.filter((x) => x.text.trim()).map((x) => ({ id: x.id, text: x.text }));
       if (it.type === 'code') {
-        o.codeLang = it.codeLang;
-        o.codeLangLabel = it.codeLang === 'other' ? (it.codeLangLabel || '').trim() : '';
+        const langs = codeLangOptions(it);
+        o.codeLangs = langs.map(({ id, label }) => ({ id, label }));
+        o.codeLang = langs[0] && CODE_LANGS.some((l) => l.id === langs[0].id) ? langs[0].id : 'other';
+        o.codeLangLabel = o.codeLang === 'other' && langs[0] ? langs[0].label : '';
         if ((it.starter || '').trim()) o.starter = it.starter;
+        const sm = (it.samples || []).filter((x) => (x.input || '').trim() || (x.output || '').trim()).map((x) => ({ input: x.input || '', output: x.output || '', note: x.note || '' }));
+        if (sm.length) o.samples = sm;
       }
       return o;
     });
@@ -466,7 +514,7 @@ export function mountSetter(root) {
     /* images: those used in the paper travel with the paper; images used ONLY in model answers go in the
        setter-only block, so students can't pull them out of the file. */
     const paperTexts = [p.description, ...outItems.flatMap((i) => (i.kind === 'text' ? [i.text] : i.kind === 'section' ? [i.description]
-      : [i.prompt, ...(i.options || []).map((o) => o.text)]))];
+      : [i.prompt, ...(i.options || []).map((o) => o.text), ...(i.samples || []).map((x) => x.note || '')]))];
     const paperIds = new Set(paperTexts.flatMap(collectImageIds));
     const modelIds = new Set(Object.values(solutions).flatMap((x) => collectImageIds(x.modelAnswer || '')));
     const pick = (ids) => Object.fromEntries([...ids].filter((id) => id in p.assets).map((id) => [id, p.assets[id]]));
@@ -476,7 +524,7 @@ export function mountSetter(root) {
     const paper = {
       id: p.id, title: p.title.trim(), description: p.description, assets: pick(paperIds),
       settings: {
-        shuffleQuestions: !!s.shuffleQuestions, shuffleSections: !!s.shuffleSections, shuffleOptions: !!s.shuffleOptions, showMarks: !!s.showMarks,
+        shuffleQuestions: !!s.shuffleQuestions, shuffleSections: !!s.shuffleSections, shuffleOptions: !!s.shuffleOptions, showMarks: !!s.showMarks, gateQuestions: !!s.gateQuestions,
         timeLimitMin: t > 0 ? t : null,
         endLocal: s.endLocal || '', endTz: s.endTz, endAt: Number.isFinite(endMs) ? new Date(endMs).toISOString() : null,
         blockRepeats: !!s.blockRepeats, secretId: (s.secretId || '').trim(), cooldownMin: Number(s.cooldownMin) > 0 ? Number(s.cooldownMin) : null,
@@ -493,7 +541,7 @@ export function mountSetter(root) {
     const md = (t) => renderMarkdown(t, { images: true, assets: paper.assets });
     const badge = (t, c = '') => el('span', { class: `ex-badge ${c}`.trim(), text: t });
     let n = 0;
-    return el('div', { class: 'ex-preview' },
+    const box = el('div', { class: 'ex-preview' },
       el('h2', { text: paper.title || '(untitled paper)' }),
       el('div', { class: 'exam-md', html: md(paper.description) }),
       paper.settings.endAt ? el('p', { class: 'ex-note', text: `Closes ${fmtInZone(Date.parse(paper.settings.endAt), paper.settings.endTz)}` }) : null,
@@ -506,8 +554,11 @@ export function mountSetter(root) {
             badge(it.mandatory ? 'Required' : 'Optional', it.mandatory ? 'warn' : ''),
             badge(it.marked ? `${it.marks} mark${it.marks === 1 ? '' : 's'}` : 'Unmarked', it.marked ? 'accent' : '')),
           el('div', { class: 'exam-md', html: md(it.prompt) }),
+          it.samples ? el('div', { class: 'exam-md', html: renderSamples(it.samples, { images: true, assets: paper.assets }) }) : null,
           it.options ? el('ol', { class: 'ex-previewopts', type: 'a' }, it.options.map((o) => el('li', { class: 'exam-md', html: md(o.text) }))) : null);
       }));
+    enhanceCodeBlocks(box);
+    return box;
   }
 
   /* ---------- generate ---------- */

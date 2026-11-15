@@ -9,6 +9,8 @@
        /callout asks for an id, a name and a colour, then inserts a ::::callout{…} block
    · Images: toolbar "Image", /image, paste or drag-drop — only when `assets` (the paper's image store) is passed.
        Uploaded images are shrunk, stored in `assets` and inserted as ![alt|60%](img:i1).
+   · Copy for students: the "⧉" button / /chip wrap the selection as {{click-to-copy}}; /copy makes a block whose whole
+       content copies; /io inserts Codeforces-style sample input/output boxes; tables can get a "Copy table" button.
    · "H" cycles the line's heading level (none → # → ## → ###); colour headings with the "A" button.
    · Write / Preview / Split views (Split only in the full editor)
    · Ctrl/Cmd + B, I, U, K · Enter continues a list · edits go through the browser's undo stack
@@ -171,6 +173,7 @@ export function createMarkdownEditor(opts = {}) {
       fields: [
         { key: 'id', label: 'Table id', value: nextId('t') },
         { key: 'name', label: 'Table name', value: '' },
+        { key: 'copy', label: 'Copy button on the table', type: 'select', value: '', options: [{ id: '', label: 'No' }, { id: 'true', label: 'Yes — students can copy it' }] },
         { key: 'cols', label: 'Columns', type: 'number', value: 3, min: 1, max: 8 },
         { key: 'rows', label: 'Rows (without header)', type: 'number', value: 3, min: 1, max: 20 },
       ],
@@ -182,7 +185,7 @@ export function createMarkdownEditor(opts = {}) {
         const row = (f) => '| ' + Array.from({ length: cols }, (_, c) => f(c)).join(' | ') + ' |';
         const header = row((c) => `Col ${c + 1}`);
         const body = Array.from({ length: nrows }, () => row(() => ' ')).join('\n');
-        insertBlock(`:::table{id=${id} name="${cleanName(v.name)}"}\n${header}\n${row(() => '---')}\n${body}\n:::`, 'Col 1');
+        insertBlock(`:::table{id=${id} name="${cleanName(v.name)}"${v.copy ? ' copy=true' : ''}}\n${header}\n${row(() => '---')}\n${body}\n:::`, 'Col 1');
         return '';
       },
     });
@@ -271,6 +274,9 @@ export function createMarkdownEditor(opts = {}) {
   const COMMANDS = [
     { key: 'table', label: 'Table', hint: 'with id and name', run: openTableForm },
     { key: 'callout', label: 'Callout', hint: 'coloured box with id and name', run: openCalloutForm },
+    { key: 'io', label: 'Sample input / output', hint: 'Codeforces-style, with Copy buttons', run: () => insertBlock(':::io\n--- input\n5 3\n--- output\n8\n:::', '5 3') },
+    { key: 'copy', label: 'Copy block', hint: 'one click copies a paragraph, list or table', run: () => insertBlock(':::copy{name="Copy this"}\nContent here…\n:::', 'Content here…') },
+    { key: 'chip', label: 'Click-to-copy text', hint: '{{word}} or {{shown => copied}}', run: () => wrap('{{', '}}', 'text') },
     { key: 'code', label: 'Code block', hint: 'syntax highlighted', run: openCodeForm },
     { key: 'h1', label: 'Heading 1', run: () => prefixLines((l) => '# ' + l) },
     { key: 'h2', label: 'Heading 2', run: () => prefixLines((l) => '## ' + l) },
@@ -369,6 +375,7 @@ export function createMarkdownEditor(opts = {}) {
     tb('A', 'Text colour', openColorPop, 'mde-c'),
     tb('</>', 'Inline code', () => wrap('`', '`', 'code')),
     tb('H', 'Heading level (click to cycle)', cycleHeading, 'mde-h'),
+    tb('⧉', 'Click-to-copy: wrap the selected text as {{…}} so students can copy it with one click', () => wrap('{{', '}}', 'text'), 'mde-copy'),
   ];
   if (!compact) {
     tools.push(tb('Link', 'Link (Ctrl+K)', insertLink), sep(),
@@ -406,7 +413,7 @@ export function createMarkdownEditor(opts = {}) {
   }
 
   const bar = el('div', { class: 'mde-bar', role: 'toolbar', 'aria-label': 'Formatting' }, tools, el('span', { class: 'mde-spacer' }), modeBar);
-  const hint = el('p', { class: 'mde-hint', text: 'Markdown · / for blocks · <u>underline</u> · =(ok)colour=' });
+  const hint = el('p', { class: 'mde-hint', text: 'Markdown · / for blocks · <u>underline</u> · =(ok)colour= · {{click-to-copy}}' });
   const root = el('div', { class: `mde${compact ? ' mde-compact' : ''}` }, bar, pop, panes, compact ? null : hint);
   setMode('write');
   queueMicrotask(autosize);

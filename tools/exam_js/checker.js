@@ -9,26 +9,28 @@
    dismiss it, or count it instead of the original. Decisions are saved in this browser. */
 
 import { el, toast, dialog, confirmDialog, bulletList, dropZone, readText, readBytes, fmtDate, fmtDur, plural } from './ui.js';
-import { CODE_LANGS, isMcq, downloadText, safeName, hydratePaper, fmtInZone, normKey } from './format.js';
-import { renderMarkdown, renderCode, enhanceCodeBlocks, stripMarkdown } from './markdown.js';
+import { CODE_LANGS, isMcq, downloadText, safeName, hydratePaper, fmtInZone, normKey, codeLangOptions } from './format.js';
+import { renderMarkdown, renderCode, renderSamples, enhanceCodeBlocks, stripMarkdown } from './markdown.js';
 import { openPaperAsSetter, openPaperAsAnswerer, openAnswerFile, CryptoError } from './crypto.js';
 import { readPaperBytes } from './zip.js';
-import { gradeSubmission, batchStats, toCsv, identityKey, submissionId, isBlank, activeSeconds } from './grade.js';
+import { gradeSubmission, batchStats, toCsv, identityKey, submissionId, isBlank, activeSeconds, rowState } from './grade.js';
 import { barList, columns, scatter, donut, chartCard } from './charts.js';
 
 const OVKEY = (id) => 'exam.marks.' + id;
 const RVKEY = (id) => 'exam.review.' + id;
 const PASSKEY = (id) => 'exam.pass.' + id;
+const NOTEKEY = (id) => 'exam.notes.' + id;
 const pct = (n) => (n == null ? '—' : `${Math.round(n * 10) / 10}%`);
 const STATUS = { correct: ['Correct', 'ok'], wrong: ['Wrong', 'bad'], blank: ['Blank', ''], manual: ['Needs marking', 'warn'], unmarked: ['Unmarked', ''] };
 
 export function mountChecker(root) {
   const S = {
-    paper: null, solutions: null, setterKey: '', subs: [], batches: [], ov: {}, rv: {}, onlyReview: false, dedupe: true, passMark: 40, updatedAt: null, stale: false, dir: null, seen: new Set(), refreshBtn: null,
+    paper: null, solutions: null, setterKey: '', subs: [], batches: [], ov: {}, rv: {}, onlyReview: false, dedupe: true, passMark: 40, notes: {}, updatedAt: null, stale: false, dir: null, seen: new Set(), refreshBtn: null,
     tab: 'overview', sort: { key: 'submitted', dir: -1 }, batchFilter: '', search: '', reviewId: null, reviewList: [], stats: null,
   };
   const fields = () => S.paper.settings.identityFields;
   const saveOv = () => { try { localStorage.setItem(OVKEY(S.paper.id), JSON.stringify(S.ov)); } catch { /* ignore */ } };
+  const saveNotes = () => { try { localStorage.setItem(NOTEKEY(S.paper.id), JSON.stringify(S.notes)); } catch { /* ignore */ } };
   const saveRv = () => { try { localStorage.setItem(RVKEY(S.paper.id), JSON.stringify(S.rv)); } catch { /* ignore */ } };
   const active = () => S.subs.filter((s) => s.counted);
   const md = (t) => renderMarkdown(t, { images: true, assets: S.paper.assets });
@@ -51,7 +53,7 @@ export function mountChecker(root) {
     const want = normKey(st.secretId);
     for (const x of S.subs) {
       x.grade = gradeSubmission(S.paper, S.solutions, x.payload, S.ov[x.id]);
-      Object.assign(x, { flag: null, counted: true, repeats: [], replaced: false, decision: null, secretBad: !!want && (x.payload.meta?.secretId || '') !== want });
+      Object.assign(x, { notes: S.notes[x.id] || {}, flag: null, counted: true, repeats: [], replaced: false, decision: null, secretBad: !!want && (x.payload.meta?.secretId || '') !== want });
     }
     const groups = new Map();
     for (const x of S.subs) {
@@ -133,6 +135,7 @@ export function mountChecker(root) {
     let added = 0;
     try { S.ov = JSON.parse(localStorage.getItem(OVKEY(S.paper.id))) || {}; } catch { /* keep what we have */ }
     try { S.rv = JSON.parse(localStorage.getItem(RVKEY(S.paper.id))) || {}; } catch { /* keep what we have */ }
+    try { S.notes = JSON.parse(localStorage.getItem(NOTEKEY(S.paper.id))) || {}; } catch { /* keep what we have */ }
     if (S.dir) { try { added = await syncFolder(); } catch { toast('Could not read the linked folder — link it again.', 'err'); S.dir = null; } }
     recompute();
     S.updatedAt = Date.now(); S.stale = false;
@@ -140,7 +143,7 @@ export function mountChecker(root) {
     toast(added ? `Refreshed — ${plural(added, 'new answer file')} loaded` : 'Refreshed — everything is up to date', 'ok');
   }
   window.addEventListener('storage', (e) => {      // marks or decisions changed in another tab/window of this browser
-    if (!S.paper || (e.key !== OVKEY(S.paper.id) && e.key !== RVKEY(S.paper.id))) return;
+    if (!S.paper || (e.key !== OVKEY(S.paper.id) && e.key !== RVKEY(S.paper.id) && e.key !== NOTEKEY(S.paper.id))) return;
     S.stale = true;
     if (S.refreshBtn) { S.refreshBtn.className = 'ex-btn small primary'; S.refreshBtn.textContent = '↻ Refresh — new changes'; }
   });
@@ -154,7 +157,7 @@ export function mountChecker(root) {
             (closeMs() != null ? ` · closes ${fmtInZone(closeMs(), S.paper.settings.endTz)}` : '') })),
         el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Close paper', onclick: async () => {
           if (S.subs.length && !(await confirmDialog('Close this paper and unload all answer files? Manual marks stay saved in this browser.', { ok: 'Close' }))) return;
-          Object.assign(S, { paper: null, solutions: null, setterKey: '', subs: [], batches: [], ov: {}, rv: {}, onlyReview: false, dir: null, seen: new Set(), updatedAt: null, stale: false, reviewId: null, tab: 'overview' });
+          Object.assign(S, { paper: null, solutions: null, setterKey: '', subs: [], batches: [], ov: {}, rv: {}, notes: {}, onlyReview: false, dir: null, seen: new Set(), updatedAt: null, stale: false, reviewId: null, tab: 'overview' });
           renderAll();
         } })));
     }
@@ -180,6 +183,7 @@ export function mountChecker(root) {
         delete S.solutions._assets;
         try { S.ov = JSON.parse(localStorage.getItem(OVKEY(S.paper.id))) || {}; } catch { S.ov = {}; }
         try { S.rv = JSON.parse(localStorage.getItem(RVKEY(S.paper.id))) || {}; } catch { S.rv = {}; }
+        try { S.notes = JSON.parse(localStorage.getItem(NOTEKEY(S.paper.id))) || {}; } catch { S.notes = {}; }
         S.passMark = Number(localStorage.getItem(PASSKEY(S.paper.id))) || 40;
         recompute(); S.updatedAt = Date.now();
         renderAll();
@@ -222,6 +226,62 @@ export function mountChecker(root) {
       el('span', { class: 'ex-spacer' }), el('small', { class: 'ex-muted', text: S.updatedAt ? `Updated ${new Date(S.updatedAt).toLocaleTimeString()}` : '' }), rbtn);
   }
 
+  /* ---------- ranking, language, backup helpers ---------- */
+  /** Counted submissions, best first; equal scores share a rank (1, 2, 2, 4 …). */
+  function ranked() {
+    const list = active().slice().sort((a, b) => b.grade.total - a.grade.total || a.payload.submittedAt.localeCompare(b.payload.submittedAt));
+    let rank = 0, prev = null;
+    list.forEach((x, i) => { if (x.grade.total !== prev) { rank = i + 1; prev = x.grade.total; } x.rank = rank; });
+    return list;
+  }
+  const openReview = (id) => { S.reviewList = ranked().map((x) => x.id); S.reviewId = id; renderAll(); window.scrollTo({ top: 0 }); };
+  const langOf = (sub, q) => { const o = codeLangOptions(q); return o.find((l) => l.id === (sub.payload.langs || {})[q.id]) || o[0]; };
+  const pickFile = (accept) => new Promise((res) => { const i = el('input', { type: 'file', accept }); i.addEventListener('change', () => res(i.files[0] || null)); i.click(); });
+  function exportBackup() {
+    downloadText(`${safeName(S.paper.title)}_marking-backup.json`, JSON.stringify({ v: 1, paperId: S.paper.id, marks: S.ov, reviews: S.rv, notes: S.notes, passMark: S.passMark, savedAt: new Date().toISOString() }, null, 2));
+  }
+  async function importBackup() {
+    const f = await pickFile('.json');
+    if (!f) return;
+    try {
+      const d = JSON.parse(await readText(f));
+      if (!d || d.paperId !== S.paper.id) throw new Error('other paper');
+      if (!(await confirmDialog('Replace the marks, review decisions and notes in this browser with the ones in the backup?', { ok: 'Replace', danger: true }))) return;
+      S.ov = d.marks || {}; S.rv = d.reviews || {}; S.notes = d.notes || {}; S.passMark = Number(d.passMark) || S.passMark;
+      saveOv(); saveRv(); saveNotes();
+      try { localStorage.setItem(PASSKEY(S.paper.id), String(S.passMark)); } catch { /* ignore */ }
+      recompute(); S.updatedAt = Date.now(); renderAll(); toast('Marking backup loaded', 'ok');
+    } catch { toast('That is not a marking backup for this paper.', 'err'); }
+  }
+
+  /* ---------- ranklist: who got which question right / wrong / not answered ---------- */
+  const LEGEND = [['ok', '✓', 'Correct'], ['bad', '✗', 'Wrong'], ['part', '½', 'Partial marks'], ['warn', '?', 'Awaiting marking / not scored'], ['none', '–', 'Not answered']];
+  const legendNode = () => el('ul', { class: 'rk-legend' }, LEGEND.map(([c, sym, t]) => el('li', {}, el('i', { class: `rk-cell ${c}`, text: sym }), el('span', { text: t }))));
+  function ranklistNode(forPrint) {
+    const list = ranked(), qs = S.paper.questions;
+    if (!list.length) return el('p', { class: 'ex-muted', text: 'No submissions yet.' });
+    const groups = [];
+    for (const q of qs) { const t = secOf(q) || ''; const g = groups[groups.length - 1]; if (g && g.t === t) g.n++; else groups.push({ t, n: 1 }); }
+    const secRow = groups.some((g) => g.t) ? el('tr', { class: 'rk-secrow' }, el('th', { colspan: 4 }), groups.map((g) => el('th', { colspan: g.n, class: 'rk-sec', text: g.t }))) : null;
+    const head = el('thead', {}, secRow, el('tr', {}, el('th', { class: 'rk-rank', text: '#' }), el('th', { class: 'rk-who', text: 'Student' }), el('th', { text: 'Score' }), el('th', { text: '%' }),
+      qs.map((q, i) => el('th', { class: 'rk-q', title: `Q${i + 1} — ${stripMarkdown(q.prompt).slice(0, 80)}`, text: `Q${i + 1}` }))));
+    const stateOf = (x, qi) => rowState(qs[qi], x.grade.rows[qi], (x.payload.answers || {})[qs[qi].id]);
+    const body = el('tbody', {}, list.map((x) => el('tr', {},
+      el('td', { class: 'rk-rank', text: x.rank }),
+      el('td', { class: 'rk-who' }, el('button', { type: 'button', class: 'rk-link', text: who(x), onclick: forPrint ? null : () => openReview(x.id) }), x.grade.pending ? el('span', { class: 'ex-badge warn', text: `${x.grade.pending} to mark` }) : null),
+      el('td', { class: 'num', text: `${x.grade.total}/${x.grade.max}` }), el('td', { class: 'num', text: pct(x.grade.pct) }),
+      qs.map((q, qi) => {
+        const st = stateOf(x, qi), row = x.grade.rows[qi];
+        return el('td', { class: `rk-cell ${st.cls}`, title: `${who(x)} — Q${qi + 1}: ${st.label}${q.marked ? ` (${row.score}/${row.max})` : ''}`, text: st.sym, onclick: forPrint ? null : () => openReview(x.id) });
+      }))));
+    const foot = el('tfoot', {}, el('tr', {}, el('td', { colspan: 4, class: 'rk-who', text: 'Correct / answered' }),
+      qs.map((q, qi) => { const ans = list.filter((x) => stateOf(x, qi).cls !== 'none'), ok = list.filter((x) => stateOf(x, qi).cls === 'ok'); return el('td', { class: 'rk-foot', text: q.marked ? `${ok.length}/${ans.length}` : `${ans.length}` }); })));
+    return el('div', { class: 'rk' }, legendNode(), el('div', { class: 'ex-tablewrap rk-wrap' }, el('table', { class: 'ex-table rk-table' }, head, body, foot)));
+  }
+  const ranklistCard = () => el('section', { class: 'ex-card ex-stack' }, el('h3', { text: 'Ranklist — who got what' }),
+    el('p', { class: 'ex-muted', text: 'One row per student, best first; click a name or a cell to open that paper. Green = right, red = wrong, yellow = not marked yet, grey = not answered.' }),
+    ranklistNode(false));
+
   /* ---------- Dashboard ---------- */
   const secOf = (q) => (S.paper.sectionOf || {})[q.id];
   const qLabel = (i) => `Q${i + 1}` + (secOf(S.paper.questions[i]) ? ` · ${secOf(S.paper.questions[i])}` : '');
@@ -238,32 +298,11 @@ export function mountChecker(root) {
     const every = Math.ceil(n / 8);
     return columns(counts.map((c, i) => ({ label: i % every === 0 ? fmt(min + i * step) : '', value: c, title: `${fmt(min + i * step)}: ${plural(c, 'submission')}`, cls: 'info' })), { height: 150 });
   }
-  function overview() {
+  function dashboardBody() {
     const st = S.stats, ac = active();
     const card = (label, value, sub) => el('div', { class: 'ex-stat' }, el('span', { class: 'ex-statv', text: value }), el('span', { class: 'ex-statl', text: label }), sub ? el('small', { class: 'ex-muted', text: sub }) : null);
     const superseded = S.subs.length - ac.length;
-    const dup = el('label', { class: 'ex-check' }, Object.assign(el('input', { type: 'checkbox' }), { checked: S.dedupe }), el('span', { text: 'Count only the first (original) submission per student — later ones need your review' }));
-    dup.querySelector('input').addEventListener('change', (e) => { S.dedupe = e.target.checked; recompute(); renderAll(); });
     const nr = S.subs.filter((x) => x.needsReview);
-    const reviewNote = nr.length ? el('div', { class: 'ex-note bad ex-stack' },
-      el('strong', { text: `${plural(nr.length, 'submission')} ${nr.length === 1 ? 'needs' : 'need'} your review` }),
-      el('span', { text: 'The same student submitted more than once (names are matched ignoring case, spaces and punctuation). Only the first submission is counted; the later ones are flagged as answered inside (or after) the cooldown.' }),
-      el('div', {}, el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Review them', onclick: () => { S.tab = 'subs'; S.onlyReview = true; renderAll(); } }))) : null;
-
-    const pass = el('input', { class: 'ex-input narrow', type: 'number', min: 0, max: 100, value: S.passMark, 'aria-label': 'Pass mark in percent' });
-    pass.addEventListener('change', () => {
-      S.passMark = Math.max(0, Math.min(100, Number(pass.value) || 0));
-      try { localStorage.setItem(PASSKEY(S.paper.id), String(S.passMark)); } catch { /* ignore */ }
-      refreshStats(); renderAll();
-    });
-    const head = el('div', { class: 'ex-row wrap spread' }, el('h2', { text: 'Dashboard' }),
-      el('div', { class: 'ex-row wrap' }, el('span', { class: 'ex-label', text: 'Pass mark %' }), pass,
-        ac.length ? el('button', { type: 'button', class: 'ex-btn primary small', text: 'Download results (CSV)', onclick: exportCsv }) : null));
-
-    if (!ac.length) {
-      return el('div', { class: 'ex-stack' }, head, reviewNote, el('p', { class: 'ex-empty', text: 'Add some answer files to see the dashboard.' }),
-        el('div', { class: 'ex-card ex-stack' }, el('h3', { text: 'Batches' }), batchesTable(), dup));
-    }
     const pq = st.perQuestion, marked = pq.map((p, i) => ({ p, i })).filter((x) => x.p.marked);
 
     /* 1. score distribution with mean / median / pass line */
@@ -319,15 +358,46 @@ export function mountChecker(root) {
       secRows.length ? chartCard('Section performance', 'Average share of the marks earned in each section.', barList(secRows)) : null,
       workRows.length ? chartCard('Marking still to do', 'Answers waiting for a mark, by question.', barList(workRows)) : null);
 
-    return el('div', { class: 'ex-stack' }, head, reviewNote,
-      el('div', { class: 'ex-stats' },
+    const cards = el('div', { class: 'ex-stats' },
         card('Submissions', String(st.n), superseded ? `${superseded} repeat${superseded === 1 ? '' : 's'} not counted` : null),
         card('Mean', pct(st.mean)), card('Median', pct(st.median)), card('Highest', pct(st.max)), card('Lowest', pct(st.min)),
         card('Std. deviation', st.sd.toFixed(1)), card('Pass rate', pct(st.passRate * 100), `${st.passed} of ${st.n} ≥ ${S.passMark}%`),
         card('Avg. time', st.avgDuration == null ? '—' : fmtDur(st.avgDuration)),
         card('Active on questions', st.avgActive == null ? '—' : fmtDur(st.avgActive), 'average per student'),
-        card('Still to mark', String(st.pending), st.pendingSubs ? `in ${plural(st.pendingSubs, 'submission')}` : 'all marked')),
-      grid,
+        card('Still to mark', String(st.pending), st.pendingSubs ? `in ${plural(st.pendingSubs, 'submission')}` : 'all marked'));
+    return { cards, grid };
+  }
+  function overview() {
+    const st = S.stats, ac = active();
+    const card = (label, value, sub) => el('div', { class: 'ex-stat' }, el('span', { class: 'ex-statv', text: value }), el('span', { class: 'ex-statl', text: label }), sub ? el('small', { class: 'ex-muted', text: sub }) : null);
+    const superseded = S.subs.length - ac.length;
+    const dup = el('label', { class: 'ex-check' }, Object.assign(el('input', { type: 'checkbox' }), { checked: S.dedupe }), el('span', { text: 'Count only the first (original) submission per student — later ones need your review' }));
+    dup.querySelector('input').addEventListener('change', (e) => { S.dedupe = e.target.checked; recompute(); renderAll(); });
+    const nr = S.subs.filter((x) => x.needsReview);
+    const reviewNote = nr.length ? el('div', { class: 'ex-note bad ex-stack' },
+      el('strong', { text: `${plural(nr.length, 'submission')} ${nr.length === 1 ? 'needs' : 'need'} your review` }),
+      el('span', { text: 'The same student submitted more than once (names are matched ignoring case, spaces and punctuation). Only the first submission is counted; the later ones are flagged as answered inside (or after) the cooldown.' }),
+      el('div', {}, el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Review them', onclick: () => { S.tab = 'subs'; S.onlyReview = true; renderAll(); } }))) : null;
+
+    const pass = el('input', { class: 'ex-input narrow', type: 'number', min: 0, max: 100, value: S.passMark, 'aria-label': 'Pass mark in percent' });
+    pass.addEventListener('change', () => {
+      S.passMark = Math.max(0, Math.min(100, Number(pass.value) || 0));
+      try { localStorage.setItem(PASSKEY(S.paper.id), String(S.passMark)); } catch { /* ignore */ }
+      refreshStats(); renderAll();
+    });
+    const head = el('div', { class: 'ex-row wrap spread' }, el('h2', { text: 'Dashboard' }),
+      el('div', { class: 'ex-row wrap' }, el('span', { class: 'ex-label', text: 'Pass mark %' }), pass,
+        ac.length ? el('button', { type: 'button', class: 'ex-btn primary small', text: '🖨 Print…', title: 'Print or save as PDF: the dashboard and/or every student’s paper', onclick: () => printDialog(null) }) : null,
+        ac.length ? el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Download results (CSV)', onclick: exportCsv }) : null,
+        el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Save marking backup', title: 'Marks, review decisions and notes as a JSON file', onclick: exportBackup }),
+        el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Load backup', onclick: importBackup })));
+
+    if (!ac.length) {
+      return el('div', { class: 'ex-stack' }, head, reviewNote, el('p', { class: 'ex-empty', text: 'Add some answer files to see the dashboard.' }),
+        el('div', { class: 'ex-card ex-stack' }, el('h3', { text: 'Batches' }), batchesTable(), dup));
+    }
+    const parts = dashboardBody();
+    return el('div', { class: 'ex-stack' }, head, reviewNote, parts.cards, parts.grid, ranklistCard(),
       el('div', { class: 'ex-card ex-stack' }, el('h3', { text: 'Batches' }), batchesTable(), dup));
   }
   function batchesTable() {
@@ -420,13 +490,44 @@ export function mountChecker(root) {
   }
 
   const timeBadge = (sub, q) => {
-    const t = (sub.payload.meta?.qTimes || {})[q.id];
-    if (!t) return null;
-    return el('span', { class: 'ex-badge info', title: t.answeredSec != null ? `First answered ${fmtDur(t.answeredSec)} into the paper` : 'Not answered', text: `⏱ ${fmtDur(t.sec)}` + (t.visits > 1 ? ` · ${t.visits} visits` : '') + (t.edits > 1 ? ` · ${t.edits} edits` : '') });
+    const m = sub.payload.meta || {}, t = (m.qTimes || {})[q.id], st = (m.qStarts || {})[q.id];
+    const out = [];
+    if (st) out.push(el('span', { class: 'ex-badge info', title: `Pressed “Start question” at ${fmtDate(st.startedAt)}`, text: `▶ started ${fmtDur(st.sec)} in` }));
+    if (t) out.push(el('span', { class: 'ex-badge info', title: t.answeredSec != null ? `First answered ${fmtDur(t.answeredSec)} into the paper` : 'Not answered', text: `⏱ ${fmtDur(t.sec)}` + (t.visits > 1 ? ` · ${t.visits} visits` : '') + (t.edits > 1 ? ` · ${t.edits} edits` : '') }));
+    if (q.type === 'code' && !isBlank((sub.payload.answers || {})[q.id])) out.push(el('span', { class: 'ex-badge accent', text: `Language: ${langOf(sub, q).label}` }));
+    return out;
+  };
+  /** The student's answer as a node. showCorrect marks the correct MCQ options (checker view / printed on request). */
+  function answerNode(q, sol, sub, showCorrect = true) {
+    const ans = (sub.payload.answers || {})[q.id];
+    if (isBlank(ans)) return el('p', { class: 'ex-muted', text: '— no answer —' });
+    if (isMcq(q)) {
+      const sel = new Set([].concat(ans)), cor = new Set(showCorrect ? (sol.correct || []) : []);
+      return el('ul', { class: 'ex-reviewopts' }, q.options.map((o) => el('li', { class: `${sel.has(o.id) ? 'picked' : ''} ${cor.has(o.id) ? 'correct' : ''}`.trim() },
+        el('span', { class: 'ex-mark', text: sel.has(o.id) ? '●' : '○', 'aria-label': sel.has(o.id) ? 'chosen' : 'not chosen' }),
+        el('div', { class: 'exam-md', html: md(o.text) }),
+        cor.has(o.id) ? el('span', { class: 'ex-badge ok', text: 'correct' }) : null)));
+    }
+    if (q.type === 'code') return el('div', { class: 'exam-md', html: renderCode(ans, langOf(sub, q).key || '') });
+    return el('div', { class: 'exam-md ex-answer', html: renderMarkdown(ans, { images: false }) });
+  }
+  function setNote(sub, key, v) {
+    const o = (S.notes[sub.id] ||= {});
+    if (v.trim()) o[key] = v; else delete o[key];
+    if (!Object.keys(o).length) delete S.notes[sub.id];
+    sub.notes = S.notes[sub.id] || {};
+    saveNotes(); S.updatedAt = Date.now();
+  }
+  const noteBox = (sub, key, label) => {
+    const t = el('textarea', { class: 'ex-input ex-notein', rows: 2, placeholder: label, 'aria-label': label });
+    t.value = (sub.notes || {})[key] || '';
+    t.addEventListener('input', () => setNote(sub, key, t.value));
+    return t;
   };
   function review() {
     const sub = S.subs.find((s) => s.id === S.reviewId);
     if (!sub) { S.reviewId = null; return submissions(); }
+    ranked();
     const idx = S.reviewList.indexOf(sub.id);
     const nav = (d) => { const id = S.reviewList[idx + d]; if (id) { S.reviewId = id; renderAll(); window.scrollTo({ top: 0 }); } };
     const score = el('strong', { class: 'ex-score' });
@@ -445,12 +546,15 @@ export function mountChecker(root) {
           el('button', { type: 'button', class: 'ex-btn ghost small', text: '← Previous', disabled: idx <= 0, onclick: () => nav(-1) }),
           el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Next →', disabled: idx < 0 || idx >= S.reviewList.length - 1, onclick: () => nav(1) }))),
       el('h2', { text: who }),
+      el('div', { class: 'ex-row wrap' }, sub.counted ? el('span', { class: 'ex-badge accent', text: `Rank ${sub.rank} of ${ranked().length}` }) : null,
+        el('button', { type: 'button', class: 'ex-btn ghost small', text: '🖨 Print this paper', onclick: () => printDialog(sub) })),
       el('div', { class: 'ex-row wrap' }, score, pend,
         el('span', { class: 'ex-muted', text: `${sub.batch}` + (sub.payload.meta?.startedAt ? ` · started ${fmtDate(sub.payload.meta.startedAt)}` : '') + ` · submitted ${fmtDate(sub.payload.submittedAt)}` + (sub.payload.meta?.durationSec != null ? ` · took ${fmtDur(sub.payload.meta.durationSec)}` : '') }),
         isLate(sub) ? el('span', { class: 'ex-badge bad', text: 'submitted after the closing time' }) : null,
         activeSeconds(sub) != null ? el('span', { class: 'ex-muted', text: `time on questions ${fmtDur(activeSeconds(sub))} of ${fmtDur(sub.payload.meta?.durationSec)}` }) : null,
         sub.payload.meta?.timeUp ? el('span', { class: 'ex-badge bad', text: 'auto-submitted when time ran out' }) : null,
-        !sub.counted ? el('span', { class: 'ex-badge', text: 'not counted in statistics' }) : null));
+        !sub.counted ? el('span', { class: 'ex-badge', text: 'not counted in statistics' }) : null),
+      el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'Overall feedback — printed at the top of this student’s paper' }), noteBox(sub, '_all', 'Overall feedback for the student…')));
 
     const setMark = (qid, v) => {
       const o = (S.ov[sub.id] ||= {});
@@ -478,18 +582,7 @@ export function mountChecker(root) {
         input.addEventListener('input', () => { setMark(q.id, input.value); const r = sub.grade.rows[qi]; const [t, c] = STATUS[r.status]; badge.textContent = t + (r.override != null && r.status !== 'manual' ? ' · edited' : ''); badge.className = `ex-badge ${c}`; });
         paint();
       }
-      const view = (() => {
-        if (isBlank(ans)) return el('p', { class: 'ex-muted', text: '— no answer —' });
-        if (isMcq(q)) {
-          const sel = new Set([].concat(ans)), cor = new Set(sol.correct || []);
-          return el('ul', { class: 'ex-reviewopts' }, q.options.map((o) => el('li', { class: `${sel.has(o.id) ? 'picked' : ''} ${cor.has(o.id) ? 'correct' : ''}`.trim() },
-            el('span', { class: 'ex-mark', text: sel.has(o.id) ? '●' : '○', 'aria-label': sel.has(o.id) ? 'chosen' : 'not chosen' }),
-            el('div', { class: 'exam-md', html: md(o.text) }),
-            cor.has(o.id) ? el('span', { class: 'ex-badge ok', text: 'correct' }) : null)));
-        }
-        if (q.type === 'code') return el('div', { class: 'exam-md', html: renderCode(ans, CODE_LANGS.find((l) => l.id === q.codeLang)?.key || '') });
-        return el('div', { class: 'exam-md ex-answer', html: renderMarkdown(ans, { images: false }) });
-      })();
+      const view = answerNode(q, sol, sub, true);
       const marker = q.marked ? el('div', { class: 'ex-row wrap markrow' },
         el('span', { class: 'ex-label', text: `Marks (out of ${q.marks})` }), input,
         el('button', { type: 'button', class: 'ex-btn ghost small', text: 'Full', onclick: () => { input.value = q.marks; setMark(q.id, q.marks); paint(); } }),
@@ -503,17 +596,128 @@ export function mountChecker(root) {
         el('div', { class: 'ex-qmeta' }, el('strong', { text: `Q${qi + 1}` }), el('span', { class: 'ex-tag', text: '#' + q.id }), S.paper.sectionOf[q.id] ? el('span', { class: 'ex-badge', text: '§ ' + S.paper.sectionOf[q.id] }) : null, q.marked ? badge : el('span', { class: 'ex-badge', text: 'Unmarked' }),
           timeBadge(sub, q),
           el('span', { class: 'ex-muted', text: stripMarkdown(q.prompt).slice(0, 70) })),
-        el('details', { class: 'ex-model' }, el('summary', { text: 'Question' }), el('div', { class: 'exam-md', html: md(q.prompt) })),
-        view, ...extra, marker);
+        el('details', { class: 'ex-model' }, el('summary', { text: 'Question' }), el('div', { class: 'exam-md', html: md(q.prompt) + (q.samples && q.samples.length ? renderSamples(q.samples, { images: true, assets: S.paper.assets }) : '') })),
+        view, ...extra, marker,
+        el('div', { class: 'ex-stack ex-notewrap' }, el('span', { class: 'ex-label', text: 'Note for the student (printed with the paper)' }), noteBox(sub, q.id, 'Explain the mark, point out the mistake, suggest what to revise…')));
     });
     const wrap = el('div', { class: 'ex-stack' }, head, reviewBanner(sub), ...cardsEl);
     enhanceCodeBlocks(wrap);
     return wrap;
   }
 
+  /* ---------- printing ---------- */
+  const STATE_WORD = { ok: 'Correct', bad: 'Wrong', part: 'Partial', warn: 'Not marked', none: 'Not answered' };
+  function printNow(node) {
+    document.getElementById('ex-print-root')?.remove();
+    const holder = el('div', { id: 'ex-print-root' }, node);
+    document.body.append(holder);
+    const html = document.documentElement, prev = html.dataset.theme;
+    html.classList.add('ex-printing');
+    html.dataset.theme = 'light';                        // paper is always light, whatever the screen theme
+    const done = () => {
+      window.removeEventListener('afterprint', done);
+      html.classList.remove('ex-printing'); html.dataset.theme = prev;
+      holder.remove();
+    };
+    window.addEventListener('afterprint', done);
+    setTimeout(() => window.print(), 80);                // let images and fonts settle first
+  }
+  function paperPrintNode(sub, o) {
+    const P = S.paper, g = sub.grade, ans = (q) => (sub.payload.answers || {})[q.id];
+    const stateOf = (q, qi) => rowState(q, g.rows[qi], ans(q));
+    const chips = el('div', { class: 'pp-strip' }, P.questions.map((q, qi) => {
+      const st = stateOf(q, qi), row = g.rows[qi];
+      return el('span', { class: `pp-chip ${st.cls}`, title: st.label }, el('b', { text: `Q${qi + 1}` }), el('small', { text: q.marked ? (row.pending || st.cls === 'none' ? (st.cls === 'none' ? '–' : '?') : `${row.score}/${row.max}`) : '·' }));
+    }));
+    const identity = fields().map((f) => (sub.payload.identity || {})[f.id]).filter(Boolean);
+    const m = sub.payload.meta || {};
+    const passed = g.pct >= S.passMark;
+    const header = el('header', { class: 'pp-head' },
+      el('div', {}, el('p', { class: 'pp-kicker', text: P.title }), el('h1', { text: identity.join(' · ') || 'Answer paper' }),
+        el('p', { class: 'pp-meta', text: fields().map((f) => `${f.label}: ${(sub.payload.identity || {})[f.id] || '—'}`).join('   ') }),
+        el('p', { class: 'pp-meta', text: `Submitted ${fmtDate(sub.payload.submittedAt)}` + (m.startedAt ? ` · started ${fmtDate(m.startedAt)}` : '') + (m.durationSec != null ? ` · took ${fmtDur(m.durationSec)}` : '') })),
+      el('div', { class: 'pp-score' }, el('b', { text: `${g.total} / ${g.max}` }), el('span', { text: pct(g.pct) }),
+        el('span', { class: `pp-pass ${passed ? 'ok' : 'bad'}`, text: passed ? `Pass (≥ ${S.passMark}%)` : `Below pass mark (${S.passMark}%)` }),
+        sub.counted ? el('span', { text: `Rank ${sub.rank} of ${ranked().length}` }) : null));
+    const banners = [
+      !sub.counted ? el('p', { class: 'pp-banner', text: 'This is a repeat submission and is not counted in the results.' }) : null,
+      g.pending ? el('p', { class: 'pp-banner', text: `${plural(g.pending, 'answer')} not marked yet — the score may still change.` }) : null,
+    ];
+    const overall = o.notes && (sub.notes || {})._all ? el('div', { class: 'pp-note' }, el('strong', { text: 'Overall feedback' }), el('p', { text: sub.notes._all })) : null;
+    let n = 0;
+    const blocksOut = P.items.map((it) => {
+      if (it.kind === 'section') return el('section', { class: 'pp-section' }, el('h2', { text: it.title }), it.description ? el('div', { class: 'exam-md', html: md(it.description) }) : null);
+      if (it.kind === 'text') return el('div', { class: 'exam-md pp-text', html: md(it.text) });
+      const qi = n++, q = it, st = stateOf(q, qi), row = g.rows[qi], sol = S.solutions[q.id] || {}, t = (m.qTimes || {})[q.id];
+      const note = o.notes ? (sub.notes || {})[q.id] : '';
+      return el('article', { class: `pp-q ${st.cls}` },
+        el('header', { class: 'pp-qhead' }, el('span', { class: `pp-qno ${st.cls}`, text: `Q${qi + 1}` }),
+          el('span', { class: `pp-state ${st.cls}`, text: st.label + (q.marked && st.cls !== 'none' && !row.pending ? ` · ${row.score}/${row.max}` : q.marked ? ` · ${row.max} mark${row.max === 1 ? '' : 's'}` : '') }),
+          q.type === 'code' && !isBlank(ans(q)) ? el('span', { class: 'pp-meta', text: `Language: ${langOf(sub, q).label}` }) : null,
+          t ? el('span', { class: 'pp-meta', text: `⏱ ${fmtDur(t.sec)}` }) : null),
+        el('div', { class: 'exam-md pp-prompt', html: md(q.prompt) + (q.samples && q.samples.length ? renderSamples(q.samples, { images: true, assets: S.paper.assets }) : '') }),
+        el('div', { class: 'pp-label', text: 'Answer' }), answerNode(q, sol, sub, o.correct),
+        o.correct && q.type === 'short' && (sol.accepted || []).length ? el('p', { class: 'pp-meta', text: 'Accepted answers: ' + sol.accepted.join(' · ') }) : null,
+        o.model && sol.modelAnswer ? el('div', { class: 'pp-model' }, el('div', { class: 'pp-label', text: isMcq(q) ? 'Explanation' : 'Model answer' }), el('div', { class: 'exam-md', html: md(sol.modelAnswer) })) : null,
+        note ? el('div', { class: 'pp-note' }, el('strong', { text: 'Note from the checker' }), el('p', { text: note })) : null);
+    });
+    return el('article', { class: 'pp pp-paper' }, header, el('div', { class: 'pp-legendrow' }, chips, legendNode()), banners, overall, ...blocksOut);
+  }
+  function dashboardPrintNode() {
+    const head = el('header', { class: 'pp-head' }, el('div', {}, el('p', { class: 'pp-kicker', text: 'Results summary' }), el('h1', { text: S.paper.title }),
+      el('p', { class: 'pp-meta', text: `${plural(S.stats.n, 'submission')} counted · pass mark ${S.passMark}% · printed ${new Date().toLocaleString()}` })));
+    if (!active().length) return el('section', { class: 'pp pp-dash' }, head, el('p', { text: 'No submissions yet.' }));
+    const parts = dashboardBody();
+    return el('section', { class: 'pp pp-dash' }, head, parts.cards, parts.grid, el('h2', { class: 'pp-h2', text: 'Ranklist — who got what' }), ranklistNode(true));
+  }
+  async function printDialog(sub) {
+    const scope = { v: 'dash+papers' };
+    const o = { notes: true, correct: false, model: false, uncounted: false };
+    const opt = (label, key, hint) => {
+      const i = el('input', { type: 'checkbox' });
+      i.checked = !!o[key];
+      i.addEventListener('change', () => { o[key] = i.checked; });
+      return el('label', { class: 'ex-check' }, i, el('span', { text: label }), hint ? el('small', { class: 'ex-muted', text: hint }) : null);
+    };
+    const radio = (v, label) => {
+      const i = el('input', { type: 'radio', name: 'pscope', value: v });
+      i.checked = scope.v === v;
+      i.addEventListener('change', () => { scope.v = v; });
+      return el('label', { class: 'ex-check' }, i, el('span', { text: label }));
+    };
+    const n = ranked().length;
+    const body = el('div', { class: 'ex-stack' },
+      sub ? el('p', { text: `Print ${who(sub)}’s paper: every question expanded, with their answer, the mark, a coloured summary strip at the top and your notes.` })
+        : el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'What to print' }),
+          radio('dash+papers', `The dashboard, then every student's paper (${n} papers, each on a new page)`), radio('dash', 'The dashboard only (stats, charts, ranklist)'), radio('papers', `Every student's paper only (${n})`)),
+      el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'On each student’s paper' }),
+        opt('Your notes against the answers', 'notes'), opt('Show the correct answers', 'correct', 'MCQ correct options and accepted short answers'),
+        opt('Show model answers / explanations', 'model'), sub ? null : opt('Also include repeat submissions that are not counted', 'uncounted')),
+      el('p', { class: 'ex-muted', text: 'It prints exactly as things are now — current marks, notes and scores. Choose “Save as PDF” in the print dialog to send papers to students. Printing always uses a light page, whatever theme you are using.' }));
+    const go = await dialog({ title: sub ? 'Print this paper' : 'Print', body, wide: true, actions: [{ label: 'Cancel', value: false }, { label: 'Print / save as PDF', value: true, primary: true }] });
+    if (!go) return;
+    recompute();
+    if (sub) return printNow(paperPrintNode(sub, o));
+    const all = el('div', { class: 'pp-all' });
+    if (scope.v !== 'papers') all.append(dashboardPrintNode());
+    if (scope.v !== 'dash') {
+      const list = ranked().slice();
+      if (o.uncounted) list.push(...S.subs.filter((x) => !x.counted).sort((a, b) => who(a).localeCompare(who(b))));
+      if (!list.length && scope.v === 'papers') return toast('There are no papers to print yet.', 'err');
+      list.forEach((x) => all.append(paperPrintNode(x, o)));
+    }
+    printNow(all);
+  }
+
   /* ---------- Questions ---------- */
-  function questionInsight(p) {
+  function questionInsight(p, q) {
     const bits = [];
+    if (q && q.type === 'code') {
+      const tally = {};
+      for (const x of active()) if (!isBlank((x.payload.answers || {})[q.id])) { const l = langOf(x, q).label; tally[l] = (tally[l] || 0) + 1; }
+      const parts = Object.entries(tally).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${l} ${n}`);
+      if (parts.length) bits.push('Languages used: ' + parts.join(' · '));
+    }
     if (p.avgRatio != null) bits.push(`Difficulty: students earned ${pct(p.avgRatio * 100)} of the marks on average`);
     if (p.discrimination != null) {
       bits.push(`Discrimination D ${p.discrimination.toFixed(2)} (${p.discrimination < 0 ? 'negative — weaker students did better; check the answer key' : p.discrimination < 0.2 ? 'weak — barely separates strong from weak' : p.discrimination < 0.4 ? 'fair' : 'good'})`);
@@ -537,7 +741,7 @@ export function mountChecker(root) {
           el('div', {}, el('span', { class: 'ex-label', text: `Attempted ${pct(p.attemptRate * 100)}  (${p.attempted}/${p.attempted + p.skipped})` }), bar(p.attemptRate)),
           p.marked ? el('div', {}, el('span', { class: 'ex-label', text: p.accuracy != null ? `Correct ${pct(p.accuracy * 100)} of auto-marked answers` : 'Not auto-marked' }), bar(p.accuracy || 0, 'ok')) : null,
           p.marked ? el('div', {}, el('span', { class: 'ex-label', text: p.avgRatio != null ? `Average score ${pct(p.avgRatio * 100)}` : 'No marks given yet' }), bar(p.avgRatio || 0, 'accent')) : null),
-        questionInsight(p),
+        questionInsight(p, q),
         p.pending ? el('p', { class: 'ex-note', text: `${plural(p.pending, 'answer')} still to mark.` }) : null,
         isMcq(q) ? el('div', { class: 'ex-optstats' }, q.options.map((o) => {
           const n = p.options[o.id] || 0, correct = (sol.correct || []).includes(o.id);
@@ -558,5 +762,6 @@ export function mountChecker(root) {
   }
   const intro = () => el('div', { class: 'ex-intro' }, el('h1', { text: 'Check papers' }),
     el('p', { class: 'ex-muted', text: 'Open your paper with the setter key, load the answer files students sent back, mark, and get statistics. Everything stays in this browser.' }));
+  enhanceCodeBlocks(root);
   renderAll();
 }

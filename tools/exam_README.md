@@ -128,6 +128,25 @@ student can always start again. That is why the repeat detection exists: it catc
 it came from. It does not catch a different spelling of the name beyond what is listed (e.g. surname and given name swapped),
 and "earliest" is judged by the submit time recorded on the student's device.
 
+## Start question, languages, copying
+
+- **Start question** (Set paper → option *Hide each question until the student presses “Start question”*, on by default for new
+  papers): every question card shows a **▶ Start question** button and a blurred placeholder. The question text is not even put on
+  the page until it is pressed. The moment is recorded as seconds into the paper (`meta.qStarts`) and shown in Check paper
+  ("▶ started 3:12 in"). Started questions stay started after a refresh; required questions must be started and answered before
+  submitting. Papers made before this option keep working without it. (A student determined to read ahead can still dig the
+  paper out with developer tools — this is about pacing and timing, not secrecy.)
+- **Several answer languages**: on a code question tick any of Python, Rust, Java, C, C++ and/or type your own ("Go, Haskell,
+  JavaScript"). With more than one, the student picks the language above the editor (highlighting follows it when the highlighter
+  knows it); the first is the default. The choice is stored per answer (`langs`) and shown in Review, the printed paper, the
+  Questions tab ("Languages used: Python 5 · C++ 3") and the CSV (`lang_Q4`).
+- **Sample tests, Codeforces style**: code questions have a *Sample tests* editor (input / output / optional note per example);
+  they show as **Input** and **Output** boxes, each with a **Copy** button. In any text, `:::io` … `:::` does the same
+  (`--- input`, `--- output`, `--- note`).
+- **One-click copy**: `{{word}}` makes a click-to-copy chip (works inside table cells too); `{{shown => copied}}` copies something
+  else; `:::copy{name="…"} … :::` copies a whole paragraph / list / table (tables become tab-separated, so they paste into a
+  spreadsheet); `copy=true` on a table adds a *Copy table* button. Editor: `/chip`, `/copy`, `/io`, the **⧉** button.
+
 ## Time per question
 
 The answer file records, for every question, the **active seconds** the student spent on it, how many **visits** (times they moved
@@ -138,6 +157,23 @@ clicked, scrolled, tapped) in the last 3 minutes, so leaving the page open while
 question times is therefore normally less than the total duration (reading, scrolling, idling). Timing is saved with the
 progress, so a refresh doesn't lose it. In Check paper it shows as a ⏱ badge on each question in Review, in the dashboard and in
 the CSV (`sec_Q1`, `sec_Q2`, … and `active_sec`). Answer files made before this was added simply have no times.
+
+## Ranklist, notes and printing (Check paper)
+
+- **Ranklist** (bottom of the dashboard): one row per counted student, best first (ties share a rank), one cell per question —
+  **green ✓** right, **red ✗** wrong, **half-green/yellow** partial marks, **yellow ?** not marked yet (or a question that carries no
+  marks), **grey –** not answered. Click a name or cell to open that paper. The footer shows correct/answered per question.
+- **Notes**: in Review every question has *Note for the student* and there is an *Overall feedback* box. Notes are saved in this
+  browser, included in the CSV (`note_Q3`, `overall_note`) and printed with the paper.
+- **🖨 Print… (dashboard)** prints, or saves as PDF through the browser's print dialog: the dashboard (stats, charts, ranklist),
+  every student's paper, or both — each paper on its own page, in the state things are in right now (marks, notes, scores). It always
+  prints on a light page. Options: your notes (on), correct answers (off), model answers/explanations (off), repeat submissions (off).
+  **🖨 Print this paper** in Review prints one student.
+- **A printed paper** has: the student, score, rank and pass/fail; a **summary strip** at the top (Q1 Q2 … coloured green / red /
+  yellow / grey with marks); then every section and question expanded — question text, tables, images, sample boxes, the student's
+  answer (MCQ options with their pick, full text, highlighted code in their chosen language), marks, time, and your note.
+- **Marking backup**: *Save marking backup* downloads marks, review decisions, notes and pass mark as JSON; *Load backup* restores
+  them (same paper only) — useful before clearing the browser or when moving to another computer.
 
 ## Dashboard (Check paper)
 

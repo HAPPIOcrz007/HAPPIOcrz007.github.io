@@ -14,6 +14,21 @@
    A block closes on a line holding exactly the same number of colons it opened with, so a
    callout (4 colons) can hold a table (3 colons).
 
+   COPY (one-click copy for students):
+     {{text}}                       a click-to-copy chip inside any line (also inside a table cell)
+     {{shown => copied}}            shows one thing, copies another
+     :::copy{name="Sample"} … :::   a block whose whole content (paragraphs, lists, tables → tab-separated) is copied
+     :::table{id=t1 name="X" copy=true}   adds a "Copy table" button
+   CODEFORCES-STYLE SAMPLES:
+     :::io{name="Example 1"}        input / output boxes, each with a Copy button
+     --- input
+     5 3
+     --- output
+     8
+     --- note                       (optional, markdown)
+     :::
+   (code questions also have a "sample tests" editor; those render the same way via renderSamples()).
+
    IMAGES: ![alt](img:i1) uses an image the setter uploaded (pass `assets: paper.assets`);
    ![alt|60%](img:i1) / ![alt|320](img:i1) set the width. https images also work.
 
@@ -42,6 +57,12 @@ function inl(h, o) {
   const put = (x) => `\u0000${st.push(x) - 1}\u0000`;
 
   h = h.replace(/`([^`\n]+?)`/g, (_, c) => put(`<code>${c}</code>`));
+  h = h.replace(/\{\{([^\n]+?)\}\}/g, (_, body) => {                         // {{text}} or {{shown => copied}}
+    const m = body.match(/^(.*?)\s*=&gt;\s*(.*)$/);
+    const shown = (m ? m[1] : body).trim(), copy = (m ? m[2] : body).trim();
+    if (!shown) return `{{${body}}}`;
+    return put(`<button type="button" class="md-copy-chip" data-copy="${q(copy)}" title="Click to copy" aria-label="Copy ${q(copy)}">${shown}<span class="md-copy-ico" aria-hidden="true">⧉</span></button>`);
+  });
   h = h.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, rawAlt, url) => {
     const wm = rawAlt.match(/^(.*?)(?:\|(\d{1,4})(%|px)?)?$/);          // alt text, optional |60% or |320 width
     const alt = wm[1], width = wm[2] ? wm[2] + (wm[3] || 'px') : '';
@@ -83,7 +104,7 @@ export function renderInlineMarkdown(md, opts = {}) {
 }
 
 /* ================= blocks ================= */
-const CONTAINER = /^(:{3,})\s*(callout|table)\b\s*(?:\{(.*)\})?\s*$/;
+const CONTAINER = /^(:{3,})\s*(callout|table|copy|io)\b\s*(?:\{(.*)\})?\s*$/;
 const TABLE_SEP = /^\s*\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)*\|?\s*$/;
 const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 
@@ -122,15 +143,61 @@ function containerHtml(kind, a, inner) {
   const id = /^[\w-]+$/.test(a.id || '') ? a.id : '';
   const name = escapeHtml(a.name || '');
   const tag = id ? `<span class="md-tag">${kind === 'table' ? 'Table' : 'Callout'} · ${escapeHtml(id)}</span>` : '';
+  if (kind === 'copy') {
+    return `<div class="md-copy-block"><div class="md-copy-head"><span class="md-copy-name">${name || 'Copy'}</span>` +
+      `<button type="button" class="md-copy-btn">Copy</button></div><div class="md-copy-body">${inner}</div></div>`;
+  }
   if (kind === 'table') {
+    const copy = a.copy === 'true' ? '<button type="button" class="md-copy-btn">Copy table</button>' : '';
     return `<figure class="md-table-fig"${id ? ` data-table-id="${q(id)}"` : ''}>` +
-      `<figcaption>${tag}<span class="md-fig-name">${name}</span></figcaption>${inner}</figure>`;
+      `<figcaption>${tag}<span class="md-fig-name">${name}</span>${copy}</figcaption>${inner}</figure>`;
   }
   const color = CALLOUT_COLORS.find((c) => c.id === a.color) || CALLOUT_COLORS[0];
   return `<aside class="md-callout" style="--co:${tokenColor(color.id)}" data-color="${color.id}"` +
     `${id ? ` data-callout-id="${q(id)}"` : ''}>` +
     `<div class="md-callout-head"><strong>${name || 'Note'}</strong>${tag}</div>` +
     `<div class="md-callout-body">${inner}</div></aside>`;
+}
+
+/* ---------- Codeforces-style sample input / output ---------- */
+const IO_HEAD = /^---\s*(input|output|note|explanation)\s*$/i;
+const trimBlank = (arr) => arr.join('\n').replace(/^\n+|\n+$/g, '');
+function ioBox(label, text) {
+  return `<div class="md-io-box"><div class="md-io-head"><span>${label}</span><button type="button" class="md-copy-btn">Copy</button></div>` +
+    `<pre class="md-io-pre">${escapeHtml(text)}</pre></div>`;
+}
+function ioExample(title, input, output, noteHtml) {
+  return `<section class="md-io"><div class="md-io-title">${escapeHtml(title)}</div><div class="md-io-grid">${ioBox('Input', input)}${ioBox('Output', output)}</div>` +
+    (noteHtml ? `<div class="md-io-note"><strong>Note</strong>${noteHtml}</div>` : '') + '</section>';
+}
+function ioHtml(a, lines, o) {
+  const ex = [];
+  let cur = null, sec = null;
+  const fresh = () => ({ input: null, output: null, note: null });
+  for (const line of lines) {
+    const m = line.match(IO_HEAD);
+    if (m) {
+      sec = m[1].toLowerCase() === 'explanation' ? 'note' : m[1].toLowerCase();
+      if (sec === 'input' && cur && (cur.input !== null || cur.output !== null)) { ex.push(cur); cur = fresh(); }
+      if (!cur) cur = fresh();
+      cur[sec] = [];
+    } else if (cur && sec) cur[sec].push(line);
+  }
+  if (cur) ex.push(cur);
+  if (!ex.length && lines.some((l) => l.trim())) ex.push({ input: lines, output: null, note: null });
+  return ex.map((e, k) => {
+    o.ioN = (o.ioN || 0) + 1;
+    const title = a.name ? (ex.length > 1 ? `${a.name} ${k + 1}` : a.name) : `Example ${o.ioN}`;
+    return ioExample(title, trimBlank(e.input || []), trimBlank(e.output || []), e.note ? blocks(trimBlank(e.note), o) : '');
+  }).join('');
+}
+/** Structured sample tests [{ input, output, note }] (code questions) → the same boxes as :::io. */
+export function renderSamples(samples, opts = {}) {
+  const o = { images: !!opts.images, assets: opts.assets || {}, ioN: 0 };
+  const list = (samples || []).filter((x) => x && ((x.input || '').trim() || (x.output || '').trim()));
+  if (!list.length) return '';
+  return '<div class="md-samples">' + list.map((x, i) => ioExample(`Example ${i + 1}`, trimBlank(String(x.input || '').split('\n')), trimBlank(String(x.output || '').split('\n')),
+    (x.note || '').trim() ? blocks(String(x.note), o) : '')).join('') + '</div>';
 }
 
 function blocks(src, o) {
@@ -162,7 +229,8 @@ function blocks(src, o) {
       i++;
       while (i < lines.length && lines[i].trim() !== m[1]) inner.push(lines[i++]);
       i++;
-      out.push(containerHtml(m[2], parseAttrs(m[3]), blocks(inner.join('\n'), o)));
+      const attrs = parseAttrs(m[3]);
+      out.push(m[2] === 'io' ? ioHtml(attrs, inner, o) : containerHtml(m[2], attrs, blocks(inner.join('\n'), o)));
       continue;
     }
     if ((m = line.match(/^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$/))) {                    // heading
@@ -216,7 +284,7 @@ function blocks(src, o) {
 /** Block markdown → HTML. Wrap the result in an element with class "exam-md". */
 export function renderMarkdown(md, opts = {}) {
   if (!md) return '';
-  return blocks(String(md).replace(/\r\n?/g, '\n').replace(/\u0000/g, ''), { images: !!opts.images, assets: opts.assets || {} });
+  return blocks(String(md).replace(/\r\n?/g, '\n').replace(/\u0000/g, ''), { images: !!opts.images, assets: opts.assets || {}, ioN: 0 });
 }
 
 /* ================= helpers ================= */
@@ -224,7 +292,8 @@ export function renderMarkdown(md, opts = {}) {
 /** Plain text for list rows, search and exports. */
 export function stripMarkdown(md) {
   return String(md ?? '')
-    .replace(/^:{3,}\s*(?:callout|table).*$/gm, '').replace(/^:{3,}\s*$/gm, '')
+    .replace(/^:{3,}\s*(?:callout|table|copy|io).*$/gm, '').replace(/^:{3,}\s*$/gm, '').replace(/^---\s*(?:input|output|note|explanation)\s*$/gim, '')
+    .replace(/\{\{([^\n]*?)(?:\s*=>[^\n]*?)?\}\}/g, '$1')
     .replace(/```[\s\S]*?```/g, ' [code] ')
     .replace(/=\([^)]*\)([\s\S]*?)=/g, '$1')
     .replace(/<\/?u>/g, '').replace(/\*\*|__|~~/g, '')
@@ -238,7 +307,7 @@ export function collectBlockIds(md) {
   const res = [];
   for (const line of String(md ?? '').split('\n')) {
     const m = line.match(CONTAINER);
-    if (!m) continue;
+    if (!m || (m[2] !== 'table' && m[2] !== 'callout')) continue;
     const a = parseAttrs(m[3]);
     res.push({ kind: m[2], id: a.id || '', name: a.name || '', color: a.color || '' });
   }
@@ -255,16 +324,67 @@ export function highlightInner(code, lang) {
   return m ? m[1] : escapeHtml(code);
 }
 
-/** Make the "Copy" buttons inside rendered code blocks work (call once per container). */
+/* ---------- copy support ---------- */
+function tableTsv(t) {
+  return [...t.querySelectorAll('tr')].map((tr) => [...tr.children].map((c) => c.textContent.trim().replace(/\s+/g, ' ')).join('\t')).join('\n');
+}
+/** Plain text of a rendered block: paragraphs separated by blank lines, list items per line, tables as tab-separated rows. */
+export function extractText(el) {
+  const c = el.cloneNode(true);
+  c.querySelectorAll('.md-copy-ico, .md-copy-btn, .md-copy-head').forEach((n) => n.remove());
+  c.querySelectorAll('br').forEach((b) => b.replaceWith('\n'));
+  const parts = [];
+  for (const ch of c.children) {
+    const t = ch.matches('table') ? ch : ch.querySelector && (ch.matches('.md-table-wrap') || ch.matches('.md-table-fig')) ? ch.querySelector('table') : null;
+    if (t) parts.push(tableTsv(t));
+    else if (ch.matches('ul, ol')) parts.push([...ch.querySelectorAll('li')].map((li) => li.textContent.trim()).join('\n'));
+    else parts.push(ch.textContent.trim());
+  }
+  return (parts.length ? parts : [c.textContent]).join('\n\n').trim();
+}
+async function writeClipboard(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { /* fall back */ }
+  try {
+    const ta = Object.assign(document.createElement('textarea'), { value: text });
+    ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return !!ok;
+  } catch { return false; }
+}
+function copyTextFor(btn) {
+  const io = btn.closest('.md-io-box');
+  if (io) return io.querySelector('pre').textContent;
+  const blk = btn.closest('.md-copy-block');
+  if (blk) return extractText(blk.querySelector('.md-copy-body'));
+  const fig = btn.closest('.md-table-fig');
+  if (fig) return tableTsv(fig.querySelector('table'));
+  const code = btn.closest('.blog-code');
+  if (code) return code.querySelector('code').textContent;
+  return null;
+}
+/** Make every copy control inside `root` work (code blocks, {{chips}}, copy blocks, table copy, sample input/output).
+    Call once per container that shows rendered markdown; it uses one delegated click handler. */
 export function enhanceCodeBlocks(root) {
   if (root.__mdCopy) return;
   root.__mdCopy = true;
   root.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.blog-code-copy');
-    if (!btn) return;
-    const code = btn.closest('.blog-code')?.querySelector('code')?.textContent ?? '';
-    try { await navigator.clipboard.writeText(code); btn.textContent = 'Copied'; }
-    catch { btn.textContent = 'Press Ctrl+C'; }
-    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+    const chip = e.target.closest('.md-copy-chip');
+    const btn = chip ? null : e.target.closest('.blog-code-copy, .md-copy-btn');
+    const text = chip ? chip.dataset.copy : btn ? copyTextFor(btn) : null;
+    if (text == null) return;
+    const ok = await writeClipboard(text);
+    if (chip) {
+      chip.classList.add(ok ? 'copied' : 'failed');
+      chip.title = ok ? 'Copied!' : 'Could not copy — select the text and press Ctrl+C';
+      setTimeout(() => { chip.classList.remove('copied', 'failed'); chip.title = 'Click to copy'; }, 1400);
+    } else {
+      const label = btn.dataset.label || btn.textContent;
+      btn.dataset.label = label;
+      btn.textContent = ok ? 'Copied ✓' : 'Press Ctrl+C';
+      setTimeout(() => { btn.textContent = label; }, 1500);
+    }
   });
 }
+export const enhanceCopy = enhanceCodeBlocks;

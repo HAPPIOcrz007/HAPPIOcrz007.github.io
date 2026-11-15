@@ -11,10 +11,10 @@ import { el } from './ui.js';
 
 const INDENT = '    ';
 
-export function createCodeEditor({ value = '', lang = 'python', langLabel = '', onChange = () => {}, minLines = 8, label } = {}) {
+export function createCodeEditor({ value = '', lang = 'python', langLabel = '', highlightKey, onChange = () => {}, minLines = 8, label } = {}) {
   const def = CODE_LANGS.find((l) => l.id === lang);
-  const key = def ? def.key : null;                       // null → "other": no highlighting
-  const name = lang === 'other' ? (langLabel || 'Code') : (def ? def.label : lang);
+  let key = highlightKey !== undefined ? highlightKey : (def ? def.key : null);    // null → no highlighting
+  let name = langLabel || (def ? def.label : lang) || 'Code';
 
   const code = el('code');
   const pre = el('pre', { class: 'ced-hl', 'aria-hidden': 'true' }, code);
@@ -66,13 +66,16 @@ export function createCodeEditor({ value = '', lang = 'python', langLabel = '', 
   ta.addEventListener('input', () => { paint(); onChange(ta.value); });
   paint();
 
+  const langEl = el('span', { class: 'ced-lang', text: name });
   const root = el('div', { class: 'ced' },
-    el('div', { class: 'ced-head' }, el('span', { class: 'ced-lang', text: name }), el('span', { class: 'ced-hint', text: 'Tab indents · Esc then Tab leaves the box' })),
+    el('div', { class: 'ced-head' }, langEl, el('span', { class: 'ced-hint', text: 'Tab indents · Esc then Tab leaves the box' })),
     stage);
   return {
     el: root, textarea: ta,
     getValue: () => ta.value,
     setValue(v) { ta.value = v ?? ''; paint(); },
+    /** Switch the highlighting / label when the student picks another language. */
+    setLanguage({ key: k, label: l }) { key = k || null; name = l || 'Code'; langEl.textContent = name; ta.setAttribute('aria-label', `${name} code answer`); paint(); },
     focus: () => ta.focus(),
   };
 }

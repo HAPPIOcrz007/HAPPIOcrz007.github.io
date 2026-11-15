@@ -13,6 +13,7 @@
        endLocal: '2026-11-12T17:30'|'',       // optional hard closing time, wall-clock in endTz …
        endTz: 'Asia/Kolkata',                 // … in this IANA timezone
        endAt: ISO|null,                       // … and the same instant in UTC (what the answerer uses)
+       gateQuestions: bool,                   // every question stays hidden until the student presses “Start question”
        blockRepeats: bool,                    // one attempt per device (see lock.js) …
        secretId: 'EXAM - 001',                // … keyed by this secret id (shared by regenerated/alternate papers) …
        cooldownMin: number|null,              // … for this many minutes after the attempt (null = never expires)
@@ -23,7 +24,9 @@
        { kind: 'section', id: 'S1', title, description: markdown, shuffle: bool },
        { kind: 'text',    id: 'T1', text: markdown },                     // paragraph between questions
        { kind: 'question', id: 'Q1', type: 'mcq-single'|'mcq-multi'|'short'|'long'|'code',
-         prompt, mandatory, marked, marks, options: [{id,text}], codeLang, codeLangLabel, starter }
+         prompt, mandatory, marked, marks, options: [{id,text}], codeLang, codeLangLabel, starter,
+         samples: [{ input, output, note }],        // code questions: Codeforces-style sample tests with Copy buttons
+         codeLangs: [{ id:'python', label:'Python' }, { id:'x:go', label:'Go' }] }   // code: the languages a student may choose from
      ]
    }
    After loading, hydratePaper() adds paper.questions (the question items) and paper.sectionOf { qid: title }.
@@ -41,7 +44,9 @@
    { paperId, submittedAt: ISO, identity: { fieldId: value }, answers: { Q1: 'b' | ['a','c'] | 'text' },
      meta: { seed, layout: [item ids as shown], order: [question ids as shown], optionOrder: {Q3: [...]},
              startedAt: ISO, deadlineAt: ISO|null, durationSec, timeUp: bool, skipped: [ids],
-             secretId: normalised secret id|null, priorAttempts: [{startedAt, submittedAt}] } }   // device history from the lock */
+             secretId: normalised secret id|null, priorAttempts: [{startedAt, submittedAt}],   // device history from the lock
+             qTimes: {...}, qStarts: { Q1: { startedAt: ISO, sec: seconds into the paper } } },   // "Start question" presses
+     langs: { Q5: 'cpp' } }                  // language chosen for each code answer */
 
 export const QUESTION_TYPES = [
   { id: 'mcq-single', label: 'MCQ — single correct' },
@@ -149,7 +154,7 @@ export function blankPaper() {
   return {
     id: newPaperId(), title: '', description: '', assets: {}, items: [],
     settings: {
-      shuffleQuestions: false, shuffleSections: false, shuffleOptions: false, showMarks: true, timeLimitMin: null,
+      shuffleQuestions: false, shuffleSections: false, shuffleOptions: false, showMarks: true, timeLimitMin: null, gateQuestions: true,
       endLocal: '', endTz: 'Asia/Kolkata', endAt: null,
       blockRepeats: false, secretId: '', cooldownMin: null,
       identityFields: [{ id: 'name', label: 'Full name', required: true, identifies: true }],
@@ -161,7 +166,7 @@ export function blankQuestion(type, items = []) {
   if (type === 'mcq-single' || type === 'mcq-multi') {
     q.options = [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }];
   }
-  if (type === 'code') { q.codeLang = 'python'; q.codeLangLabel = ''; q.starter = ''; }
+  if (type === 'code') { q.codeLang = 'python'; q.codeLangLabel = ''; q.starter = ''; q.samples = []; q.codeLangs = [{ id: 'python', label: 'Python' }]; }
   return q;
 }
 export const blankSection = (items = []) => ({ kind: 'section', id: nextItemId(items, 'S'), title: '', description: '', shuffle: false });
@@ -170,13 +175,30 @@ export const blankText = (items = []) => ({ kind: 'text', id: nextItemId(items, 
 export const isMcq = (q) => q.type === 'mcq-single' || q.type === 'mcq-multi';
 export const isQuestion = (i) => (i.kind || 'question') === 'question';
 
+/* ---------- code languages a student may choose from ---------- */
+const HL_KEYS = { javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts', go: 'go', golang: 'go', bash: 'bash', shell: 'bash', sh: 'bash', sql: 'sql', html: 'html', css: 'css', json: 'json', python: 'python', python3: 'python', rust: 'rust', java: 'java', c: 'cpp', 'c++': 'cpp', cpp: 'cpp' };
+/** Highlighter language for a custom language name (null = no highlighting). */
+export const langKeyFor = (label) => HL_KEYS[String(label || '').trim().toLowerCase()] || null;
+export const customLangId = (label) => 'x:' + String(label).normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, '');
+/** → [{ id, label, key }] — the languages for a code question (older papers had a single codeLang). */
+export function codeLangOptions(q) {
+  const out = [];
+  const add = (id, label) => { if (id && !out.some((o) => o.id === id)) { const b = CODE_LANGS.find((l) => l.id === id); out.push({ id, label: b ? b.label : label, key: b ? b.key : langKeyFor(label) }); } };
+  if (Array.isArray(q.codeLangs)) q.codeLangs.forEach((l) => add(l.id, l.label || l.id));        // an explicit (even empty) list wins
+  else if (q.codeLang === 'other') add(customLangId(q.codeLangLabel || 'Other'), q.codeLangLabel || 'Other');
+  else add(q.codeLang || 'python', '');
+  return out;
+}
+
 /** Bring any paper (old files had a flat `questions` list) up to the items model. Keeps nothing derived. */
 export function migrateItems(p) {
   if (!Array.isArray(p.items)) p.items = (p.questions || []).map((q) => ({ ...q }));
   delete p.questions;
   p.items.forEach((i) => { if (!i.kind) i.kind = 'question'; });
   p.assets ||= {};
+  const hadGate = p.settings && 'gateQuestions' in p.settings;
   p.settings = { ...blankPaper().settings, ...(p.settings || {}) };
+  if (!hadGate) p.settings.gateQuestions = false;       // papers made before this option behave as they did
   return p;
 }
 /** migrateItems + the derived fields the answerer and checker read (paper.questions, paper.sectionOf). */
@@ -223,7 +245,8 @@ export function validatePaper(paper, solutions = {}) {
       if (q.type === 'mcq-single' && correct.length > 1) errors.push(`${tag}: single-correct has several correct options.`);
       if (q.marked && !correct.length) warnings.push(`${tag}: no correct option set — you will have to mark it by hand.`);
     } else if (q.type === 'code') {
-      if (q.codeLang === 'other' && !(q.codeLangLabel || '').trim()) warnings.push(`${tag}: language "Other" has no name.`);
+      if (!codeLangOptions(q).length) errors.push(`${tag}: choose at least one answer language.`);
+      if (q.codeLang === 'other' && !(q.codeLangs || []).length && !(q.codeLangLabel || '').trim()) warnings.push(`${tag}: language "Other" has no name.`);
       if (q.marked) warnings.push(`${tag}: code answers are marked by hand.`);
     } else if (q.type === 'short' && q.marked && !(sol.accepted || []).some((a) => a.trim())) {
       warnings.push(`${tag}: no accepted answer — you will have to mark it by hand.`);

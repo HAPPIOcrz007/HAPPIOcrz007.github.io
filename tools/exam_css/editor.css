@@ -91,3 +91,5 @@
   .mde-panes[data-mode="split"] { grid-template-columns: 1fr; }
   .mde-panes[data-mode="split"] .mde-preview { border-left: 0; border-top: var(--bw) solid var(--border); }
 }
+
+.mde-copy { color: var(--green); font-weight: var(--fw-bold); }

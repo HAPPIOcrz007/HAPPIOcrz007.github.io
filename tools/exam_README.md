@@ -163,7 +163,9 @@ the CSV (`sec_Q1`, `sec_Q2`, … and `active_sec`). Answer files made before thi
 - **Ranklist** (bottom of the dashboard): one row per counted student, best first (ties share a rank), one cell per question —
   **green ✓** right, **red ✗** wrong, **half-green/yellow** partial marks, **yellow ?** not marked yet (or a question that carries no
   marks), **grey –** not answered. Click a name or cell to open that paper. The footer shows correct/answered per question.
-- **Notes**: in Review every question has *Note for the student* and there is an *Overall feedback* box. Notes are saved in this
+- **Notes**: in Review every question has *Note for the student* and there is an *Overall feedback* box. They are full markdown
+  editors like everywhere else (bold, colours, links, lists, tables, code blocks, callouts, click-to-copy; `/` menu, live preview) and
+  print formatted. Notes are saved in this
   browser, included in the CSV (`note_Q3`, `overall_note`) and printed with the paper.
 - **🖨 Print… (dashboard)** prints, or saves as PDF through the browser's print dialog: the dashboard (stats, charts, ranklist),
   every student's paper, or both — each paper on its own page, in the state things are in right now (marks, notes, scores). It always

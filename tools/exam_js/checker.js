@@ -11,6 +11,7 @@
 import { el, toast, dialog, confirmDialog, bulletList, dropZone, readText, readBytes, fmtDate, fmtDur, plural } from './ui.js';
 import { CODE_LANGS, isMcq, downloadText, safeName, hydratePaper, fmtInZone, normKey, codeLangOptions } from './format.js';
 import { renderMarkdown, renderCode, renderSamples, enhanceCodeBlocks, stripMarkdown } from './markdown.js';
+import { createMarkdownEditor } from './md-editor.js';
 import { openPaperAsSetter, openPaperAsAnswerer, openAnswerFile, CryptoError } from './crypto.js';
 import { readPaperBytes } from './zip.js';
 import { gradeSubmission, batchStats, toCsv, identityKey, submissionId, isBlank, activeSeconds, rowState } from './grade.js';
@@ -518,12 +519,12 @@ export function mountChecker(root) {
     sub.notes = S.notes[sub.id] || {};
     saveNotes(); S.updatedAt = Date.now();
   }
-  const noteBox = (sub, key, label) => {
-    const t = el('textarea', { class: 'ex-input ex-notein', rows: 2, placeholder: label, 'aria-label': label });
-    t.value = (sub.notes || {})[key] || '';
-    t.addEventListener('input', () => setNote(sub, key, t.value));
-    return t;
-  };
+  /** Markdown editor for a note (same editor as everywhere else: toolbar, slash menu, colours, tables, code, preview).
+      The per-question notes use the compact one; the overall feedback gets the full one. No image upload here. */
+  const noteBox = (sub, key, label, full = false) => createMarkdownEditor({
+    value: (sub.notes || {})[key] || '', compact: !full, rows: full ? 4 : 2, allowImages: false,
+    label, placeholder: `${label}  (markdown works)`, onChange: (v) => setNote(sub, key, v),
+  }).el;
   function review() {
     const sub = S.subs.find((s) => s.id === S.reviewId);
     if (!sub) { S.reviewId = null; return submissions(); }
@@ -554,7 +555,7 @@ export function mountChecker(root) {
         activeSeconds(sub) != null ? el('span', { class: 'ex-muted', text: `time on questions ${fmtDur(activeSeconds(sub))} of ${fmtDur(sub.payload.meta?.durationSec)}` }) : null,
         sub.payload.meta?.timeUp ? el('span', { class: 'ex-badge bad', text: 'auto-submitted when time ran out' }) : null,
         !sub.counted ? el('span', { class: 'ex-badge', text: 'not counted in statistics' }) : null),
-      el('div', { class: 'ex-stack' }, el('span', { class: 'ex-label', text: 'Overall feedback — printed at the top of this student’s paper' }), noteBox(sub, '_all', 'Overall feedback for the student…')));
+      el('div', { class: 'ex-stack ex-overall' }, el('span', { class: 'ex-label', text: 'Overall feedback — printed at the top of this student’s paper' }), noteBox(sub, '_all', 'Overall feedback for the student…', true)));
 
     const setMark = (qid, v) => {
       const o = (S.ov[sub.id] ||= {});
@@ -643,7 +644,7 @@ export function mountChecker(root) {
       !sub.counted ? el('p', { class: 'pp-banner', text: 'This is a repeat submission and is not counted in the results.' }) : null,
       g.pending ? el('p', { class: 'pp-banner', text: `${plural(g.pending, 'answer')} not marked yet — the score may still change.` }) : null,
     ];
-    const overall = o.notes && (sub.notes || {})._all ? el('div', { class: 'pp-note' }, el('strong', { text: 'Overall feedback' }), el('p', { text: sub.notes._all })) : null;
+    const overall = o.notes && (sub.notes || {})._all ? el('div', { class: 'pp-note' }, el('strong', { text: 'Overall feedback' }), el('div', { class: 'exam-md', html: renderMarkdown(sub.notes._all, { images: false }) })) : null;
     let n = 0;
     const blocksOut = P.items.map((it) => {
       if (it.kind === 'section') return el('section', { class: 'pp-section' }, el('h2', { text: it.title }), it.description ? el('div', { class: 'exam-md', html: md(it.description) }) : null);
@@ -659,7 +660,7 @@ export function mountChecker(root) {
         el('div', { class: 'pp-label', text: 'Answer' }), answerNode(q, sol, sub, o.correct),
         o.correct && q.type === 'short' && (sol.accepted || []).length ? el('p', { class: 'pp-meta', text: 'Accepted answers: ' + sol.accepted.join(' · ') }) : null,
         o.model && sol.modelAnswer ? el('div', { class: 'pp-model' }, el('div', { class: 'pp-label', text: isMcq(q) ? 'Explanation' : 'Model answer' }), el('div', { class: 'exam-md', html: md(sol.modelAnswer) })) : null,
-        note ? el('div', { class: 'pp-note' }, el('strong', { text: 'Note from the checker' }), el('p', { text: note })) : null);
+        note ? el('div', { class: 'pp-note' }, el('strong', { text: 'Note from the checker' }), el('div', { class: 'exam-md', html: renderMarkdown(note, { images: false }) })) : null);
     });
     return el('article', { class: 'pp pp-paper' }, header, el('div', { class: 'pp-legendrow' }, chips, legendNode()), banners, overall, ...blocksOut);
   }

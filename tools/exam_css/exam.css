@@ -317,7 +317,7 @@ textarea.ex-input { resize: vertical; line-height: 1.5; }
 
 /* ---------- checker notes ---------- */
 .ex-notewrap { padding-top: var(--space-3); border-top: var(--bw) dashed var(--border); }
-.ex-notein { min-height: 3.2rem; }
+.ex-notewrap .mde, .ex-overall .mde { background: var(--bg2); }
 
 /* ---------- print ---------- */
 #ex-print-root { display: none; }
@@ -366,7 +366,8 @@ textarea.ex-input { resize: vertical; line-height: 1.5; }
   .pp-label { margin: 6px 0 2px; font-family: var(--font-ui); font-size: 8pt; text-transform: uppercase; letter-spacing: 0.06em; color: var(--print-muted); break-after: avoid; }
   .pp-note, .pp-model { margin: 8px 0 0; padding: 6px 9px; border-left: 4px solid var(--info); background: color-mix(in srgb, var(--info) 10%, var(--print-bg)); border-radius: 4px; break-inside: avoid; }
   .pp-model { border-left-color: var(--ok); background: color-mix(in srgb, var(--ok) 9%, var(--print-bg)); }
-  .pp-note p { margin: 2px 0 0; white-space: pre-wrap; }
+  .pp-note .exam-md { margin: 2px 0 0; }
+  .pp-note .exam-md > :last-child { margin-bottom: 0; }
   .pp .blog-code, .pp .md-io, .pp .md-copy-block { break-inside: auto; }
   .pp .blog-code pre, .pp .md-io-pre { white-space: pre-wrap; overflow: visible; word-break: break-word; }
   .pp .blog-code-copy, .pp .md-copy-btn, .pp .md-copy-ico { display: none !important; }

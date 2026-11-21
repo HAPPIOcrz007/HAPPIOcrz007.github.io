@@ -29,6 +29,14 @@
    ================================================================ */
 window.DATA_BLOGS = [
   {
+    id: 3,
+    title: "Editorial: AtCoder Beginner Contest 485 [A to E]",
+    date: "Nov 21st 2026",
+    shortDesc: "Ideas, full C++ solutions and variable-by-variable walk-throughs, from a sign check up to BFS over roads. [code is mine , editorial is ai corrected (claude)]",
+    tags: ["editorial", "cpp", "bfs", "icpc"],
+    wide: true,
+  },
+  {
     id: 2,
     title: "A C++ and Competitive Programming Roadmap for ICPC Prep",
     date: "Sep 2026",

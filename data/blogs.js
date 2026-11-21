@@ -28,6 +28,14 @@
    Order here = order on the page, so put the newest post first.
    ================================================================ */
 window.DATA_BLOGS = [
+    {
+    id: 4,
+    title: "Editorial: Codeforces Round 1136 (Div. 2) [A, B1, B2, C]",
+    date: "Nov 21st 2026",
+    shortDesc: "Ideas, full C++ solutions and variable-by-variable walk-throughs, from a charge-then-attack duel to an interactive spell puzzle. [code is mine , editorial is ai corrected (claude)]",
+    tags: ["editorial", "cpp", "interactive", "dp", "greedy"],
+    wide: true,
+  },
   {
     id: 3,
     title: "Editorial: AtCoder Beginner Contest 485 [A to E]",

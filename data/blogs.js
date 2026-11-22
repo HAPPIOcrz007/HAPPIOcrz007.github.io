@@ -29,6 +29,14 @@
    ================================================================ */
 window.DATA_BLOGS = [
     {
+    id: 5,
+    title: "Editorial: Codeforces Round 1137 (Div. 2) [A to D]",
+    date: "Nov 22nd 2026",
+    shortDesc: "Ideas, full C++ solutions and variable-by-variable walk-throughs, from a parity game on divisors to counting inversions of prefix sums. [code is mine , editorial is ai corrected (claude)]",
+    tags: ["editorial", "cpp", "greedy", "math"],
+    wide: true,
+    },
+    {
     id: 4,
     title: "Editorial: Codeforces Round 1136 (Div. 2) [A, B1, B2, C]",
     date: "Nov 21st 2026",

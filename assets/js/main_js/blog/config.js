@@ -33,3 +33,28 @@
        (use `right` instead of `left` to float the other way)
 ================================================================ */
 export const BLOG_DIR = 'content/blogs/';
+
+/* ================================================================
+   MERMAID DIAGRAMS — rendered by Pele (https://pele.run, MIT)
+   ----------------------------------------------------------------
+   Write a fenced block in a post:
+       ```mermaid
+       flowchart LR
+         A[Mermaid text] --> B[SVG]
+       ```
+   blog/diagram.js turns it into an SVG that follows the site theme
+   (light/dark switches without re-rendering). Pele is only loaded
+   when a post actually contains a diagram. Sources are tried in order:
+     1. the copy in this repo      (self-hosted: fast, no third party)
+     2. jsDelivr, pinned to an exact version (fallback)
+   To update Pele:  npm pack pele@1  →  copy package/dist/pele.js over
+   assets/vendor/pele/pele.js  →  bump the pinned version below.
+   PELE_OPTIONS apply to every diagram — post authors cannot change
+   them. Reference: https://pele.run/api#renderoptions
+   (e.g. { links: false, images: false } to block links / remote images)
+================================================================ */
+export const PELE_SOURCES = [
+  'assets/vendor/pele/pele.js',
+  'https://cdn.jsdelivr.net/npm/pele@1.13.0/dist/pele.js',
+];
+export const PELE_OPTIONS = {};

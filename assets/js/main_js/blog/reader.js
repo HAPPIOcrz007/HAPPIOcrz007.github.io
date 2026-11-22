@@ -3,6 +3,7 @@
 import { BLOG_DIR } from './config.js';
 import { renderBlogMarkdown } from './markdown.js';
 import { renderPdfPreviews } from './pdf-preview.js';
+import { renderDiagrams, destroyDiagrams } from './diagram.js';
 import { renderInlineMarkdown, stripMarkdown } from '../markdown.js';
 import { $, copyText, escapeHtml, fetchText } from '../utils.js';
 
@@ -99,6 +100,7 @@ export const blogReader = {
     const article = this.body.closest('.blog-article');
     if (article) article.classList.toggle('blog-article--wide', !!post.wide);
 
+    destroyDiagrams(this.body);          // stop the previous post's diagrams observing their (about to vanish) containers
     this.body.innerHTML = md == null
       ? '<p>This post could not be loaded.</p>'
       : renderBlogMarkdown(md, id);
@@ -113,6 +115,7 @@ export const blogReader = {
     this.root.scrollTop = 0;
     this.progress.style.transform = 'scaleX(0)';
     renderPdfPreviews(this.body);       // after unhide so widths can be measured
+    renderDiagrams(this.body);          // Mermaid → SVG via Pele (also needs the reader visible to measure)
     setTimeout(() => $('#blogBack')?.focus(), 50);
   },
 

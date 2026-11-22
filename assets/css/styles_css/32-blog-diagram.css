@@ -1,0 +1,70 @@
+/* ================================================================
+   32-blog-diagram.css — Mermaid diagrams (blog/diagram.js + Pele).
+   Tokens only: Pele reads --pele-* variables, mapped here to the
+   site tokens, so light/dark and any retheme apply with no re-render.
+   Add to styles.css next to the other blog files:
+     @import url("styles_css/32-blog-diagram.css");   (match the others' style)
+   ================================================================ */
+.blog-diagram {
+  --pele-bg:          var(--card);
+  --pele-fg:          var(--text);
+  --pele-muted:       var(--text-dim);
+  --pele-line:        var(--text-dim);
+  --pele-surface:     var(--bg3);
+  --pele-surface-alt: var(--bg2);
+  --pele-border:      var(--border2);
+  --pele-accent:      var(--green);
+  --pele-critical:    var(--danger);
+  --pele-error:       var(--danger);
+  --pele-font:        var(--font-body);
+  --pele-font-mono:   var(--font-mono);
+  --pele-radius:      var(--radius-xs);
+  --pele-series-1: var(--chart-1);
+  --pele-series-2: var(--chart-2);
+  --pele-series-3: var(--chart-3);
+  --pele-series-4: var(--chart-4);
+  --pele-series-5: var(--chart-5);
+  --pele-series-6: var(--chart-6);
+  --pele-series-7: var(--chart-7);
+  --pele-series-8: var(--chart-8);
+
+  margin: var(--space-5) 0;
+  padding: var(--space-4);
+  background: var(--card);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius);
+}
+.blog-diagram-canvas { display: block; width: 100%; min-width: 0; }
+.blog-diagram:not(.blog-diagram--ready) .blog-diagram-canvas { display: none; }
+
+/* the source: open (and the only thing shown) until the diagram is drawn, then one click away */
+.blog-diagram-src { margin-top: var(--space-3); }
+.blog-diagram-src > summary {
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  user-select: none;
+}
+.blog-diagram-src > summary:hover { color: var(--green); }
+.blog-diagram-src[open] > summary { margin-bottom: var(--space-3); }
+.blog-diagram-src .blog-code { margin: 0; }
+.blog-diagram:not(.blog-diagram--ready):not(.blog-diagram--failed) .blog-diagram-src > summary { display: none; }
+
+.blog-diagram-error {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, var(--card));
+  border: var(--bw) solid color-mix(in srgb, var(--danger) 45%, var(--border));
+  border-radius: var(--radius-sm);
+}
+
+@media print {
+  .blog-diagram { break-inside: avoid; }
+  .blog-diagram-src { display: none; }
+}

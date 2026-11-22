@@ -5,6 +5,12 @@ import { codeBlockHtml } from './highlight.js';
 import { stripMarkdown } from '../markdown.js';
 import { escapeHtml } from '../utils.js';
 
+/* ```mermaid blocks: the source stays on the page inside <details> (visible until Pele has drawn the
+   diagram, then collapsed, and the fallback if rendering ever fails); blog/diagram.js fills the canvas. */
+const diagramHtml = (code) =>
+  `<figure class="blog-diagram blog-figure" data-diagram="mermaid"><div class="blog-diagram-canvas"></div>` +
+  `<details class="blog-diagram-src" open><summary>Mermaid source</summary>${codeBlockHtml('mermaid', code)}</details></figure>`;
+
 export function renderBlogMarkdown(md, blogId) {
   if (!md) return '';
 
@@ -302,7 +308,11 @@ export function renderBlogMarkdown(md, blogId) {
 
   let src = String(md).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').replace(/\u0000/g, '');
   src = src.replace(/^```([^\n]*)\n([\s\S]*?)^```[ \t]*$/gm,
-    (_, info, code) => `\n${keep(codeBlockHtml(info, code.replace(/\n$/, '')))}\n`);
+    (_, info, code) => {
+      const body = code.replace(/\n$/, '');
+      const lang = (info || '').trim().split(/\s+/)[0].toLowerCase();
+      return `\n${keep(lang === 'mermaid' ? diagramHtml(body) : codeBlockHtml(info, body))}\n`;
+    });
 
   return restore(parseBlocks(src.split('\n')).join('\n'));
 }

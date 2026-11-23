@@ -1,6 +1,6 @@
 /* heatmap/fetchers.js — data fetchers for GitHub / Codeforces / LeetCode / AtCoder. */
 
-import { toISO } from './helpers.js';
+import { toISO, toUTCISO } from './helpers.js';
 
 /* ── DATA FETCHERS ───────────────────────────────────────────── */
 
@@ -65,7 +65,7 @@ export async function fetchLeetCode(username) {
     if (!raw) throw new Error('empty response');
     const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
     for (const [ts, count] of Object.entries(cal)) {
-      const date = toISO(new Date(Number(ts) * 1000));
+        const date = toUTCISO(new Date(Number(ts) * 1000));
       map[date] = (map[date] || 0) + count;
     }
   } catch (e) {

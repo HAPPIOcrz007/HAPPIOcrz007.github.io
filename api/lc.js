@@ -53,6 +53,6 @@ module.exports = withLog('lc', async (req, res) => {
     }
   }
 
-  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3600');
+  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
   return res.status(200).json({ submissionCalendar: raw });
 });

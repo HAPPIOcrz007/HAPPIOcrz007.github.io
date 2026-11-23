@@ -64,37 +64,21 @@ export async function fetchCodeforces(handle) {
 export async function fetchLeetCode(username) {
   if (!username) return {};
   const map = {};
-
-  // leetcode.com/graphql blocks CORS from browsers.
-  // alfa-leetcode-api is a free public CORS proxy that mirrors the same data.
-  // Endpoint is path-param style: /:username/calendar?year=YYYY
-  // (the old ?username=&year= query-string route is retired and 404s).
-  const url = `https://alfa-leetcode-api.onrender.com/${encodeURIComponent(username)}/calendar?year=${new Date().getFullYear()}`;
-
-  // The free Render instance sleeps when idle and can take 20-50s to cold-start
-  // on the first request. One retry with a longer timeout covers that case
-  // instead of giving up after a single 12s attempt.
-  const attempts = [12000, 25000];
-
-  for (let i = 0; i < attempts.length; i++) {
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(attempts[i]) });
-      if (!r.ok) throw new Error(r.status);
-      const json = await r.json();
-      // Response: { submissionCalendar: '{"timestamp": count, ...}' }
-      const raw = json?.submissionCalendar;
-      if (!raw) throw new Error('empty response');
-      const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      for (const [ts, count] of Object.entries(cal)) {
-        const date = toISO(new Date(Number(ts) * 1000));
-        map[date] = (map[date] || 0) + count;
-      }
-      return map; // success
-    } catch (e) {
-      console.warn(`[heatmap] LeetCode fetch attempt ${i + 1} failed:`, e.message);
+  try {
+    const r = await fetch('/api/lc', { signal: AbortSignal.timeout(15000) });
+    if (!r.ok) throw new Error(r.status);
+    const json = await r.json();
+    const raw = json?.submissionCalendar;
+    if (!raw) throw new Error('empty response');
+    const cal = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    for (const [ts, count] of Object.entries(cal)) {
+      const date = toISO(new Date(Number(ts) * 1000));
+      map[date] = (map[date] || 0) + count;
     }
+  } catch (e) {
+    console.warn('[heatmap] LeetCode fetch failed:', e.message);
   }
-  return map; // both attempts failed — heatmap still renders other platforms
+  return map;
 }
 
 /**

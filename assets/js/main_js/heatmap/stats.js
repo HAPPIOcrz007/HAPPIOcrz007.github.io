@@ -38,6 +38,7 @@ export function computeStats(data) {
   let cfTotal = 0;
   let lcTotal = 0;
   let acTotal = 0;
+  let ccTotal = 0;
 
   // Walk every day in range in order
   const start = new Date(cutoff);
@@ -52,6 +53,7 @@ export function computeStats(data) {
       cfTotal += day.cf;
       lcTotal += day.lc;
       acTotal += day.ac;
+      ccTotal += day.cc;
       activeDays++;
 
       if (lastDate && daysBetween(lastDate, d) === 1) {
@@ -74,7 +76,6 @@ export function computeStats(data) {
     if (data[iso]?.total > 0) streak++;
     else break;
   }
-
   return { total, longest, streak, activeDays, githubTotal, cfTotal, lcTotal, acTotal, ccTotal };
 }
 

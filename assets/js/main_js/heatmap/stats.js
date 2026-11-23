@@ -89,3 +89,13 @@ export function countToLevel(count, max) {
   if (pct < 0.65) return 3;
   return 4;
 }
+
+/** Scale ceiling = 95th percentile of active days, so a few huge days don't flatten the colours */
+export function scaleMax(data, pct = 0.95) {
+  const vals = Object.values(data)
+    .map((d) => d.total)
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b);
+  if (!vals.length) return 1;
+  return Math.max(1, vals[Math.min(vals.length - 1, Math.floor(vals.length * pct))]);
+}

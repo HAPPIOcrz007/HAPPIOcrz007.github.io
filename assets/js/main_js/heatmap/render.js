@@ -3,7 +3,7 @@
 import { CELL_GAP, CELL_SIZE, CELL_STEP, WEEKS_TO_SHOW, getLevels } from './config.js';
 import { addDays, toISO, weekStart } from './helpers.js';
 import { attachBadgeFilter, attachTooltip } from './interactions.js';
-import { countToLevel } from './stats.js';
+import { countToLevel, scaleMax } from './stats.js';
 
 /* ── RENDER ──────────────────────────────────────────────────── */
 export function render(root, data, stats, usernames) {
@@ -27,7 +27,7 @@ export function render(root, data, stats, usernames) {
   }
 
   // Max count for level scaling
-  const maxCount = Math.max(1, ...Object.values(data).map(d => d.total));
+  const maxCount = scaleMax(data);
 
   // SVG dimensions
   const svgW = WEEKS_TO_SHOW * CELL_STEP - CELL_GAP + 32; // +32 for day labels

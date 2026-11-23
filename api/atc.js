@@ -19,7 +19,7 @@ module.exports = withLog('atc', async (req, res) => {
       .filter((s) => s.result === 'AC')
       .map((s) => s.epoch_second);
 
-    res.setHeader('Cache-Control', 's-maxage=1800, stale-while-revalidate=7200');
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).json({ times });
   } catch (e) {
     return res.status(502).json({ error: 'AtCoder fetch failed' });

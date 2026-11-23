@@ -1,4 +1,6 @@
-module.exports = async (req, res) => {
+const { withLog } = require('./_lib/log');
+
+module.exports = withLog('cf', async (req, res) => {
   const handle = process.env.CF_HANDLE;
   if (!handle) {
     return res.status(500).json({ error: 'CF_HANDLE not set' });
@@ -33,4 +35,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(502).json({ error: 'fetch failed' });
   }
-};
+});

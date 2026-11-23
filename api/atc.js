@@ -1,4 +1,6 @@
-module.exports = async (req, res) => {
+const { withLog } = require('./_lib/log');
+
+module.exports = withLog('atc', async (req, res) => {
   const username = process.env.ATC_USERNAME;
   if (!username) {
     return res.status(500).json({ error: 'ATC_USERNAME not set' });
@@ -22,4 +24,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(502).json({ error: 'AtCoder fetch failed' });
   }
-};
+});

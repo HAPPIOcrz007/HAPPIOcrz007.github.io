@@ -62,7 +62,7 @@
          · headings render in --text (heavy) so they don't collide
            with link-green; see .blog-body styles in styles.css
    ============================================================ */
-
+fetch(`/api/hit?p=${encodeURIComponent(location.pathname + location.hash)}`, { keepalive: true }).catch(() => {});
 import { renderAchievements } from './main_js/achievements.js';
 import { renderBlogs } from './main_js/blog/list.js';
 import { blogReader } from './main_js/blog/reader.js';

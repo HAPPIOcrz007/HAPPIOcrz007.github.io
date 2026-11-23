@@ -1,3 +1,5 @@
+const { withLog } = require('./_lib/log');
+
 const QUERY = `
   query($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
@@ -45,7 +47,7 @@ async function viaProxy(login) {
   return (json.contributions || []).map((c) => ({ date: c.date, count: c.count }));
 }
 
-module.exports = async (req, res) => {
+module.exports = withLog('gh', async (req, res) => {
   const login = process.env.GH_USERNAME;
   if (!login) {
     return res.status(500).json({ error: 'GH_USERNAME not set' });
@@ -66,4 +68,4 @@ module.exports = async (req, res) => {
 
   res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
   return res.status(200).json({ days: days.filter((d) => d.count > 0) });
-};
+});

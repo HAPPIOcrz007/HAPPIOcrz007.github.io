@@ -1,4 +1,6 @@
-module.exports = async (req, res) => {
+const { withLog } = require('./_lib/log');
+
+module.exports = withLog('cc', async (req, res) => {
   const username = process.env.CC_USERNAME;
   if (!username) {
     return res.status(500).json({ error: 'CC_USERNAME not set' });
@@ -33,4 +35,4 @@ module.exports = async (req, res) => {
   } catch (e) {
     return res.status(502).json({ error: 'CodeChef fetch failed' });
   }
-};
+});

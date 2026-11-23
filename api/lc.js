@@ -1,3 +1,5 @@
+const { withLog } = require('./_lib/log');
+
 const QUERY = `
   query($username: String!, $year: Int) {
     matchedUser(username: $username) {
@@ -33,7 +35,7 @@ async function viaProxy(username, year) {
   return json.submissionCalendar;
 }
 
-module.exports = async (req, res) => {
+module.exports = withLog('lc', async (req, res) => {
   const username = process.env.LC_USERNAME;
   if (!username) {
     return res.status(500).json({ error: 'LC_USERNAME not set' });
@@ -53,4 +55,4 @@ module.exports = async (req, res) => {
 
   res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=3600');
   return res.status(200).json({ submissionCalendar: raw });
-};
+});

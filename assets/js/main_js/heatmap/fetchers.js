@@ -41,24 +41,14 @@ export async function fetchCodeforces(handle) {
   const map = {};
   let rating = 0;
   try {
-    // Get user info for rating
-    const userUrl = `https://codeforces.com/api/user.info?handles=${handle}`;
-    const userRes = await fetch(userUrl, { signal: AbortSignal.timeout(5000) });
-    if (userRes.ok) {
-      const userJson = await userRes.json();
-      if (userJson.status === 'OK' && userJson.result.length > 0) {
-        rating = userJson.result[0].rating || 0;
-      }
-    }
-
-    // Get submissions
-    const url = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const r = await fetch(`/api/cf?handle=${encodeURIComponent(handle)}`, {
+      signal: AbortSignal.timeout(10000),
+    });
     if (!r.ok) throw new Error(r.status);
     const json = await r.json();
-    if (json.status !== 'OK') throw new Error(json.comment);
-    for (const sub of json.result) {
-      const date = toISO(new Date(sub.creationTimeSeconds * 1000));
+    rating = json.rating || 0;
+    for (const t of json.times) {
+      const date = toISO(new Date(t * 1000));
       map[date] = (map[date] || 0) + 1;
     }
   } catch (e) {

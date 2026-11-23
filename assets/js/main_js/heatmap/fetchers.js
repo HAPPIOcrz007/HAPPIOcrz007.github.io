@@ -13,18 +13,11 @@ export async function fetchGitHub(username) {
   if (!username) return {};
   const map = {};
   try {
-    // GitHub's contributions calendar is only exposed via HTML scraping
-    // or the GraphQL API (needs token).  We use the public
-    // contributions-collection via the v4 API without a token by
-    // hitting the public JSON that the contribution graph uses.
-    // As a reliable no-token alternative we use ghchart.rshah.org.
-    const url = `https://github-contributions-api.jogruber.de/v4/${username}?y=last`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const r = await fetch('/api/gh', { signal: AbortSignal.timeout(10000) });
     if (!r.ok) throw new Error(r.status);
-    const json = await r.json();
-    // Response: { contributions: [{date:'YYYY-MM-DD', count:N}, ...] }
-    for (const { date, count } of (json.contributions || [])) {
-      if (count > 0) map[date] = (map[date] || 0) + count;
+    const { days } = await r.json();
+    for (const { date, count } of days) {
+      map[date] = (map[date] || 0) + count;
     }
   } catch (e) {
     console.warn('[heatmap] GitHub fetch failed:', e.message);
@@ -89,17 +82,31 @@ export async function fetchAtCoder(username) {
   if (!username) return {};
   const map = {};
   try {
-    const url = `https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${username}&from_second=0`;
-    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const r = await fetch('/api/atc', { signal: AbortSignal.timeout(12000) });
     if (!r.ok) throw new Error(r.status);
-    const json = await r.json();
-    for (const sub of json) {
-      if (sub.result !== 'AC') continue;
-      const date = toISO(new Date(sub.epoch_second * 1000));
+    const { times } = await r.json();
+    for (const t of times) {
+      const date = toISO(new Date(t * 1000));
       map[date] = (map[date] || 0) + 1;
     }
   } catch (e) {
     console.warn('[heatmap] AtCoder fetch failed:', e.message);
+  }
+  return map;
+}
+
+export async function fetchCodeChef(username) {
+  if (!username) return {};
+  const map = {};
+  try {
+    const r = await fetch('/api/cc', { signal: AbortSignal.timeout(12000) });
+    if (!r.ok) throw new Error(r.status);
+    const { days } = await r.json();
+    for (const { date, count } of days) {
+      if (count > 0) map[date] = (map[date] || 0) + count;
+    }
+  } catch (e) {
+    console.warn('[heatmap] CodeChef fetch failed:', e.message);
   }
   return map;
 }

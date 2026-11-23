@@ -6,11 +6,11 @@ import { addDays, daysBetween, toISO } from './helpers.js';
 /**
  * Merge per-platform maps into { date → { total, gh, cf, lc, ac } }
  */
-export function merge(gh, cf, lc, ac) {
+export function merge(gh, cf, lc, ac, cc = {}) {
   const all = {};
   const add = (src, key) => {
     for (const [d, n] of Object.entries(src)) {
-      if (!all[d]) all[d] = { total: 0, gh: 0, cf: 0, lc: 0, ac: 0 };
+      if (!all[d]) all[d] = { total: 0, gh: 0, cf: 0, lc: 0, ac: 0, cc: 0 };
       all[d][key] += n;
       all[d].total += n;
     }
@@ -19,6 +19,7 @@ export function merge(gh, cf, lc, ac) {
   add(cf, 'cf');
   add(lc, 'lc');
   add(ac, 'ac');
+  add(cc, 'cc');
   return all;
 }
 
@@ -74,7 +75,7 @@ export function computeStats(data) {
     else break;
   }
 
-  return { total, longest, streak, activeDays, githubTotal, cfTotal, lcTotal, acTotal };
+  return { total, longest, streak, activeDays, githubTotal, cfTotal, lcTotal, acTotal, ccTotal };
 }
 
 /* ── LEVEL MAPPING ───────────────────────────────────────────── */

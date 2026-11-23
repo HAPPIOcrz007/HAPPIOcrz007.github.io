@@ -110,6 +110,8 @@ export function injectStyles() {
       .ahm-badge[data-platform="lc"].ahm-badge--active { border-color: var(--brand-leetcode); border-width: 3px; color: var(--text); font-weight: 800;}
       .ahm-badge[data-platform="ac"]:hover,
       .ahm-badge[data-platform="ac"].ahm-badge--active { border-color: var(--brand-atcoder); border-width: 3px; color: var(--text); font-weight: 800;}
+      .ahm-badge[data-platform="cc"]:hover,
+      .ahm-badge[data-platform="cc"].ahm-badge--active { border-color: var(--brand-codechef, #8a6a4f); border-width: 3px; color: var(--text); font-weight: 800;}
 
       .ahm-badge--active {
         background: var(--tint-hover);

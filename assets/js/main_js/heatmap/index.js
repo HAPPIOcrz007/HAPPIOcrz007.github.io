@@ -3,7 +3,7 @@
    data-* attributes on #activityHeatmap. Called from main.js: initHeatmap(). */
 
 import { OVERRIDE } from './config.js';
-import { fetchAtCoder, fetchCodeforces, fetchGitHub, fetchLeetCode } from './fetchers.js';
+import { fetchAtCoder, fetchCodeChef, fetchCodeforces, fetchGitHub, fetchLeetCode } from './fetchers.js';
 import { render, renderError, renderLoading } from './render.js';
 import { computeStats, merge } from './stats.js';
 import { injectStyles } from './styles.js';
@@ -26,6 +26,7 @@ async function init() {
     codeforces: OVERRIDE.codeforces ?? root.dataset.codeforces ?? '',
     leetcode: OVERRIDE.leetcode ?? root.dataset.leetcode ?? '',
     atcoder: OVERRIDE.atcoder ?? root.dataset.atcoder ?? '',
+    codechef: OVERRIDE.codechef ?? root.dataset.codechef ?? '',
   };
   _cachedUsernames = usernames;
 
@@ -33,18 +34,19 @@ async function init() {
   renderLoading(root);
 
   try {
-    const [gh, cf, lc, ac] = await Promise.all([
+    const [gh, cf, lc, ac, cc] = await Promise.all([
       fetchGitHub(usernames.github),
       fetchCodeforces(usernames.codeforces),
       fetchLeetCode(usernames.leetcode),
       fetchAtCoder(usernames.atcoder),
+      fetchCodeChef(usernames.codechef),
     ]);
 
     // Extract submissions and rating from CF response
     const cfSubmissions = cf.submissions || {};
     _cachedCfRating = cf.rating || 0;
 
-    _cachedMerged = merge(gh, cfSubmissions, lc, ac);
+    _cachedMerged = merge(gh, cfSubmissions, lc, ac, cc);
     _cachedStats = computeStats(_cachedMerged);
 
     // Add CF rating to stats

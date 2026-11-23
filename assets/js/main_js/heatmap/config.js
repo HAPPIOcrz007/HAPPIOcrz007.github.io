@@ -10,6 +10,7 @@ export const OVERRIDE = {
   codeforces: null,
   leetcode: null,
   atcoder: null,   // leave null/empty to skip
+  codechef: null,
 };
 
 export const WEEKS_TO_SHOW = 53;  // ~1 year

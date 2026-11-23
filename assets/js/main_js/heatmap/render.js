@@ -85,6 +85,7 @@ export function render(root, data, stats, usernames) {
             ${usernames.codeforces ? `<span class="ahm-badge" data-platform="cf">● CF <em>${stats.cfTotal.toLocaleString()}</em></span>` : ''}
             ${usernames.leetcode ? `<span class="ahm-badge" data-platform="lc">◆ LC <em>${stats.lcTotal.toLocaleString()}</em></span>` : ''}
             ${usernames.atcoder ? `<span class="ahm-badge" data-platform="ac">▲ AC <em>${stats.acTotal.toLocaleString()}</em></span>` : ''}
+            ${usernames.codechef ? `<span class="ahm-badge" data-platform="cc">◉ CC <em>${stats.ccTotal.toLocaleString()}</em></span>` : ''}
           </div>
         </div>
 
@@ -132,6 +133,7 @@ export function render(root, data, stats, usernames) {
           d?.cf ? `Codeforces: ${d.cf}` : '',
           d?.lc ? `LeetCode: ${d.lc}` : '',
           d?.ac ? `AtCoder: ${d.ac}` : '',
+          d?.cc ? `CodeChef: ${d.cc}` : '',
         ].filter(Boolean).join('|');
 
       return `<rect
@@ -146,6 +148,7 @@ export function render(root, data, stats, usernames) {
                   data-cf="${d?.cf || 0}"
                   data-lc="${d?.lc || 0}"
                   data-ac="${d?.ac || 0}"
+                  data-cc="${d?.cc || 0}"
                   data-tip="${tip}"
                 />`;
     }).join('')

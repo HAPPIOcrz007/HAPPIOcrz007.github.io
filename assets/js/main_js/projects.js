@@ -36,6 +36,7 @@ export function renderProjects(projects) {
   attachCardEvents(root, '.project-card', (card) => async () => {
     const p = projectMap.get(card.dataset.id);
     if (!p) return;
+    window.track?.('project_open', stripMarkdown(p.title));
     const md = await fetchText(`content/projects/${p.id}/index.md`);
     const images = p.images?.length ? p.images : [`content/projects/${p.id}/images/01.png`];
     modal.open(p.title, images, renderMarkdown(md || ''));

@@ -31,6 +31,8 @@ function withLog(name, handler) {
         country: req.headers['x-vercel-ip-country'] || null,
         city: safeDecode(req.headers['x-vercel-ip-city'] || '') || null,
         page: req.query && req.query.p ? String(req.query.p).slice(0, 200) : undefined,
+        ev: req.query && req.query.ev ? String(req.query.ev).slice(0, 40) : undefined,
+        name: req.query && req.query.n ? String(req.query.n).slice(0, 120) : undefined,
         ref: req.headers.referer || null,
         ua: req.headers['user-agent'] || null,
       }));

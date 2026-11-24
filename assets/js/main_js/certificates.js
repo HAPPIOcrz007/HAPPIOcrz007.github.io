@@ -1,7 +1,7 @@
 /* certificates.js — certificate cards + modal opening (data/certificates.js). */
 
 import { attachCardEvents } from './cards.js';
-import { renderInlineMarkdown, renderMarkdown } from './markdown.js';
+import { renderInlineMarkdown, renderMarkdown, stripMarkdown } from './markdown.js';
 import { modal } from './modal.js';
 import { $, escapeHtml, fetchText } from './utils.js';
 
@@ -23,6 +23,7 @@ export function renderCertificates(certs) {
   attachCardEvents(root, '.cert-card', (card) => async () => {
     const c = certMap.get(card.dataset.id);
     if (!c) return;
+    window.track?.('cert_open', stripMarkdown(c.title));
     const md = await fetchText(`content/certificates/${c.id}/index.md`);
     const img = `content/certificates/${c.id}/01.png`;
     modal.open(c.title, [img], renderMarkdown(md || c.description || ''));

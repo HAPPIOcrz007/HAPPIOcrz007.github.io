@@ -81,6 +81,8 @@ export const blogReader = {
 
     const post = blog || { id, title: `Post ${id}` };
     this.currentId = String(id);
+    window.track?.('blog_open', `${id}: ${stripMarkdown(post.title)}`);
+    
 
     this.title.innerHTML = renderInlineMarkdown(post.title);
     document.title = `${stripMarkdown(post.title)} | ${window.DATA_SITE?.name || 'Blog'}`;

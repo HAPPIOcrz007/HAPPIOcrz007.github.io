@@ -8,6 +8,7 @@
      <id>.png         cover image (card thumbnail + reader header)
      <id>_<n>.png     images used inside the post
      <id>_<n>.pdf     PDF attachments used inside the post
+     <id>_<n>V.mp4    video used inside the post (.webm also works); keep each ≤ 4.5 MB
    Post metadata (title, date, blurb, tags, wide) lives in
    data/blogs.js.
 
@@ -20,6 +21,13 @@
 
    List types (a/A/i/I/1) and nesting depth are both inferred from
    the markdown itself; no extra syntax needed.
+
+   Videos (own line, like images):
+     · local file:   ![alt](2_1V.mp4)   or the short form  ![alt](vid:1)  (vid:1.webm for webm)
+                     options: {poster=img:3,width=70%,float=right}
+     · Google Drive: ![alt][V](https://drive.google.com/file/d/<id>/view)
+                     shown in a light-blue frame with a "Google Drive" badge, so readers can
+                     tell it is hosted elsewhere. The file must be shared "Anyone with the link".
 
    Side-by-side text/image (Wikipedia-style) can be written two ways:
      · Single floated image: ![alt](img:1){float=left}

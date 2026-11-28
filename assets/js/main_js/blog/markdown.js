@@ -30,6 +30,8 @@ export function renderBlogMarkdown(md, blogId) {
     if (short) return `${BLOG_DIR}${blogId}_${short[1]}.png`;
     const pdfShort = /^pdf:(\d+)$/i.exec(u);
     if (pdfShort) return `${BLOG_DIR}${blogId}_${pdfShort[1]}.pdf`;
+    const vidShort = /^vid:(\d+)(?:\.(mp4|webm))?$/i.exec(u);
+    if (vidShort) return `${BLOG_DIR}${blogId}_${vidShort[1]}V.${(vidShort[2] || 'mp4').toLowerCase()}`;
     if (/^(https?:)?\/\//i.test(u) || /^(content|assets)\//.test(u) || u.startsWith('/')) return u;
     return BLOG_DIR + u.replace(/^\.\//, '');
   };
@@ -60,6 +62,19 @@ export function renderBlogMarkdown(md, blogId) {
   const imgTag = (alt, src, cls, styleAttr = '') =>
     `<img class="${cls}" src="${resolveSrc(src)}" alt="${alt}" loading="lazy"${styleAttr} />`;
   const isPdf = (src) => /\.pdf(?:[?#].*)?$/i.test(resolveSrc(src));
+  const isVideo = (src) => /\.(?:mp4|webm)(?:[?#].*)?$/i.test(resolveSrc(src));
+  // Google Drive: /file/d/<id>/view, /file/u/0/d/<id>/view, open?id=<id>, uc?id=<id>, or a bare file id.
+  // Only the extracted id ever reaches the iframe src, so a link to any other site can't be embedded.
+  const driveId = (raw) => {
+    const u = raw.trim();
+    if (/^[\w-]{20,}$/.test(u)) return u;
+    let url;
+    try { url = new URL(u); } catch { return null; }
+    if (url.protocol !== 'https:' || url.hostname !== 'drive.google.com') return null;
+    const m = /\/file\/(?:u\/\d+\/)?d\/([\w-]+)/.exec(url.pathname);
+    const id = m ? m[1] : url.searchParams.get('id');
+    return id && /^[\w-]+$/.test(id) ? id : null;
+  };
   const pdfFigure = (altHtml, altPlain, src, attrs = {}) => {
     const url = resolveSrc(src);
     const page = /^\d+$/.test(attrs.page || '') ? parseInt(attrs.page, 10) : 1;
@@ -73,6 +88,23 @@ export function renderBlogMarkdown(md, blogId) {
       `${page > 1 ? ` page ${page} of` : ''} the full PDF ↗</span></a>` +
       `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
   };
+  const videoFigure = (altHtml, altPlain, src, attrs = {}) => {
+    const url = resolveSrc(src);
+    const poster = attrs.poster && !unsafeUrl(attrs.poster)
+      ? ` poster="${escapeHtml(resolveSrc(attrs.poster))}"` : '';
+    return `<figure class="blog-video blog-video--local blog-figure">` +
+      `<video class="blog-video-el" controls playsinline preload="metadata"${poster}${sizeStyle(attrs)} ` +
+      `aria-label="${altPlain || 'Video'}" src="${url}#t=0.1"></video>` +
+      `${altHtml ? `<figcaption>${altHtml}</figcaption>` : ''}</figure>`;
+  };
+
+  const driveFigure = (altHtml, altPlain, id) =>
+    `<figure class="blog-video blog-video--drive blog-figure">` +
+    `<div class="blog-video-frame"><iframe src="https://drive.google.com/file/d/${id}/preview" ` +
+    `title="${altPlain ? 'Video: ' + altPlain : 'Video hosted on Google Drive'}" loading="lazy" allowfullscreen></iframe></div>` +
+    `<figcaption>${altHtml ? `<span>${altHtml}</span>` : ''}` +
+    `<a class="blog-video-badge" href="https://drive.google.com/file/d/${id}/view" ` +
+    `target="_blank" rel="noopener noreferrer">☁ Google Drive ↗</a></figcaption></figure>`;
 
   /* ── embeds: clickable link card, NOT an iframe ──
      {embed=true} on an image-style line now renders a preview card the reader
@@ -109,6 +141,7 @@ export function renderBlogMarkdown(md, blogId) {
             `<span class="blog-embed-title">${alt || escapeHtml(resolveSrc(src))}</span></a>`);
         }
         if (isPdf(src)) return keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">📄 ${alt || 'PDF'}</a>`);
+        if (isVideo(src)) return keep(`<a href="${resolveSrc(src)}" target="_blank" rel="noopener noreferrer">🎬 ${alt || 'Video'}</a>`);
         return keep(imgTag(alt, src, 'blog-inline-img', sizeStyle(attrs)));
       });
     h = h.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, url) => {
@@ -128,6 +161,7 @@ export function renderBlogMarkdown(md, blogId) {
   const isQuote = (l) => /^\s*>/.test(l);
   const isFence = (l) => /^\u0000\d+\u0000$/.test(l.trim());
   const imgLineRe = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?\s*$/;
+  const driveLineRe = /^\s*!\[([^\]]*)\]\[V\]\(([^)\s]+)\)(?:\{([^}]*)\})?\s*$/i;
   const isTableSep = (l) => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l) && l.includes('-');
   const cells = (l) => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim());
 
@@ -199,7 +233,7 @@ export function renderBlogMarkdown(md, blogId) {
 
   const startsBlock = (l, next) =>
     isHeading(l) || isRule(l) || isQuote(l) || LIST_MARKER.test(l) || isFence(l) ||
-    imgLineRe.test(l) || /^\s*:::/.test(l) ||
+    imgLineRe.test(l) || driveLineRe.test(l) || /^\s*:::/.test(l) ||
     (l.includes('|') && next !== undefined && isTableSep(next));
 
   /* ── Wiki-style side-by-side container ──
@@ -246,6 +280,19 @@ export function renderBlogMarkdown(md, blogId) {
         i++; continue;
       }
 
+      m = driveLineRe.exec(line);
+      if (m) {
+        const attrs = parseAttrs(m[3]);
+        const id = driveId(m[2]);
+        const figure = id
+          ? driveFigure(m[1] ? inline(m[1]) : '', escapeHtml(stripMarkdown(m[1])), id)
+          : `<p class="blog-video-error">Video link not recognized: use a drive.google.com share link.</p>`;
+        const side = (attrs.float || '').toLowerCase();
+        out.push(side === 'left' || side === 'right'
+          ? `<div class="blog-float blog-float--${side}">${figure}</div>` : figure);
+        i++; continue;
+      }
+
       m = imgLineRe.exec(line);
       if (m) {
         const alt = m[1];
@@ -258,6 +305,11 @@ export function renderBlogMarkdown(md, blogId) {
         if (unsafeUrl(m[2])) out.push('');
         else if (attrs.embed === 'true') out.push(embedCard(captionHtml, captionPlain, srcEsc));
         else if (isPdf(srcEsc)) out.push(pdfFigure(captionHtml, captionPlain, srcEsc, attrs));
+        else if (isVideo(srcEsc)) {
+          const figure = videoFigure(captionHtml, captionPlain, srcEsc, attrs);
+          out.push(floatSide === 'left' || floatSide === 'right'
+            ? `<div class="blog-float blog-float--${floatSide}">${figure}</div>` : figure);
+        }
         else {
           const figure = `<figure class="blog-figure">${imgTag(escapeHtml(alt), srcEsc, 'blog-img', sizeStyle(attrs))}` +
             `${captionHtml ? `<figcaption>${captionHtml}</figcaption>` : ''}</figure>`;

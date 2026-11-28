@@ -212,13 +212,13 @@
 /* ── Blog in-body links use .md-link so they always read as links,
    even when they sit inside a heading or a table cell. ── */
 .blog-body a.md-link,
-.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy) {
+.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy):not(.blog-video-badge) {
   color: var(--green);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .blog-body a.md-link:hover,
-.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy):hover {
+.blog-body a:not(.blog-pdf-link):not(.blog-embed):not(.blog-code-copy):not(.blog-video-badge):hover {
   color: var(--green-hover);
 }
 
@@ -387,9 +387,62 @@
   border-radius: var(--radius);
 }
 
+/* ── Videos ──
+   Local:  ![alt](2_1V.mp4)            → <video> player
+   Drive:  ![alt][V](drive link)       → iframe in a light-blue frame, so readers can tell
+                                          it is hosted elsewhere
+   Colors come from tokens: --drive-blue and --video-bg (tokens/colors.css, both themes). */
+.blog-video-el {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--video-bg);
+}
+
+.blog-video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--drive-blue) 70%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--drive-blue) 20%, transparent),
+    0 0 18px color-mix(in srgb, var(--drive-blue) 16%, transparent);
+  background: var(--bg3);
+}
+.blog-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.blog-video-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--drive-blue);
+  border: 1px solid color-mix(in srgb, var(--drive-blue) 55%, transparent);
+  border-radius: var(--radius-full);
+}
+.blog-video-badge:first-child { margin-left: 0; }
+.blog-video-badge:hover { background: color-mix(in srgb, var(--drive-blue) 14%, transparent); }
+
+.blog-video-error { color: var(--danger); font-family: var(--font-mono); font-size: 0.8rem; }
+
+/* inside a float, the player fills the float box */
+.blog-float .blog-video-el { width: 100%; }
+
 @media (prefers-reduced-motion: reduce) {
   .blog-reader { animation: none; }
   .blog-embed  { transition: none; }
 }
-
-

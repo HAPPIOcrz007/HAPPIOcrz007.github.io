@@ -1,6 +1,6 @@
 # Portfolio site — design system & theming guide
 
-Static site (HTML + CSS + ES modules), hosted on Vercel. No build step.
+Static site (HTML + CSS + ES modules) plus a few Vercel serverless functions in `api/` (heatmap data, request logging, status line). Hosted on Vercel. No build step.
 The look is a "terminal app" theme: warm off-white / near-black surfaces, an
 indigo accent, monospace UI chrome, large rounded cards, floating nav bar.
 
@@ -29,6 +29,8 @@ assets/js/main_js/
   heatmap/config.js           heatmap levels  ← from --heat-0..4
   theme.js                    theme toggle; status-bar color ← from --bg
 tools/…                       tool pages link ../assets/css/styles_css/02-variables.css
+api/                          serverless functions: cf lc atc cc gh (heatmap data) · hit (page-view/event logger) · status (terminal line) · _lib/log.js (shared logger)
+assets/js/site-core.js        page-view + event beacon (window.track), loaded by every HTML page (was beacon.js; renamed so ad-block lists skip it)
 ```
 
 **Rule of thumb:** component CSS never contains a hex color, a pixel radius or a
@@ -47,6 +49,7 @@ z-index number. It uses `var(--…)`. If you need a new value, add a token first
 | Heatmap cell colors                                       | `--heat-0 … --heat-4`                        | `tokens/colors.css` (JS reads them)                                                                         |
 | Pie-chart colors                                          | `--chart-1 … --chart-9`                      | `tokens/colors.css`                                                                                         |
 | Blog code highlighting                                    | `--hl-*`                                     | `tokens/colors.css`                                                                                         |
+| Google Drive video frame color / video background          | `--drive-blue`, `--video-bg`                 | `tokens/colors.css` (both themes)                                                                           |
 | How round everything is                                   | `--radius-xs/sm/` `--radius` `--radius-lg`   | `tokens/shape.css`                                                                                          |
 | Fonts                                                     | `--font-body`, `--font-mono`, `--font-ui`    | `tokens/type.css` (set `--font-ui: var(--font-body)` to drop the monospace look)                            |
 | Animation speed                                           | `--dur-*`                                    | `tokens/motion.css` (set to `0s` to disable)                                                                |
@@ -65,6 +68,7 @@ z-index number. It uses `var(--…)`. If you need a new value, add a token first
 * **Overlays:** `--overlay` modal · `--overlay-strong` lightbox · `--scrim` carousel buttons · `--tint-hover`, `--hairline` subtle fills/lines
 * **Brand (meaning-bearing, do not retheme):** `--brand-github --brand-codeforces --brand-leetcode --brand-atcoder`
 * **Difficulty:** `--easy --medium --hard`
+* **Blog video:** `--drive-blue` light-blue hint around Google-Drive-hosted videos (so readers can tell they are hosted elsewhere) · `--video-bg` letterbox behind local `<video>`
 * **Print:** `--print-bg --print-fg --print-border` (print is always light)
 * **Radii:** `--radius-xs 4px` · `-sm 8px` · `--radius 14px` · `-lg 22px` · `-full` pills · `-circle` 50%
 * **Motion:** `--ease*`, `--dur-instant .15s` · `-fast .2s` · `-base .25s` · `-theme .3s` · `-slow .45s` · `-reveal-sm .5s` · `-reveal .7s`
@@ -176,3 +180,70 @@ New names: add one to the regex and, if needed, the `map` in `tokenColor()` in
 * `cp-daily-log` editor themes (`themes.css`: github-light, dracula, monokai, vscode) keep their own palettes on purpose. Syntax colors use `--hl-*`.
 * **Intentionally raw colors** (brand or meaning, do not tokenize): Codeforces rank colors and LeetCode/CF logo fills in `cp-daily-log_js/platforms.js` and `report.js`, brand colors under `--brand-*`, and multi-theme editor palettes.
 * Print styles use `--print-bg --print-fg --print-border --print-muted` (always light).
+
+
+---
+
+## 11. Blog videos
+
+Written on their own line, like images (parser: `assets/js/main_js/blog/markdown.js`).
+
+| Kind         | Syntax                                         | Notes                                                                                                                                                         |
+| ------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local file   | `![alt](2_1V.mp4)` or `![alt](vid:1)`          | File lives in `content/blogs/` as `<id>_<n>V.mp4` (or `.webm`; `vid:1.webm` picks webm). Native `<video>` player. **Keep each file ≤ 4.5 MB.**                 |
+| Google Drive | `![alt][V](drive link)`                        | `drive.google.com` share link (`/file/d/ID/view`, `open?id=ID`) or a bare file id. Sharing must be *Anyone with the link → Viewer*. Not recognised → inline error. |
+
+* Options use the same `{…}` block as images: `{poster=img:3,width=70%,float=right}` for local videos; Drive embeds only honour `float`.
+* Drive embeds render in a 16:9 box with a **light-blue frame and a "Google Drive ↗" badge** so readers can tell the video is hosted elsewhere. Only the extracted file id ever reaches the iframe `src`.
+* Formats: `.mp4` (H.264) and `.webm`. `.mov` / `.ogv` are deliberately not supported. `#t=0.1` is added to the source so iPhones show a still frame.
+* Closing the reader pauses local videos and unloads Drive players (`blogReader.hide()` in `blog/reader.js`).
+* Never add a `[V]: …` reference line to a post — `![alt][V]` is matched as the Drive syntax before normal markdown.
+* If the site ever gets a Content-Security-Policy, `frame-src` must allow `https://drive.google.com`.
+* Tracking: first play of each local video logs `video_play` (see section 12). Drive iframes are cross-origin, so only the post open is logged.
+* Compress before committing, and check the size cap:
+
+```bash
+ffmpeg -i in.mp4 -vf scale=-2:720 -c:v libx264 -crf 28 -preset slow -movflags +faststart out.mp4
+find content/blogs -name '*V.*' -size +4500k      # lists files over the cap
+```
+
+---
+
+## 12. Serverless API, logging and analytics
+
+**Functions** (`api/*.js`, plain Node, no build). Each handler is wrapped as `withLog('<name>', async (req, res) => { … })` from `api/_lib/log.js`.
+
+| Route         | Does                                                                              | Env vars                                     |
+| ------------- | --------------------------------------------------------------------------------- | -------------------------------------------- |
+| `/api/cf`     | Codeforces rating, rank and submission timestamps                                 | `CF_HANDLE`                                  |
+| `/api/lc`     | LeetCode submission calendar (GraphQL, falls back to the alfa-leetcode proxy)      | `LC_USERNAME`                                |
+| `/api/atc`    | AtCoder accepted-submission timestamps (kenkoooo)                                 | `ATC_USERNAME`                               |
+| `/api/cc`     | CodeChef daily counts, **scraped from the profile page** (may break if CodeChef changes it) | `CC_USERNAME`                      |
+| `/api/gh`     | GitHub contribution days (GraphQL with token, falls back to a public proxy)       | `GH_USERNAME`, `GH_TOKEN` (optional)         |
+| `/api/hit`    | Logs a page view or custom event, returns 204                                     | `LOG_SALT` (optional, hashes the IP)         |
+| `/api/status` | One plain-text line for the terminal: `?s=cf\|cc\|gh\|lc\|atc`, no param = combined | `STATUS_TZ` (optional, default `Asia/Kolkata`) |
+
+* Set env vars in the Vercel dashboard (Project → Settings → Environment Variables) and **redeploy**; they are not read from the repo. For `vercel dev`, use `.env.local` — `.env*` is git-ignored. Never commit tokens.
+* The platform handle is fixed server-side, so the endpoints cannot be used as an open proxy.
+* Every data route sends `Cache-Control: s-maxage=3600, stale-while-revalidate=86400`: a judge is contacted at most about once an hour per Vercel region, and redeploys clear the cache. `x-vercel-cache: HIT/STALE` in `curl -i` confirms it.
+* Recommended: `vercel.json` with `{"regions": ["bom1"]}` so functions run in Mumbai instead of the US default.
+* Terminal line: `curl -s https://<site>/api/status?s=cf` (`.bashrc` caches the last value and refreshes in the background).
+
+**Heatmap** (`assets/js/main_js/heatmap/`): platform keys `gh cf lc ac cc`. Cells use the visitor's **local** date (`toISO`); LeetCode's calendar is UTC-midnight based, so it is read with `toUTCISO`. Colour levels scale to the 95th percentile of active days (`scaleMax` in `stats.js`) so a few huge days (contests, bulk problem sets) do not flatten the colours; counts and tooltips stay exact. To add a platform: fetcher in `fetchers.js`, key in `stats.js` `merge`/`computeStats`, badge + `data-xx` attribute in `render.js`, badge colour in `styles.js`, `data-<name>` on `#activityHeatmap`.
+
+**Logging.** Every API call prints one JSON line to Vercel Runtime Logs: `evt, route, method, status, ms, ip, country, city, page, ev, name, ref, ua`. Search the Logs page for `hit`, `blog_open`, etc. (Cached responses never reach the function, so page views are counted by the beacon, not by heatmap calls.)
+
+**Beacon** (`assets/js/site-core.js`, one `<script defer>` in every HTML page): sends a `view` on load and defines `window.track(event, name)`. Built-in events:
+
+| Event          | Fired from                                   | `name`                  |
+| -------------- | -------------------------------------------- | ----------------------- |
+| `view`         | every page load (exam page: path only)       | page path + hash        |
+| `blog_open`    | `blog/reader.js` → `show()`                  | `<id>: <title>`         |
+| `project_open` | `projects.js` card handler                   | project title           |
+| `cert_open`    | `certificates.js` card handler               | certificate title       |
+| `video_play`   | `blog/reader.js` (first play per video)      | `<id>: <file>`          |
+| `outbound`     | any external link click (automatic)          | host + path, no query   |
+
+Notes: use `window.track?.(…)` so nothing breaks if an ad blocker removes the script (such visits go uncounted — treat numbers as a minimum). Opening `/#post-3` directly logs both a `view` and a `blog_open`; count `blog_open`. Logs are short-lived; for history, store events in a database (not done yet).
+
+**Privacy.** IP addresses are personal data. Set `LOG_SALT` to log a hashed visitor id instead of the raw IP. Do not add the beacon to pages where the URL carries secrets; `exam` is logged by path only.

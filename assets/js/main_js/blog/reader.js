@@ -48,6 +48,13 @@ export const blogReader = {
       clearTimeout(btn._t);
       btn._t = setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1600);
     });
+    // Log the first play of each local video
+    this.body.addEventListener('play', (e) => {
+      const v = e.target;
+      if (!(v instanceof HTMLVideoElement) || v.dataset.played) return;
+      v.dataset.played = '1';
+      window.track?.('video_play', `${this.currentId}: ${(v.getAttribute('src') || '').split('#')[0].split('/').pop()}`);
+    }, true);
 
     // Click any image in a post to view it full size
     const lb = $('#blogLightbox');
@@ -124,6 +131,9 @@ export const blogReader = {
   hide() {
     this._token++;
     if (!this.root || this.root.hidden) return;
+    // hiding the reader doesn't stop media: pause videos and unload Drive players
+    this.body.querySelectorAll('video').forEach(v => v.pause());
+    this.body.querySelectorAll('iframe').forEach(f => { f.src = 'about:blank'; });
     this.root.hidden = true;
     this.currentId = null;
     document.body.style.overflow = '';

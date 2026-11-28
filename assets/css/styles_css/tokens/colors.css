@@ -117,6 +117,9 @@
   --hl-type:    #e5c07b;
   --hl-func:    #61afef;
   --hl-pre:     #c678dd;
+  
+  --drive-blue: #6cb6ff;
+  --video-bg: #000;
 }
 
 /* ================================================================
@@ -178,4 +181,7 @@
   --hl-type:    #8a6d00;
   --hl-func:    #1f6fb2;
   --hl-pre:     #8a3fb0;
+  
+  --drive-blue: #3b8eea;
+  --video-bg: #000;
 }
